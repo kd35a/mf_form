@@ -1,0 +1,89 @@
+@media all
+{
+	[class*="foundicon-"]
+	{
+		font-size: 1.2em;
+	}
+
+	table
+	{
+		border: 1px solid #666;
+		border-radius: 3px;
+		border-spacing: 0;
+		empty-cells: show;
+	}
+
+		th, td
+		{
+			border-right: 1px solid #666;
+			border-bottom: 1px solid #666;
+			padding: 5px 10px 5px 5px;
+			vertical-align: top;
+		}
+
+			tr:last-child th, tr:last-child td
+			{
+				border-bottom: none;
+			}
+
+			th:last-child, td:last-child
+			{
+				border-right: none;
+			}
+
+		th
+		{
+			background: #ddd;
+			text-align: left;
+		}
+
+		td
+		{
+			
+		}
+
+			tr:nth-child(odd) td
+			{
+				background: #eee;
+			}
+
+			td a
+			{
+				border-bottom: 1px solid #ccc;
+				color: #333;
+				text-decoration: none;
+			}
+
+	.alignleft, .alignright
+	{
+		width: 50%;
+	}
+
+	.form_row
+	{
+		margin-right: 20px;
+		position: relative;
+		padding: 5px;
+	}
+
+		.form_row:hover
+		{
+			background: #eee;
+		}
+
+		.form_buttons
+		{
+			display: none;
+		}
+
+			.form_row:hover .form_buttons
+			{
+				display: block;
+				position: absolute;
+				right: 5px;
+				top: 5px;
+			}
+
+		.form_row p, .form_row > .form_checkbox, .form_row .form_radio, .form_row .form_select, .form_row .form_textfield, .form_row .form_textarea
+		{}
+}
