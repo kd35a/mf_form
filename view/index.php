@@ -127,7 +127,7 @@ if(!($intAnswerID > 0))
 
 $strQueryName = $wpdb->get_var("SELECT queryName FROM ".$wpdb->prefix."query WHERE queryID = '".$intQueryID."'");
 
-echo "<link href='".plugins_url()."/mf_form/include/general_foundicons.css' rel='stylesheet'>
+echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css' rel="stylesheet">
 <link href='".plugins_url()."/mf_form/include/style.css' rel='stylesheet'/>
 <link href='".plugins_url()."/mf_form/include/style_wp.css' rel='stylesheet'/>
 <h1>Visa svar fr&aring;n ".$strQueryName."</h1>";

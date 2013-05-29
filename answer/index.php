@@ -31,7 +31,7 @@ if($dteQueryEndDate > "1982-08-04 23:15:00")
 
 $strQueryName = $wpdb->get_var("SELECT queryName FROM ".$wpdb->prefix."query WHERE queryID = '".$intQueryID."'");
 
-echo "<link href='".plugins_url()."/mf_form/include/general_foundicons.css' rel='stylesheet'>
+echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css' rel='stylesheet'>
 <link href='".plugins_url()."/mf_form/include/style.css' rel='stylesheet'/>
 <link href='".plugins_url()."/mf_form/include/style_wp.css' rel='stylesheet'/>
 <h1>Svar i formul&auml;ret ".$strQueryName."</h1>
@@ -170,10 +170,10 @@ echo "<link href='".plugins_url()."/mf_form/include/general_foundicons.css' rel=
 
 				echo "<td>".$strAnswerCreated."</td>
 				<td>
-					<a href='?page=mf_form/view/index.php&intQueryID=".$intQueryID."&intAnswerID=".$intAnswerID."' class='foundicon-edit'></a>
+					<a href='?page=mf_form/view/index.php&intQueryID=".$intQueryID."&intAnswerID=".$intAnswerID."' class='icon-edit'></a>
 				</td>
 				<td>
-					<a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link foundicon-trash'></a>
+					<a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link icon-trash'></a>
 				</td>
 			</tr>";
 		}

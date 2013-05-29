@@ -592,8 +592,8 @@ function show_query_form($data)
 						{
 							$out .= "<div class='form_buttons'>"
 									.show_checkbox(array('name' => $intQuery2TypeID2, 'text' => "Tvinga", 'value' => 1, 'compare' => $intQueryTypeRequired, 'xtra' => " class='ajax_checkbox' rel='require/type/".$intQuery2TypeID2."'"))
-									."<a href='?page=mf_form/create/index.php&intQueryID=".$data['query_id']."&intQuery2TypeID=".$intQuery2TypeID2."' class='foundicon-edit'></a>
-									<a href='#delete/type/".$intQuery2TypeID2."' class='ajax_link confirm_link foundicon-trash'></a>
+									."<a href='?page=mf_form/create/index.php&intQueryID=".$data['query_id']."&intQuery2TypeID=".$intQuery2TypeID2."' class='icon-edit'></a>
+									<a href='#delete/type/".$intQuery2TypeID2."' class='ajax_link confirm_link icon-trash'></a>
 								</div>
 							</div>";
 

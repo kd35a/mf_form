@@ -159,7 +159,7 @@ if($intQuery2TypeID > 0)
 	}
 }
 
-echo "<link href='".plugins_url()."/mf_form/include/general_foundicons.css' rel='stylesheet'>
+echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css' rel='stylesheet'>
 <link href='".plugins_url()."/mf_form/include/style.css' rel='stylesheet'/>
 <link href='".plugins_url()."/mf_form/include/style_wp.css' rel='stylesheet'/>
 <h1>".($intQueryID > 0 ? "Uppdatera ".$strQueryName : "Skapa formul&auml;r")."</h1>";

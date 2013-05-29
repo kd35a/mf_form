@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Formul&auml;r
-Version: 1.2.1
+Version: 1.2.2
 Author: Martin Fors
 Author URI: www.martinfors.se
 */

@@ -48,7 +48,7 @@ if(isset($_GET['btnQueryCopy']))
 	}
 }
 
-echo "<link href='".plugins_url()."/mf_form/include/general_foundicons.css' rel='stylesheet'>
+echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css' rel='stylesheet'>
 <link href='".plugins_url()."/mf_form/include/style.css' rel='stylesheet'/>
 <link href='".plugins_url()."/mf_form/include/style_wp.css' rel='stylesheet'/>
 <h1>Formul&auml;r</h1>
@@ -125,7 +125,7 @@ echo "<link href='".plugins_url()."/mf_form/include/general_foundicons.css' rel=
 							echo " | ";
 						}
 
-						echo "<a href='".$post_edit_url."' class='foundicon-edit'></a> <a href='".$post_url."' class='foundicon-globe'></a>";
+						echo "<a href='".$post_edit_url."' class='icon-edit'></a> <a href='".$post_url."' class='foundicon-globe'></a>";
 
 						$i++;
 					}
@@ -137,18 +137,18 @@ echo "<link href='".plugins_url()."/mf_form/include/general_foundicons.css' rel=
 
 					if($intQueryTotal > 0)
 					{
-						echo "<a href='?page=mf_form/export/index.php&intQueryID=".$intQueryID."' class='foundicon-website'></a>";
+						echo "<a href='?page=mf_form/export/index.php&intQueryID=".$intQueryID."' class='icon-table'></a>";
 					}
 
 				echo "</td>
 				<td>
-					<a href='?page=mf_form/create/index.php&intQueryID=".$intQueryID."' class='foundicon-edit'></a>
+					<a href='?page=mf_form/create/index.php&intQueryID=".$intQueryID."' class='icon-edit'></a>
 				</td>
 				<td>
-					<a href='?page=mf_form/list/index.php&btnQueryCopy&intQueryID=".$intQueryID."' class='foundicon-add-doc'></a>
+					<a href='?page=mf_form/list/index.php&btnQueryCopy&intQueryID=".$intQueryID."' class='icon-copy'></a>
 				</td>
 				<td>
-					<a href='#delete/query/".$intQueryID."' class='ajax_link confirm_link foundicon-trash'></a>
+					<a href='#delete/query/".$intQueryID."' class='ajax_link confirm_link icon-trash'></a>
 				</td>
 			</tr>";
 		}
