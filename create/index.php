@@ -50,7 +50,7 @@ if(isset($_POST['btnQueryCreate']))
 
 		if(mysql_affected_rows() > 0)
 		{
-			header("Location: /wp-admin/admin.php?page=mf_form/create/index.php&intQueryID=".$intQueryID);
+			echo "<script>location.href='/wp-admin/admin.php?page=mf_form/create/index.php&intQueryID=".$intQueryID."'</script>";
 		}
 
 		else
