@@ -249,6 +249,71 @@ function form_head()
 	echo "<link href='".plugins_url()."/mf_form/include/style.css' rel='stylesheet'/>";
 }
 
+add_action('widgets_init', 'form_load_widgets');
+
+function form_load_widgets()
+{
+	register_widget('form_Widget');
+}
+
+class form_Widget extends WP_Widget
+{
+	function form_Widget()
+	{
+		$widget_ops = array('classname' => 'form');
+
+		$control_ops = array('id_base' => 'form-widget'); //'width' => 300, 'height' => 350, 
+
+		$this->WP_Widget('form-widget', __('Form Widget', 'form'), $widget_ops, $control_ops);
+	}
+
+	function widget($args, $instance)
+	{
+		global $wpdb;
+
+		extract($args);
+
+		//wp_enqueue_script('jquery-form', "/wp-content/plugins/mf_form/jquery-form.js", array('jquery'), '1.0', true);
+		//wp_enqueue_script('jquery-form');
+
+		$sent = isset($_GET['sent']) ? true : false;
+
+		echo show_query_form(array('query_id' => $instance['form_id'], 'sent' => $sent));
+	}
+
+	function update($new_instance, $old_instance)
+	{
+		$instance = $old_instance;
+
+		$instance['form_id'] = strip_tags($new_instance['form_id']);
+
+		return $instance;
+	}
+
+	function form($instance)
+	{
+		global $wpdb;
+
+		$defaults = array('form_id' => "");
+		$instance = wp_parse_args((array)$instance, $defaults);
+
+		echo "<p>
+			<label for='".$this->get_field_id('form_id')."'>Form</label>
+			<select name='".$this->get_field_name('form_id')."' id='".$this->get_field_id('form_id')."' class='widefat'>
+				<option value=''>-- Choose here --</option>";
+
+				$result = $wpdb->get_results("SELECT queryID, queryName FROM ".$wpdb->prefix."query ORDER BY queryName ASC");
+
+				foreach($result as $r)
+				{
+					echo "<option value='".$r->queryID."'".($instance['form_id'] == $r->queryID ? " selected" : "").">".$r->queryName."</option>";
+				}
+
+			echo "</select>
+		</p>";
+	}
+}
+
 /* Internal */
 register_activation_hook(__FILE__, 'form_activate');
 register_deactivation_hook(__FILE__, 'form_deactivate');
