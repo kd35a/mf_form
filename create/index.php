@@ -224,8 +224,8 @@ if($intQueryID > 0)
 
 		echo show_select(array('data' => $arr_data, 'name' => "intCheckID", 'compare' => $intCheckID, 'text' => "Kolla", 'class' => "tr_check"));
 
-		if($_SERVER['REMOTE_ADDR'] == "46.195.160.224")
-		{
+		/*if($_SERVER['REMOTE_ADDR'] == "")
+		{*/
 			echo "<div class='tr_select'>
 				<label>Value:</label>
 				<div class='select_rows'>";
@@ -251,12 +251,12 @@ if($intQueryID > 0)
 				<i class='icon-plus-sign'></i>"
 				.input_hidden('strQueryTypeSelect', $strQueryTypeSelect)
 			."</div>";
-		}
+		/*}
 
 		else
 		{
 			echo show_textfield('strQueryTypeSelect', 'V&auml;rde', $strQueryTypeSelect, '', 0, false);
-		}
+		}*/
 
 		echo show_submit('btnQueryAdd', ($intQuery2TypeID > 0 ? "Uppdatera" : "Skapa"))
 		.input_hidden('intQueryID', $intQueryID)
