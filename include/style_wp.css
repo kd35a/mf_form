@@ -1,9 +1,9 @@
 @media all
 {
-	[class*="foundicon-"]
+	/*[class*="foundicon-"]
 	{
 		font-size: 1.2em;
-	}
+	}*/
 
 	table
 	{
@@ -86,4 +86,41 @@
 
 		.form_row p, .form_row > .form_checkbox, .form_row .form_radio, .form_row .form_select, .form_row .form_textfield, .form_row .form_textarea
 		{}
+
+		.tr_select
+		{
+			margin-bottom: 10px;
+		}
+
+			.select_rows > div
+			{
+				overflow: hidden;
+			}
+
+				.select_rows > div .form_textfield
+				{
+					float: left;
+				}
+
+					.select_rows > div .form_textfield:first-child
+					{
+						margin-right: 1%;
+						width: 10%;
+					}
+
+					.select_rows > div .form_textfield:last-child
+					{
+						width: 39%;
+					}
+
+						.select_rows > div .form_textfield input
+						{
+							width: 100%;
+						}
+
+			.tr_select .icon-plus-sign
+			{
+				color: #169328;
+				font-size: 1.2em;
+			}
 }

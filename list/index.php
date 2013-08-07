@@ -125,7 +125,7 @@ echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.
 							echo " | ";
 						}
 
-						echo "<a href='".$post_edit_url."' class='icon-edit'></a> <a href='".$post_url."' class='foundicon-globe'></a>";
+						echo "<a href='".$post_edit_url."' class='icon-edit'></a> <a href='".$post_url."' class='icon-globe'></a>";
 
 						$i++;
 					}

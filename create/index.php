@@ -222,16 +222,52 @@ if($intQueryID > 0)
 			$arr_data[] = array($r->checkID, $strCheckName);
 		}
 
-		echo show_select(array('data' => $arr_data, 'name' => "intCheckID", 'compare' => $intCheckID, 'text' => "Kolla", 'class' => "tr_check"))
-		.show_textfield('strQueryTypeSelect', 'V&auml;rde', $strQueryTypeSelect, '', 0, false, "", "", " tr_select")
-		.show_submit('btnQueryAdd', ($intQuery2TypeID > 0 ? "Uppdatera" : "Skapa"))
+		echo show_select(array('data' => $arr_data, 'name' => "intCheckID", 'compare' => $intCheckID, 'text' => "Kolla", 'class' => "tr_check"));
+
+		if($_SERVER['REMOTE_ADDR'] == "46.195.160.224")
+		{
+			echo "<div class='tr_select'>
+				<label>Value:</label>
+				<div class='select_rows'>";
+
+					if($strQueryTypeSelect == '')
+					{
+						$strQueryTypeSelect = "|";
+					}
+
+					$arr_select_rows = explode(",", $strQueryTypeSelect);
+
+					foreach($arr_select_rows as $select_row)
+					{
+						$arr_select_row_content = explode("|", $select_row);
+
+						echo "<div>"
+							.show_textfield('strQueryTypeSelect_id', '', $arr_select_row_content[0]) //, 3, 5, false, "", "", " input_select"
+							.show_textfield('strQueryTypeSelect_value', '', $arr_select_row_content[1])
+						."</div>";
+					}
+
+				echo "</div>
+				<i class='icon-plus-sign'></i>"
+				.input_hidden('strQueryTypeSelect', $strQueryTypeSelect)
+			."</div>";
+		}
+
+		else
+		{
+			echo show_textfield('strQueryTypeSelect', 'V&auml;rde', $strQueryTypeSelect, '', 0, false);
+		}
+
+		echo show_submit('btnQueryAdd', ($intQuery2TypeID > 0 ? "Uppdatera" : "Skapa"))
 		.input_hidden('intQueryID', $intQueryID)
 		.input_hidden('intQuery2TypeID', $intQuery2TypeID)
 	."</form>
-	<h2>F&aouml;rhandsgranskning</h2>"
+	<h2>Preview</h2>"
 	.show_query_form(array('query_id' => $intQueryID, 'edit' => true));
 }
 
-echo "<script src='".plugins_url()."/mf_form/include/jquery-1.9.1.min.js'></script>
-<script src='".plugins_url()."/mf_form/include/script.js'></script>
-<script src='".plugins_url()."/mf_form/include/script_create.js'></script>";
+wp_enqueue_script('jquery-form', plugins_url()."/mf_form/include/script.js", array('jquery'), '1.0', true);
+wp_enqueue_script('jquery-form');
+
+wp_enqueue_script('jquery-form_create', plugins_url()."/mf_form/include/script_create.js", array('jquery'), '1.0', true);
+wp_enqueue_script('jquery-form_create');
