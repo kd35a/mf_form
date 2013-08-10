@@ -43,7 +43,7 @@ if(isset($_GET['btnQueryCopy']))
 
 	if($inserted == false)
 	{
-		echo "Något gick fel. Kontakta admin angående detta och ange URL till sidan";
+		echo "Something went wong. Contact your admin and add this URL as reference";
 		exit;
 	}
 }
@@ -51,13 +51,13 @@ if(isset($_GET['btnQueryCopy']))
 echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css' rel='stylesheet'>
 <link href='".plugins_url()."/mf_form/include/style.css' rel='stylesheet'/>
 <link href='".plugins_url()."/mf_form/include/style_wp.css' rel='stylesheet'/>
-<h1>Formul&auml;r</h1>
+<h1>Form</h1>
 <table class='table_list'>";
 
-	$arr_header[] = "Namn";
+	$arr_header[] = "Name";
 	$arr_header[] = "Shortcode";
 	$arr_header[] = "";
-	$arr_header[] = "Svar";
+	$arr_header[] = "Answers";
 	$arr_header[] = "Deadline";
 	$arr_header[] = "";
 	$arr_header[] = "";
@@ -70,7 +70,7 @@ echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.
 
 	if(count($result) == 0)
 	{
-		echo "<tr><td colspan='9'>Det finns inget att visa</td></tr>";
+		echo "<tr><td colspan='9'>There is nothing to show</td></tr>";
 	}
 
 	else
@@ -154,5 +154,7 @@ echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.
 		}
 	}
 
-echo "</table>
-<script src='/wp-content/plugins/mf_form/include/script.js'></script>";
+echo "</table>";
+
+wp_enqueue_script('jquery-form', plugins_url()."/mf_form/include/script.js", array('jquery'), '1.0', true);
+wp_enqueue_script('jquery-form');

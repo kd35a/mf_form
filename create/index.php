@@ -162,23 +162,23 @@ if($intQuery2TypeID > 0)
 echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css' rel='stylesheet'>
 <link href='".plugins_url()."/mf_form/include/style.css' rel='stylesheet'/>
 <link href='".plugins_url()."/mf_form/include/style_wp.css' rel='stylesheet'/>
-<h1>".($intQueryID > 0 ? "Uppdatera ".$strQueryName : "Skapa formul&auml;r")."</h1>";
+<h1>".($intQueryID > 0 ? "Update ".$strQueryName : "Create new")."</h1>";
 
 echo "<form method='post' action=''>
 	<div class='alignleft'>"
-		.show_textfield('strQueryName', "Namn", $strQueryName, 100, 0, true)
-		."<h2>Svarsmeddelande till bes&ouml;kare</h2>"
-		.show_textfield('strQueryAnswerName', "Rubrik", $strQueryAnswerName, 50, 0, true)
+		.show_textfield('strQueryName', "Name", $strQueryName, 100, 0, true)
+		."<h2>Message after submit</h2>"
+		.show_textfield('strQueryAnswerName', "Title", $strQueryAnswerName, 50, 0, true)
 		.show_textarea(array('name' => 'strQueryAnswer', 'text' => "Text", 'value' => $strQueryAnswer, 'size' => 'small'))
 	."</div>
 	<div class='alignright'>
-		<h2>Skicka e-post till</h2>"
-		.show_textfield('strQueryEmail', "Adress", $strQueryEmail, 100)
-		.show_textfield('strQueryEmailName', "&Auml;mne", $strQueryEmailName, 100)
+		<h2>Send e-mail to</h2>"
+		.show_textfield('strQueryEmail', "Address", $strQueryEmail, 100)
+		.show_textfield('strQueryEmailName', "Subject", $strQueryEmailName, 100)
 		//.show_textfield('dteQueryDeadline', "Deadline", $dteQueryDeadline, 10)
 	."</div>
 	<div class='clear'>"
-		.show_submit('btnQueryCreate', ($intQueryID > 0 ? "Uppdatera" : "Skapa"))
+		.show_submit('btnQueryCreate', ($intQueryID > 0 ? "Update" : "Create"))
 		.input_hidden('intQueryID', $intQueryID)
 	."</div>
 </form>";
@@ -186,7 +186,7 @@ echo "<form method='post' action=''>
 if($intQueryID > 0)
 {
 	echo "<form method='post' action=''>"
-		."<h2>Inneh&aring;ll</h2>";
+		."<h2>Content</h2>";
 
 		//Tar fram senast använda typ
 		if($intQueryTypeID == '')
@@ -255,10 +255,10 @@ if($intQueryID > 0)
 
 		else
 		{
-			echo show_textfield('strQueryTypeSelect', 'V&auml;rde', $strQueryTypeSelect, '', 0, false);
+			echo show_textfield('strQueryTypeSelect', 'Value', $strQueryTypeSelect, '', 0, false);
 		}*/
 
-		echo show_submit('btnQueryAdd', ($intQuery2TypeID > 0 ? "Uppdatera" : "Skapa"))
+		echo show_submit('btnQueryAdd', ($intQuery2TypeID > 0 ? "Update" : "Create"))
 		.input_hidden('intQueryID', $intQueryID)
 		.input_hidden('intQuery2TypeID', $intQuery2TypeID)
 	."</form>

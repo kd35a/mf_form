@@ -576,14 +576,14 @@ function show_query_form($data)
 
 								//Mellanrum
 								case 6:
-									$out .= $data['edit'] == true ? "<p class='grey'>(mellanrum)</p>" : "<p>&nbsp;</p>";
+									$out .= $data['edit'] == true ? "<p class='grey'>(space)</p>" : "<p>&nbsp;</p>";
 								break;
 
 								//Dold info
 								case 13:
 									if($data['edit'] == true)
 									{
-										$out .= "<p class='grey'>(Dolt: '".$strQueryTypeText2."')</p>";
+										$out .= "<p class='grey'>(Hidden: '".$strQueryTypeText2."')</p>";
 									}
 								break;
 							}
@@ -597,7 +597,7 @@ function show_query_form($data)
 								</div>
 							</div>";
 
-							//<span class='moveable'>Flytta</span>
+							//<span class='moveable'>Move</span>
 						}
 
 						$i++;

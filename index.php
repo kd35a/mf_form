@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Formul&auml;r
+Plugin Name: Forms
 Version: 1.3.0
 Author: Martin Fors
 Author URI: www.martinfors.se
@@ -450,13 +450,27 @@ function form_activate()
 
 		if(count($result) > 0)
 		{
+			//echo "Yepp (".$key.")";
+
 			$result = $wpdb->get_results("SELECT * FROM ".$key);
 
 			if(count($result) == 0)
 			{
+				//echo "Empty (".$key.")";
+
 				$wpdb->query($value);
 			}
+
+			/*else
+			{
+				echo "Not empty (".$key.")";
+			}*/
 		}
+
+		/*else
+		{
+			echo "Nope (".$key.")";
+		}*/
 	}
 }
 
@@ -499,11 +513,11 @@ function edit_form()
 		}
 	}
 
-	add_menu_page(__('Formul&auml;r'), __('Formul&auml;r'), $menu_label_2, $menu_start);
+	add_menu_page(__('Form'), __('Form'), $menu_label_2, $menu_start);
 	
-	add_submenu_page($menu_start, __('Skapa nytt'), __('Skapa nytt'), $menu_label_2, $menu_root.'create/index.php');
-	add_submenu_page($menu_start, __('Lista'), __('Lista'), $menu_label_2, $menu_root.'list/index.php');
-	add_submenu_page($menu_start, __('Alla svar'), __(''), $menu_label_2, $menu_root.'answer/index.php');
-	add_submenu_page($menu_start, __('Senaste svaret'), __(''), $menu_label_2, $menu_root.'view/index.php');
-	add_submenu_page($menu_start, __('Exportera'), __(''), $menu_label_2, $menu_root.'export/index.php');
+	add_submenu_page($menu_start, __('Create new'), __('Create new'), $menu_label_2, $menu_root.'create/index.php');
+	add_submenu_page($menu_start, __('List'), __('List'), $menu_label_2, $menu_root.'list/index.php');
+	add_submenu_page($menu_start, __('All answers'), __(''), $menu_label_2, $menu_root.'answer/index.php');
+	add_submenu_page($menu_start, __('Latest answer'), __(''), $menu_label_2, $menu_root.'view/index.php');
+	add_submenu_page($menu_start, __('Export'), __(''), $menu_label_2, $menu_root.'export/index.php');
 }

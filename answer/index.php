@@ -34,7 +34,7 @@ $strQueryName = $wpdb->get_var("SELECT queryName FROM ".$wpdb->prefix."query WHE
 echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css' rel='stylesheet'>
 <link href='".plugins_url()."/mf_form/include/style.css' rel='stylesheet'/>
 <link href='".plugins_url()."/mf_form/include/style_wp.css' rel='stylesheet'/>
-<h1>Svar i formul&auml;ret ".$strQueryName."</h1>
+<h1>Answers in ".$strQueryName."</h1>
 <table class='table_list'>";
 
 	$result = $wpdb->get_results("SELECT queryTypeID, queryTypeText FROM ".$wpdb->prefix."query2type INNER JOIN ".$wpdb->prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC");
@@ -52,7 +52,7 @@ echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.
 		$arr_header[] = $strQueryTypeText;
 	}
 
-	$arr_header[] = "Skapad";
+	$arr_header[] = "Created";
 	$arr_header[] = "";
 	$arr_header[] = "";
 
@@ -179,5 +179,7 @@ echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.
 		}
 	}
 
-echo "</table>
-<script src='".plugins_url()."/mf_form/include/script.js'></script>";
+echo "</table>";
+
+wp_enqueue_script('jquery-form', plugins_url()."/mf_form/include/script.js", array('jquery'), '1.0', true);
+wp_enqueue_script('jquery-form');

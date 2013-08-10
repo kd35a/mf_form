@@ -9,8 +9,8 @@ if(!($intQueryID > 0))
 	$intQueryID = $wpdb->get_var("SELECT queryID FROM ".$wpdb->prefix."query LEFT JOIN ".$wpdb->prefix."query2answer USING (queryID) ORDER BY answerCreated DESC, queryCreated DESC LIMIT 0, 1");
 }
 
-echo "<h1>Exportera</h1>
-<a href='javascript:history.go(-1)'>&laquo; Tillbaka</a><br/>
+echo "<h1>Export</h1>
+<a href='javascript:history.go(-1)'>&laquo; Back</a><br/>
 <br/>";
 
 $strExportDate = date("Y-m-d H:i:s");
@@ -47,7 +47,7 @@ $rows = count($result);
 
 if($rows == 0)
 {
-	echo "Det fanns inga svar att exportera";
+	echo "There were no answers to export";
 }
 
 else
@@ -115,12 +115,7 @@ else
 		$out .= $field_separator.$strAnswerCreated.$row_separator;
 	}
 
-	$out .= $row_separator."Antal: ".$rows.$row_separator."Datum: ".$strExportDate;
-
-	/*if($data['date'] > "0000-00-00")
-	{
-		$out .= $row_separator"Efter: ".$data['date'];
-	}*/
+	$out .= $row_separator."Row count: ".$rows.$row_separator."Date: ".$strExportDate;
 
 	$strQueryName = $wpdb->get_var("SELECT queryName FROM ".$wpdb->prefix."query WHERE queryID = '".$intQueryID."'");
 
@@ -135,6 +130,6 @@ else
 
 	else
 	{
-		echo "Det gick inte att exportera alla svar fr&aring;n ".$strQueryName;
+		echo "It was not possible to export all answers from ".$strQueryName;
 	}
 }
