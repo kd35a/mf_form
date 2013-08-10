@@ -30,7 +30,12 @@ foreach($result as $r)
 	$intQueryTypeID = $r->queryTypeID;
 	$strQueryTypeText = preg_replace("/(\r\n|\r|\n|".$field_separator.")/", " ", $r->queryTypeText);
 
-	if($intQueryTypeID == 10)
+	if($intQueryTypeID == 2)
+	{
+		list($strQueryTypeText, $rest) = explode("|", $strQueryTypeText);
+	}
+
+	else if($intQueryTypeID == 10 || $intQueryTypeID == 11)
 	{
 		list($strQueryTypeText, $rest) = explode(":", $strQueryTypeText);
 	}
@@ -78,7 +83,7 @@ else
 			{
 				$r = $resultAnswer[0];
 
-				if($intQueryTypeID == 2 || $intQueryTypeID == 8)
+				if($intQueryTypeID == 8) //$intQueryTypeID == 2 || 
 				{
 					$strAnswerText = 1;
 				}
@@ -99,6 +104,26 @@ else
 							if($strAnswerText == $arr_content3[0])
 							{
 								$strAnswerText = $arr_content3[1];
+							}
+						}
+					}
+
+					else if($intQueryTypeID == 11)
+					{
+						$arr_content1 = explode(":", $strQueryTypeText);
+						$arr_content2 = explode(",", $arr_content1[1]);
+
+						$arr_answer_text = explode(",", $strAnswerText);
+
+						$strAnswerText = "";
+
+						foreach($arr_content2 as $str_content)
+						{
+							$arr_content3 = explode("|", $str_content);
+
+							if(in_array($arr_content3[0], $arr_answer_text)
+							{
+								$strAnswerText .= ($strAnswerText != '' ? ", " : "").$arr_content3[1];
 							}
 						}
 					}

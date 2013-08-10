@@ -1,10 +1,15 @@
 function show_query_settings(this_val)
 {
-	jQuery('.tr_check, .tr_text, .tr_select').hide();
+	jQuery('.tr_range, .tr_check, .tr_text, .tr_select').hide();
 
 	if(this_val != '')
 	{
-		if(this_val == 3)
+		if(this_val == 2)
+		{
+			jQuery('.tr_range').show();
+		}
+
+		if(this_val == 2 || this_val == 3)
 		{
 			jQuery('.tr_check').show();
 		}
@@ -14,7 +19,7 @@ function show_query_settings(this_val)
 			jQuery('.tr_text').show();
 		}
 
-		if(this_val == 10 || this_val == 14)
+		if(this_val == 10 || this_val == 11) /* || this_val == 14*/
 		{
 			jQuery('.tr_select').show();
 		}
@@ -28,6 +33,31 @@ jQuery(function($)
 	$('#intQueryTypeID').on('change', function()
 	{
 		show_query_settings($(this).val());
+	});
+
+	$('.select_rows').on('blur', 'input', function()
+	{
+		var select_value = "";
+
+		$('.select_rows > div').each(function()
+		{
+			var temp_id = $(this).children('.form_textfield').children('input[name=strQueryTypeSelect_id]').val(),
+				temp_value = $(this).children('.form_textfield').children('input[name=strQueryTypeSelect_value]').val();
+
+			if(temp_id + "" != "" && temp_value + "" != "")
+			{
+				select_value += (select_value != '' ? "," : "") + temp_id + "|" + temp_value;
+			}
+		});
+
+		$('.tr_select input[name=strQueryTypeSelect]').val(select_value);
+	});
+
+	$('.tr_select .icon-plus-sign').on('click', function()
+	{
+		var dom_content = $('.select_rows > div:last-child').html();
+
+		$('.select_rows').append("<div>" + dom_content + "</div>");
 	});
 
 	$('.sortable_form').sortable(
@@ -59,30 +89,5 @@ jQuery(function($)
 				}
 			});
 		}
-	});
-
-	$('.select_rows input').on('blur', function()
-	{
-		var select_value = "";
-
-		$('.select_rows > div').each(function()
-		{
-			var temp_id = $(this).children('.form_textfield').children('input[name=strQueryTypeSelect_id]').val(),
-				temp_value = $(this).children('.form_textfield').children('input[name=strQueryTypeSelect_value]').val();
-
-			if(temp_id + "" != "" && temp_value + "" != "")
-			{
-				select_value += (select_value != '' ? "," : "") + temp_id + "|" + temp_value;
-			}
-		});
-
-		$('.tr_select input[name=strQueryTypeSelect]').val(select_value);
-	});
-
-	$('.tr_select .icon-plus-sign').on('click', function()
-	{
-		var dom_content = $('.select_rows > div:last-child').html();
-
-		$('.select_rows').append("<div>" + dom_content + "</div>");
 	});
 });

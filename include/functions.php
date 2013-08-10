@@ -227,7 +227,7 @@ function show_textfield($var, $text, $id, $max_length = '', $field_length = 0, $
 
 	if($text != '')
 	{
-		$label = "<label for='".$var."'>".$text.":".$after."</label>";
+		$label = "<label for='".$var."'>".$text.$after."</label>";
 	}
 
 	$out = "<div class='form_textfield".$xtra_class."'>"
@@ -254,7 +254,7 @@ function show_textarea($data)
 
 		if($data['text'] != '')
 		{
-			$out .= "<label for='".$data['name']."'>".$data['text'].":".($data['required'] == 1 ? " *" : "")."</label>";
+			$out .= "<label for='".$data['name']."'>".$data['text'].($data['required'] == 1 ? " *" : "")."</label>";
 		}
 
 		$out .= "<textarea class='".(isset($data['size']) ? "textarea_".$data['size'] : "")."' name='".$data['name']."' id='".$data['name']."'".($data['xtra'] != '' ? " ".$data['xtra'] : "").">".stripslashes($data['value'])."</textarea>
@@ -521,6 +521,12 @@ function show_query_form($data)
 									$out .= show_checkbox(array('name' => $intQuery2TypeID2, 'text' => $strQueryTypeText2, 'required' => $intQueryTypeRequired, 'value' => 1, 'compare' => $strAnswerText));
 								break;
 
+								case 2:
+									$arr_content = explode("|", $strQueryTypeText2);
+
+									$out .= show_textfield($intQuery2TypeID2, $arr_content[0]." <span>(".$strAnswerText.")</span>", $strAnswerText, 200, 0, $intQueryTypeRequired, " min='".$arr_content[1]."' max='".$arr_content[2]."'", "", "", "range");
+								break;
+
 								//Flervalsruta v2
 								case 8:
 									if($intQueryTypeID2 != $intQueryTypeID2_temp)
@@ -553,13 +559,30 @@ function show_query_form($data)
 									$out .= show_select(array('data' => $arr_data, 'name' => $intQuery2TypeID2, 'text' => $arr_content1[0], 'compare' => $strAnswerText, 'required' => $intQueryTypeRequired));
 								break;
 
+								//Select (multiple)
+								case 11:
+									$arr_content1 = explode(":", $strQueryTypeText2);
+									$arr_content2 = explode(",", $arr_content1[1]);
+
+									$arr_data = array();
+
+									foreach($arr_content2 as $str_content)
+									{
+										$arr_content3 = explode("|", $str_content);
+
+										$arr_data[] = array($arr_content3[0], $arr_content3[1]);
+									}
+
+									$out .= show_select(array('data' => $arr_data, 'name' => $intQuery2TypeID2."[]", 'text' => $arr_content1[0], 'compare' => $strAnswerText, 'required' => $intQueryTypeRequired));
+								break;
+
 								//Textrad
 								case 3:
-								case 14:
-									if($intQueryTypeID2 == 14)
+								//case 14:
+									/*if($intQueryTypeID2 == 14)
 									{
 										list($strQueryTypeText2, $rest_value) = explode(":", $strQueryTypeText2);
-									}
+									}*/
 
 									$out .= show_textfield($intQuery2TypeID2, $strQueryTypeText2, $strAnswerText, 200, 0, ($intQueryTypeRequired == 1 ? true : false));
 								break;
@@ -580,12 +603,12 @@ function show_query_form($data)
 								break;
 
 								//Dold info
-								case 13:
+								/*case 13:
 									if($data['edit'] == true)
 									{
 										$out .= "<p class='grey'>(Hidden: '".$strQueryTypeText2."')</p>";
 									}
-								break;
+								break;*/
 							}
 
 						if($data['edit'] == true)
@@ -596,8 +619,6 @@ function show_query_form($data)
 									<a href='#delete/type/".$intQuery2TypeID2."' class='ajax_link confirm_link icon-trash'></a>
 								</div>
 							</div>";
-
-							//<span class='moveable'>Move</span>
 						}
 
 						$i++;

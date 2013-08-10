@@ -156,5 +156,5 @@ echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.
 
 echo "</table>";
 
-wp_enqueue_script('jquery-form', plugins_url()."/mf_form/include/script.js", array('jquery'), '1.0', true);
-wp_enqueue_script('jquery-form');
+wp_enqueue_script('jquery-forms', plugins_url()."/mf_form/include/script.js", array('jquery'), '1.0', true);
+wp_enqueue_script('jquery-forms');

@@ -16,6 +16,8 @@ $strQueryTypeText = check_var('strQueryTypeText');
 $intCheckID = check_var('intCheckID');
 
 $strQueryTypeSelect = check_var('strQueryTypeSelect', '', true, "0|-- Choose here --,1|Nej,2|Ja");
+$strQueryTypeMin = check_var('strQueryTypeMin', '', true, "0");
+$strQueryTypeMax = check_var('strQueryTypeMax', '', true, 100);
 
 if(isset($_POST['btnQueryCreate']))
 {
@@ -70,7 +72,7 @@ else if(isset($_POST['btnQueryAdd']))
 	}
 	################
 
-	if($intQueryTypeID == 10 && $strQueryTypeSelect == "")
+	if(($intQueryTypeID == 10 || $intQueryTypeID == 11) && $strQueryTypeSelect == "")
 	{
 		echo "Enter all mandatory fields";
 		exit;
@@ -78,15 +80,20 @@ else if(isset($_POST['btnQueryAdd']))
 
 	else
 	{
-		if($intQueryTypeID == 10)
+		if($intQueryTypeID == 2)
+		{
+			$strQueryTypeText = str_replace("|", "", $strQueryTypeText)."|".str_replace("|", "", $strQueryTypeMin)."|".str_replace("|", "", $strQueryTypeMax);
+		}
+
+		if($intQueryTypeID == 10 || $intQueryTypeID == 11)
 		{
 			$strQueryTypeText = str_replace(":", "", $strQueryTypeText).":".str_replace(":", "", $strQueryTypeSelect);
 		}
 
-		else if($intQueryTypeID == 14)
+		/*else if($intQueryTypeID == 14)
 		{
 			$strQueryTypeText = str_replace(":", "", $strQueryTypeText).":".str_replace(":", "", $strQueryTypeSelect);
-		}
+		}*/
 
 		if($intQuery2TypeID > 0)
 		{
@@ -148,21 +155,26 @@ if($intQuery2TypeID > 0)
 	$strQueryTypeText = $r->queryTypeText;
 	$intCheckID = $r->checkID;
 
-	if($intQueryTypeID == 10)
+	if($intQueryTypeID == 2)
+	{
+		list($strQueryTypeText, $strQueryTypeMin, $strQueryTypeMax) = explode("|", $strQueryTypeText);
+	}
+
+	else if($intQueryTypeID == 10 || $intQueryTypeID == 11)
 	{
 		list($strQueryTypeText, $strQueryTypeSelect) = explode(":", $strQueryTypeText);
 	}
 
-	else if($intQueryTypeID == 14)
+	/*else if($intQueryTypeID == 14)
 	{
 		list($strQueryTypeText, $strQueryTypeSelect) = explode(":", $strQueryTypeText);
-	}
+	}*/
 }
 
 echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css' rel='stylesheet'>
 <link href='".plugins_url()."/mf_form/include/style.css' rel='stylesheet'/>
 <link href='".plugins_url()."/mf_form/include/style_wp.css' rel='stylesheet'/>
-<h1>".($intQueryID > 0 ? "Update ".$strQueryName : "Create new")."</h1>";
+<h1>".($intQueryID > 0 ? "Update ".$strQueryName : "Create")."</h1>";
 
 echo "<form method='post' action=''>
 	<div class='alignleft'>"
@@ -222,7 +234,9 @@ if($intQueryID > 0)
 			$arr_data[] = array($r->checkID, $strCheckName);
 		}
 
-		echo show_select(array('data' => $arr_data, 'name' => "intCheckID", 'compare' => $intCheckID, 'text' => "Kolla", 'class' => "tr_check"));
+		echo show_select(array('data' => $arr_data, 'name' => "intCheckID", 'compare' => $intCheckID, 'text' => "Kolla", 'class' => "tr_check"))
+			.show_textfield('strQueryTypeMin', 'Min value', $strQueryTypeMin, 3, 5, false, "", "", " tr_range")
+			.show_textfield('strQueryTypeMax', 'Max value', $strQueryTypeMax, 3, 5, false, "", "", " tr_range");
 
 		/*if($_SERVER['REMOTE_ADDR'] == "")
 		{*/
@@ -266,8 +280,8 @@ if($intQueryID > 0)
 	.show_query_form(array('query_id' => $intQueryID, 'edit' => true));
 }
 
-wp_enqueue_script('jquery-form', plugins_url()."/mf_form/include/script.js", array('jquery'), '1.0', true);
-wp_enqueue_script('jquery-form');
+wp_enqueue_script('jquery-forms', plugins_url()."/mf_form/include/script.js", array('jquery'), '1.0', true);
+wp_enqueue_script('jquery-forms');
 
-wp_enqueue_script('jquery-form_create', plugins_url()."/mf_form/include/script_create.js", array('jquery'), '1.0', true);
-wp_enqueue_script('jquery-form_create');
+wp_enqueue_script('jquery-forms_create', plugins_url()."/mf_form/include/script_create.js", array('jquery'), '1.0', true);
+wp_enqueue_script('jquery-forms_create');

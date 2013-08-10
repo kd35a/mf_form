@@ -426,27 +426,32 @@ function form_activate()
 	('7','1','float','float'),
 	('8','1','url','url')";
 
-	$arr_insert_tables[$wpdb->prefix."query_type"] = "INSERT INTO ".$wpdb->prefix."query_type VALUES('1','1','checkbox','5','1'),
-	('2','0','radio_button','3','1'),
-	('3','1','input_field','6','1'),
-	('4','1','textarea','7','1'),
-	('5','1','text','2','0'),
-	('6','1','space','1','0'),
-	('7','0','textarea_advanced','8','1'),
-	('8','1','radio_button','4','1'),
-	('9','0','file_upload','9','1'),
-	('10','1','select_box','10','1'),
-	('13','0','hidden_info','13','1'),
-	('14','0','input_field_connected','13','1')";
+	$arr_insert_tables[$wpdb->prefix."query_type"] = "INSERT INTO ".$wpdb->prefix."query_type VALUES('1','1','Checkbox','4','1'),
+	('2','1','Range','5','1'),
+	('3','1','Input field','6','1'),
+	('4','1','Textarea','7','1'),
+	('5','1','Text','2','0'),
+	('6','1','Space','1','0'),
+	('8','1','Radio button','3','1'),
+	('10','1','Dropdown','8','1'),
+	('11', '1', 'Multiple selection', '9', '1')";
+
+	/*
+		('7','0','Textarea (advanced)','','1'),
+		('9','0','File upload','','1'),
+		('13','0','hidden_info','','1'),
+		('14','0','input_field_connected','','1'),
+	*/
 
 	foreach($arr_insert_tables as $key => $value)
 	{
-		$result = $wpdb->get_results("SELECT * FROM ".$key);
+		//$result = $wpdb->get_results("SELECT * FROM ".$key);
+		$wpdb->get_results("DELETE FROM ".$key);
 
-		if(count($result) == 0)
-		{
+		/*if(count($result) == 0)
+		{*/
 			$wpdb->query($value);
-		}
+		//}
 	}
 }
 
@@ -489,9 +494,9 @@ function edit_form()
 		}
 	}
 
-	add_menu_page(__('Form'), __('Form'), $menu_label_2, $menu_start);
+	add_menu_page(__('Forms'), __('Forms'), $menu_label_2, $menu_start);
 	
-	add_submenu_page($menu_start, __('Create new'), __('Create new'), $menu_label_2, $menu_root.'create/index.php');
+	add_submenu_page($menu_start, __('Create'), __('Create'), $menu_label_2, $menu_root.'create/index.php');
 	add_submenu_page($menu_start, __('List'), __('List'), $menu_label_2, $menu_root.'list/index.php');
 	add_submenu_page($menu_start, __('All answers'), __(''), $menu_label_2, $menu_root.'answer/index.php');
 	add_submenu_page($menu_start, __('Latest answer'), __(''), $menu_label_2, $menu_root.'view/index.php');

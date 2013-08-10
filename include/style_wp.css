@@ -121,6 +121,7 @@
 			.tr_select .icon-plus-sign
 			{
 				color: #169328;
+				cursor: pointer;
 				font-size: 1.2em;
 			}
 }

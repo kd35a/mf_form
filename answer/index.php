@@ -44,7 +44,12 @@ echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.
 		$intQueryTypeID = $r->queryTypeID;
 		$strQueryTypeText = $r->queryTypeText;
 
-		if($intQueryTypeID == 10)
+		if($intQueryTypeID == 2)
+		{
+			list($strQueryTypeText, $rest) = explode("|", $strQueryTypeText);
+		}
+
+		else if($intQueryTypeID == 10 || $intQueryTypeID == 11)
 		{
 			list($strQueryTypeText, $rest) = explode(":", $strQueryTypeText);
 		}
@@ -115,6 +120,26 @@ echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.
 								}
 							}
 
+							else if($intQueryTypeID == 11)
+							{
+								$arr_content1 = explode(":", $strQueryTypeText);
+								$arr_content2 = explode(",", $arr_content1[1]);
+
+								$arr_answer_text = explode(",", $strAnswerText);
+
+								$strAnswerText = "";
+
+								foreach($arr_content2 as $str_content)
+								{
+									$arr_content3 = explode("|", $str_content);
+
+									if(in_array($arr_content3[0], $arr_answer_text)
+									{
+										$strAnswerText .= ($strAnswerText != '' ? ", " : "").$arr_content3[1];
+									}
+								}
+							}
+
 							else
 							{
 								if($strCheckCode != '')
@@ -181,5 +206,5 @@ echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.
 
 echo "</table>";
 
-wp_enqueue_script('jquery-form', plugins_url()."/mf_form/include/script.js", array('jquery'), '1.0', true);
-wp_enqueue_script('jquery-form');
+wp_enqueue_script('jquery-forms', plugins_url()."/mf_form/include/script.js", array('jquery'), '1.0', true);
+wp_enqueue_script('jquery-forms');
