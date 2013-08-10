@@ -405,18 +405,13 @@ function form_activate()
 
 	foreach($arr_update_tables as $table => $arr_col)
 	{
-		$result = $wpdb->get_results("SHOW TABLES LIKE ".$table);
-
-		if(count($result) > 0)
+		foreach($arr_col as $col => $value)
 		{
-			foreach($arr_col as $col => $value)
-			{
-				$result = $wpdb->get_results("SHOW COLUMNS FROM ".$table." WHERE Field = '".$col."'");
+			$result = $wpdb->get_results("SHOW COLUMNS FROM ".$table." WHERE Field = '".$col."'");
 
-				if(count($result) == 0)
-				{
-					$wpdb->query($value);
-				}
+			if(count($result) == 0)
+			{
+				$wpdb->query($value);
 			}
 		}
 	}
@@ -446,31 +441,12 @@ function form_activate()
 
 	foreach($arr_insert_tables as $key => $value)
 	{
-		$result = $wpdb->get_results("SHOW TABLES LIKE ".$key);
+		$result = $wpdb->get_results("SELECT * FROM ".$key);
 
-		if(count($result) > 0)
+		if(count($result) == 0)
 		{
-			//echo "Yepp (".$key.")";
-
-			$result = $wpdb->get_results("SELECT * FROM ".$key);
-
-			if(count($result) == 0)
-			{
-				//echo "Empty (".$key.")";
-
-				$wpdb->query($value);
-			}
-
-			/*else
-			{
-				echo "Not empty (".$key.")";
-			}*/
+			$wpdb->query($value);
 		}
-
-		/*else
-		{
-			echo "Nope (".$key.")";
-		}*/
 	}
 }
 
