@@ -87,6 +87,12 @@
 		.form_row p, .form_row > .form_checkbox, .form_row .form_radio, .form_row .form_select, .form_row .form_textfield, .form_row .form_textarea
 		{}
 
+		.tr_range input
+		{
+			margin-right: 1%;
+			width: 24%;
+		}
+
 		.tr_select
 		{
 			margin-bottom: 10px;

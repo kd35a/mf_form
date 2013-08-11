@@ -133,7 +133,7 @@ echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.
 								{
 									$arr_content3 = explode("|", $str_content);
 
-									if(in_array($arr_content3[0], $arr_answer_text)
+									if(in_array($arr_content3[0], $arr_answer_text))
 									{
 										$strAnswerText .= ($strAnswerText != '' ? ", " : "").$arr_content3[1];
 									}

@@ -13,7 +13,7 @@ if(isset($_GET['btnQueryCopy']))
 	{
 		$fields = ", queryAnswerName, queryAnswer, queryDeadline";
 
-		$wpdb->query("INSERT INTO ".$wpdb->prefix."query (queryName".$fields.", queryCreated, userID) (SELECT CONCAT(queryName, ' (kopia)')".$fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->prefix."query WHERE queryID = '".$intQueryID."')");
+		$wpdb->query("INSERT INTO ".$wpdb->prefix."query (queryName".$fields.", queryCreated, userID) (SELECT CONCAT(queryName, ' (copy)')".$fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->prefix."query WHERE queryID = '".$intQueryID."')");
 		$intQueryID_new = mysql_insert_id();
 
 		if($intQueryID_new > 0)
@@ -58,7 +58,7 @@ echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.
 	$arr_header[] = "Shortcode";
 	$arr_header[] = "";
 	$arr_header[] = "Answers";
-	$arr_header[] = "Deadline";
+	//$arr_header[] = "Deadline";
 	$arr_header[] = "";
 	$arr_header[] = "";
 	$arr_header[] = "";
@@ -70,7 +70,7 @@ echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.
 
 	if(count($result) == 0)
 	{
-		echo "<tr><td colspan='9'>There is nothing to show</td></tr>";
+		echo "<tr><td colspan='".count($arr_header)."'>There is nothing to show</td></tr>";
 	}
 
 	else
@@ -79,7 +79,7 @@ echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.
 		{
 			$intQueryID = $r->queryID;
 			$strQueryName = $r->queryName;
-			$dteQueryDeadline = $r->queryDeadline;
+			//$dteQueryDeadline = $r->queryDeadline;
 			$strQueryCreated = $r->queryCreated;
 
 			$resultContent = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->prefix."query2type INNER JOIN ".$wpdb->prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' ORDER BY query2TypeCreated ASC");
@@ -101,14 +101,14 @@ echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.
 				$a_start = $a_end = "";
 			}
 
-			$strQueryShortcode = "[form_shortcode id='".$intQueryID."']";
+			$strQueryShortcode = "[form_shortcode id=".$intQueryID."]";
 
 			echo "<tr id='query_".$intQueryID."'>
 				<td>".$a_start.$strQueryName.$a_end."</td>
 				<td>".$strQueryShortcode."</td>
 				<td>";
 
-					$result = $wpdb->get_results("SELECT * FROM ".$wpdb->posts." WHERE post_content LIKE '%".addslashes($strQueryShortcode)."%' AND post_status = 'publish'");
+					$result = $wpdb->get_results("SELECT * FROM ".$wpdb->posts." WHERE post_content LIKE '%".addslashes($strQueryShortcode)."%' AND post_type != 'revision'");
 
 					$i = 0;
 
@@ -131,9 +131,11 @@ echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.
 					}
 
 				echo "</td>
-				<td>".$a_start.$intQueryTotal.$a_end."</td>
-				<td>".($dteQueryDeadline > "1982-08-04 23:15:00" ? $dteQueryDeadline : "")."</td>
-				<td>";
+				<td>".$a_start.$intQueryTotal.$a_end."</td>";
+
+				//<td>".($dteQueryDeadline > "1982-08-04 23:15:00" ? $dteQueryDeadline : "")."</td>
+
+				echo "<td>";
 
 					if($intQueryTotal > 0)
 					{

@@ -20,8 +20,6 @@ if(isset($_POST['btnQuerySubmit']))
 
 	$intQueryID = check_var('intQueryID');
 
-	$str_referer_url = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : "";
-
 	$strAnswerIP = $_SERVER['REMOTE_ADDR'];
 
 	$send_text = "";
@@ -46,8 +44,8 @@ if(isset($_POST['btnQuerySubmit']))
 
 		$send_text .= $strQueryTypeText;
 
-		//Dold info
-		if($intQueryTypeID2 == 13)
+		//Hidden
+		/*if($intQueryTypeID2 == 13)
 		{
 			$regexp1 = "/\[var=(.*?)]/";
 			$regexp2 = "/\[(x*?)]/";
@@ -86,11 +84,11 @@ if(isset($_POST['btnQuerySubmit']))
 			$arr_query[] = "INSERT INTO ".$wpdb->prefix."query_answer (answerID, query2TypeID, answerText) VALUES ([answer_id], '".$intQuery2TypeID2."', '".$var."')";
 
 			$send_text .= " ".$var."\n";
-		}
+		}*/
 
-		//Kopplad textruta
+		//Connected
 		###################################
-		else if($intQueryTypeID2 == 14)
+		/*else if($intQueryTypeID2 == 14)
 		{
 			list($strQueryTypeText, $arr_content1) = explode(":", $strQueryTypeText);
 			list($intQueryID_temp, $intQuery2TypeID2_temp) = explode("|", $arr_content1);
@@ -105,23 +103,24 @@ if(isset($_POST['btnQuerySubmit']))
 				echo "Error (".$strQueryTypeText.")";
 				exit;
 			}
-		}
+		}*/
 		###################################
 
-		//Kolla om det är en e-postadress och validera isf (samt lösen, förnamn och efternamn)
-		############################
-		/*if($var != '' && $intQueryAccountEmail == $intQuery2TypeID2)
+		if($intQueryTypeID2 == 11)
 		{
-			$var_test = check_var($var, 'email', false, '', true);
+			//$var = implode(", ", $var);
 
-			if($var_test != $var)
+			$var = "";
+
+			foreach($_POST[$intQuery2TypeID2] as $value)
 			{
-				$globals['error_text'] = $arr_lang['email_not_correct']." (".$strQueryTypeText.")";
-
-				$var = "";
+				$var .= ($var != '' ? "," : "").check_var($value, $strCheckCode, false);
 			}
-		}*/
-		############################
+
+			/*echo "Test: ".$var." (".var_export($_POST, true).")";
+
+			exit;*/
+		}
 
 		if($var != '')
 		{
@@ -129,18 +128,6 @@ if(isset($_POST['btnQuerySubmit']))
 
 			$send_text .= " ".$var."\n";
 		}
-
-		/*else if($intQueryTypeID2 == 2)
-		{
-			if($query_send_every_submit == true)
-			{
-				$var_radio = isset($_POST['radio']) ? check_var($_POST['radio'], 'char', false) : '';
-
-				$strQueryTypeText_temp = run_query(3, "SELECT queryTypeText FROM ".$wpdb->prefix."query2type WHERE query2TypeID = '".$var_radio."'");
-
-				$send_text .= ($strQueryTypeText_temp == $strQueryTypeText ? " x" : "")."\n[br]";
-			}
-		}*/
 
 		else if($intQueryTypeID2 == 8)
 		{
@@ -215,7 +202,9 @@ if(isset($_POST['btnQuerySubmit']))
 				wp_mail($strQueryEmail, $strQueryEmailName, $send_text, $headers);
 			}
 
-			echo "<script>location.href = '?sent';</script>";
+			$this_url = $_SERVER['HTTP_REFERER'];
+
+			echo "<script>location.href = '".$this_url.(preg_match("/\?/", $this_url) ? "&" : "?")."sent';</script>";
 		}
 
 		else

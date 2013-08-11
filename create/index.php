@@ -40,7 +40,7 @@ if(isset($_POST['btnQueryCreate']))
 
 			if(count($result) > 0)
 			{
-				echo "Det finns redan ett formul&auml;r med det namnet. Testa med ett annat.";
+				echo "There is already a form with that name. Try with another one.";
 			}
 
 			else
@@ -52,7 +52,7 @@ if(isset($_POST['btnQueryCreate']))
 
 		if(mysql_affected_rows() > 0)
 		{
-			echo "<script>location.href='/wp-admin/admin.php?page=mf_form/create/index.php&intQueryID=".$intQueryID."'</script>";
+			echo "<script>location.href='/wp-admin/admin.php?page=mf_form/create/index.php&intQueryID=".$intQueryID."#content'</script>";
 		}
 
 		else
@@ -75,7 +75,6 @@ else if(isset($_POST['btnQueryAdd']))
 	if(($intQueryTypeID == 10 || $intQueryTypeID == 11) && $strQueryTypeSelect == "")
 	{
 		echo "Enter all mandatory fields";
-		exit;
 	}
 
 	else
@@ -107,7 +106,6 @@ else if(isset($_POST['btnQueryAdd']))
 			else
 			{
 				echo "Error...";
-				exit;
 			}
 		}
 
@@ -128,9 +126,13 @@ else if(isset($_POST['btnQueryAdd']))
 			else
 			{
 				echo "Error...";
-				exit;
 			}
 		}
+	}
+
+	if($intQueryTypeID == 0)
+	{
+		echo "<script>location.href='/wp-admin/admin.php?page=mf_form/create/index.php&intQueryID=".$intQueryID."#preview'</script>";
 	}
 }
 
@@ -197,7 +199,7 @@ echo "<form method='post' action=''>
 
 if($intQueryID > 0)
 {
-	echo "<form method='post' action=''>"
+	echo "<form method='post' action='' id='content'>"
 		."<h2>Content</h2>";
 
 		//Tar fram senast använda typ
@@ -235,48 +237,40 @@ if($intQueryID > 0)
 		}
 
 		echo show_select(array('data' => $arr_data, 'name' => "intCheckID", 'compare' => $intCheckID, 'text' => "Kolla", 'class' => "tr_check"))
-			.show_textfield('strQueryTypeMin', 'Min value', $strQueryTypeMin, 3, 5, false, "", "", " tr_range")
-			.show_textfield('strQueryTypeMax', 'Max value', $strQueryTypeMax, 3, 5, false, "", "", " tr_range");
+		."<div class='tr_range'>"
+			.show_textfield('strQueryTypeMin', 'Min value', $strQueryTypeMin, 3, 5, false)
+			.show_textfield('strQueryTypeMax', 'Max value', $strQueryTypeMax, 3, 5, false)
+		."</div>
+		<div class='tr_select'>
+			<label>Value:</label>
+			<div class='select_rows'>";
 
-		/*if($_SERVER['REMOTE_ADDR'] == "")
-		{*/
-			echo "<div class='tr_select'>
-				<label>Value:</label>
-				<div class='select_rows'>";
+				if($strQueryTypeSelect == '')
+				{
+					$strQueryTypeSelect = "|";
+				}
 
-					if($strQueryTypeSelect == '')
-					{
-						$strQueryTypeSelect = "|";
-					}
+				$arr_select_rows = explode(",", $strQueryTypeSelect);
 
-					$arr_select_rows = explode(",", $strQueryTypeSelect);
+				foreach($arr_select_rows as $select_row)
+				{
+					$arr_select_row_content = explode("|", $select_row);
 
-					foreach($arr_select_rows as $select_row)
-					{
-						$arr_select_row_content = explode("|", $select_row);
+					echo "<div>"
+						.show_textfield('strQueryTypeSelect_id', '', $arr_select_row_content[0])
+						.show_textfield('strQueryTypeSelect_value', '', $arr_select_row_content[1])
+					."</div>";
+				}
 
-						echo "<div>"
-							.show_textfield('strQueryTypeSelect_id', '', $arr_select_row_content[0]) //, 3, 5, false, "", "", " input_select"
-							.show_textfield('strQueryTypeSelect_value', '', $arr_select_row_content[1])
-						."</div>";
-					}
-
-				echo "</div>
-				<i class='icon-plus-sign'></i>"
-				.input_hidden('strQueryTypeSelect', $strQueryTypeSelect)
-			."</div>";
-		/*}
-
-		else
-		{
-			echo show_textfield('strQueryTypeSelect', 'Value', $strQueryTypeSelect, '', 0, false);
-		}*/
-
-		echo show_submit('btnQueryAdd', ($intQuery2TypeID > 0 ? "Update" : "Create"))
+			echo "</div>
+			<i class='icon-plus-sign'></i>"
+			.input_hidden('strQueryTypeSelect', $strQueryTypeSelect)
+		."</div>"
+		.show_submit('btnQueryAdd', ($intQuery2TypeID > 0 ? "Update" : "Create"))
 		.input_hidden('intQueryID', $intQueryID)
 		.input_hidden('intQuery2TypeID', $intQuery2TypeID)
 	."</form>
-	<h2>Preview</h2>"
+	<h2 id='preview'>Preview</h2>"
 	.show_query_form(array('query_id' => $intQueryID, 'edit' => true));
 }
 
