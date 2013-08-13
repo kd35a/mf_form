@@ -4,7 +4,7 @@
 	{
 	}
 
-	input[type=text], input[type=range], select, textarea
+	input[type=text], input[type=range], input[type=date], select, textarea
 	{
 		border: 2px solid #ccc;
 		border-radius: 3px;

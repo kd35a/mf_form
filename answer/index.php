@@ -1,5 +1,17 @@
 <?php
 
+wp_register_style('forms-font_awesome', "//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css");
+wp_enqueue_style('forms-font_awesome');
+
+/*wp_register_style('forms-style', plugins_url()."/mf_form/include/style.css");
+wp_enqueue_style('forms-style');*/
+
+wp_register_style('forms-style_wp', plugins_url()."/mf_form/include/style_wp.css");
+wp_enqueue_style('forms-style_wp');
+
+wp_enqueue_script('jquery-forms', plugins_url()."/mf_form/include/script_wp.js", array('jquery'), '1.0', true);
+wp_enqueue_script('jquery-forms');
+
 $intQueryID = check_var('intQueryID');
 $intAnswerID = check_var('intAnswerID');
 
@@ -31,10 +43,7 @@ if($dteQueryEndDate > "1982-08-04 23:15:00")
 
 $strQueryName = $wpdb->get_var("SELECT queryName FROM ".$wpdb->prefix."query WHERE queryID = '".$intQueryID."'");
 
-echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css' rel='stylesheet'>
-<link href='".plugins_url()."/mf_form/include/style.css' rel='stylesheet'/>
-<link href='".plugins_url()."/mf_form/include/style_wp.css' rel='stylesheet'/>
-<h1>Answers in ".$strQueryName."</h1>
+echo "<h1>Answers in ".$strQueryName."</h1>
 <table class='table_list'>";
 
 	$result = $wpdb->get_results("SELECT queryTypeID, queryTypeText FROM ".$wpdb->prefix."query2type INNER JOIN ".$wpdb->prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC");
@@ -205,6 +214,3 @@ echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.
 	}
 
 echo "</table>";
-
-wp_enqueue_script('jquery-forms', plugins_url()."/mf_form/include/script.js", array('jquery'), '1.0', true);
-wp_enqueue_script('jquery-forms');

@@ -1,58 +1,17 @@
+function update_range_text(dom_obj)
+{
+	dom_obj.siblings('label').children('span').text(dom_obj.val());
+}
+
 jQuery(function($)
 {
-	$('.ajax_link').on('click', function()
+	$('form input[type=range]').each(function()
 	{
-		var type = $(this).attr('href').substring(1);
-
-		if($(this).hasClass("confirm_link") && !confirm("Verkligen?"))
-		{
-			return false;
-		}
-
-		$.ajax(
-		{
-			url: '/wp-content/plugins/mf_form/include/ajax.php?type=' + type,
-			type: 'get',
-			dataType: 'json',
-			success: function(data)
-			{
-				if(data.success)
-				{
-					if(data.dom_id)
-					{
-						$('#' + data.dom_id).remove();
-					}
-				}
-
-				else
-				{
-					alert(data.error);
-				}
-			}
-		});
-
-		return false;
+		update_range_text($(this));
 	});
 
-	$('.ajax_checkbox').on('click', function()
+	$('form input[type=range]').on('change', function()
 	{
-		var type = $(this).attr('rel');
-
-		$.ajax(
-		{
-			url: '/wp-content/plugins/mf_form/include/ajax.php?type=' + type,
-			type: 'get',
-			dataType: 'json',
-			success: function(data)
-			{
-				if(data.success)
-				{}
-
-				else
-				{
-					alert(data.error);
-				}
-			}
-		});
+		update_range_text($(this));
 	});
 });

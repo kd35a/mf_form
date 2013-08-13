@@ -9,7 +9,7 @@ function show_query_settings(this_val)
 			jQuery('.tr_range').show();
 		}
 
-		if(this_val == 2 || this_val == 3)
+		if(this_val == 3) /*this_val == 2 || */
 		{
 			jQuery('.tr_check').show();
 		}
@@ -28,6 +28,62 @@ function show_query_settings(this_val)
 
 jQuery(function($)
 {
+	$('.ajax_link').on('click', function()
+	{
+		var type = $(this).attr('href').substring(1);
+
+		if($(this).hasClass("confirm_link") && !confirm("Verkligen?"))
+		{
+			return false;
+		}
+
+		$.ajax(
+		{
+			url: '/wp-content/plugins/mf_form/include/ajax.php?type=' + type,
+			type: 'get',
+			dataType: 'json',
+			success: function(data)
+			{
+				if(data.success)
+				{
+					if(data.dom_id)
+					{
+						$('#' + data.dom_id).remove();
+					}
+				}
+
+				else
+				{
+					alert(data.error);
+				}
+			}
+		});
+
+		return false;
+	});
+
+	$('.ajax_checkbox').on('click', function()
+	{
+		var type = $(this).attr('rel');
+
+		$.ajax(
+		{
+			url: '/wp-content/plugins/mf_form/include/ajax.php?type=' + type,
+			type: 'get',
+			dataType: 'json',
+			success: function(data)
+			{
+				if(data.success)
+				{}
+
+				else
+				{
+					alert(data.error);
+				}
+			}
+		});
+	});
+
 	show_query_settings($('#intQueryTypeID').val());
 
 	$('#intQueryTypeID').on('change', function()

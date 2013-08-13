@@ -1,14 +1,19 @@
 <?php
 /*
 Plugin Name: Forms
-Version: 1.3.0
+Version: 1.3.2
 Author: Martin Fors
 Author URI: www.martinfors.se
 */
 
 /* External */
 add_shortcode('form_shortcode', 'form_shortcode');
-add_action('wp_head', 'form_head');
+
+wp_register_style('forms-style', plugins_url()."/mf_form/include/style.css");
+wp_enqueue_style('forms-style');
+
+wp_enqueue_script('forms-js', plugins_url()."/mf_form/include/script.js", array('jquery'), '1.0', true);
+wp_enqueue_script('forms-js');
 
 include("include/functions.php");
 
@@ -108,18 +113,12 @@ if(isset($_POST['btnQuerySubmit']))
 
 		if($intQueryTypeID2 == 11)
 		{
-			//$var = implode(", ", $var);
-
 			$var = "";
 
 			foreach($_POST[$intQuery2TypeID2] as $value)
 			{
 				$var .= ($var != '' ? "," : "").check_var($value, $strCheckCode, false);
 			}
-
-			/*echo "Test: ".$var." (".var_export($_POST, true).")";
-
-			exit;*/
 		}
 
 		if($var != '')
@@ -155,17 +154,6 @@ if(isset($_POST['btnQuerySubmit']))
 		}
 	}
 
-	//Speciallösning tills radio buttons fungerar helt bra
-	#################
-	/*$var = isset($_POST['radio']) ? check_var($_POST['radio'], 'char', false) : '';
-
-	if($var != '')
-	{
-		$arr_query[] = "INSERT INTO ".$wpdb->prefix."query_answer (answerID, query2TypeID, answerText) VALUES ([answer_id], '".$var."', '')";
-	}*/
-	#################
-
-	//Lägger in alla rader
 	if(isset($arr_query))
 	{
 		$updated = true;
@@ -233,11 +221,6 @@ function form_shortcode($atts)
 	return show_query_form(array('query_id' => $id, 'sent' => $sent));
 }
 
-function form_head()
-{
-	echo "<link href='".plugins_url()."/mf_form/include/style.css' rel='stylesheet'/>";
-}
-
 add_action('widgets_init', 'form_load_widgets');
 
 function form_load_widgets()
@@ -251,9 +234,9 @@ class form_Widget extends WP_Widget
 	{
 		$widget_ops = array('classname' => 'form');
 
-		$control_ops = array('id_base' => 'form-widget'); //'width' => 300, 'height' => 350, 
+		$control_ops = array('id_base' => 'form-widget');
 
-		$this->WP_Widget('form-widget', __('Form Widget', 'form'), $widget_ops, $control_ops);
+		$this->WP_Widget('form-widget', __('Forms widget', 'form'), $widget_ops, $control_ops);
 	}
 
 	function widget($args, $instance)
@@ -261,9 +244,6 @@ class form_Widget extends WP_Widget
 		global $wpdb;
 
 		extract($args);
-
-		//wp_enqueue_script('jquery-form', "/wp-content/plugins/mf_form/jquery-form.js", array('jquery'), '1.0', true);
-		//wp_enqueue_script('jquery-form');
 
 		$sent = isset($_GET['sent']) ? true : false;
 
@@ -321,6 +301,7 @@ function form_activate()
 		queryAnswer text,
 		queryEmail varchar(100) DEFAULT NULL,
 		queryEmailName varchar(100) DEFAULT NULL,
+		queryButtonText varchar(100) DEFAULT NULL,
 		queryDeadline date DEFAULT NULL,
 		queryCreated datetime DEFAULT NULL,
 		userID int(4) unsigned DEFAULT '0',
@@ -328,53 +309,53 @@ function form_activate()
 	)";
 
 	$arr_create_tables[$wpdb->prefix."query2answer"] = "CREATE TABLE ".$wpdb->prefix."query2answer (
-	  answerID int(4) unsigned NOT NULL AUTO_INCREMENT,
-	  queryID int(4) unsigned NOT NULL,
-	  answerIP varchar(15) DEFAULT NULL,
-	  userID int(4) unsigned DEFAULT NULL,
-	  answerCreated datetime DEFAULT NULL,
-	  PRIMARY KEY (answerID),
-	  KEY queryID (queryID)
-	  )";
+		answerID int(4) unsigned NOT NULL AUTO_INCREMENT,
+		queryID int(4) unsigned NOT NULL,
+		answerIP varchar(15) DEFAULT NULL,
+		userID int(4) unsigned DEFAULT NULL,
+		answerCreated datetime DEFAULT NULL,
+		PRIMARY KEY (answerID),
+		KEY queryID (queryID)
+	)";
 
 	$arr_create_tables[$wpdb->prefix."query2type"] = "CREATE TABLE ".$wpdb->prefix."query2type (
-	  query2TypeID int(4) unsigned NOT NULL AUTO_INCREMENT,
-	  queryID int(4) unsigned DEFAULT '0',
-	  queryTypeID int(2) unsigned DEFAULT '0',
-	  queryTypeText text,
-	  checkID int(1) unsigned DEFAULT NULL,
-	  queryTypeForced enum('0','1') NOT NULL DEFAULT '0',
-	  query2TypeOrder int(2) unsigned NOT NULL DEFAULT '0',
-	  query2TypeCreated datetime DEFAULT NULL,
-	  userID int(4) unsigned DEFAULT NULL,
-	  PRIMARY KEY (query2TypeID),
-	  KEY queryID (queryID),
-	  KEY queryTypeID (queryTypeID)
-	  )";
+		query2TypeID int(4) unsigned NOT NULL AUTO_INCREMENT,
+		queryID int(4) unsigned DEFAULT '0',
+		queryTypeID int(2) unsigned DEFAULT '0',
+		queryTypeText text,
+		checkID int(1) unsigned DEFAULT NULL,
+		queryTypeForced enum('0','1') NOT NULL DEFAULT '0',
+		query2TypeOrder int(2) unsigned NOT NULL DEFAULT '0',
+		query2TypeCreated datetime DEFAULT NULL,
+		userID int(4) unsigned DEFAULT NULL,
+		PRIMARY KEY (query2TypeID),
+		KEY queryID (queryID),
+		KEY queryTypeID (queryTypeID)
+	)";
 	
 	$arr_create_tables[$wpdb->prefix."query_answer"] = "CREATE TABLE ".$wpdb->prefix."query_answer (
-	  answerID int(4) unsigned DEFAULT NULL,
-	  query2TypeID int(4) unsigned DEFAULT '0',
-	  answerText text,
-	  KEY query2TypeID (query2TypeID),
-	  KEY answerID (answerID)
+		answerID int(4) unsigned DEFAULT NULL,
+		query2TypeID int(4) unsigned DEFAULT '0',
+		answerText text,
+		KEY query2TypeID (query2TypeID),
+		KEY answerID (answerID)
 	) ENGINE=MyISAM DEFAULT CHARSET=latin1";
 
 	$arr_create_tables[$wpdb->prefix."query_check"] = "CREATE TABLE ".$wpdb->prefix."query_check (
-	  checkID int(1) unsigned NOT NULL AUTO_INCREMENT,
-	  checkPublic enum('0','1') NOT NULL DEFAULT '1',
-	  checkLang varchar(20) DEFAULT NULL,
-	  checkCode varchar(10) DEFAULT NULL,
-	  PRIMARY KEY (checkID)
+		checkID int(1) unsigned NOT NULL AUTO_INCREMENT,
+		checkPublic enum('0','1') NOT NULL DEFAULT '1',
+		checkLang varchar(20) DEFAULT NULL,
+		checkCode varchar(10) DEFAULT NULL,
+		PRIMARY KEY (checkID)
 	)";
 
 	$arr_create_tables[$wpdb->prefix."query_type"] = "CREATE TABLE ".$wpdb->prefix."query_type (
-	  queryTypeID int(2) unsigned NOT NULL AUTO_INCREMENT,
-	  queryTypePublic enum('0','1') NOT NULL DEFAULT '1',
-	  queryTypeLang varchar(30) DEFAULT NULL,
-	  queryTypeOrder int(2) unsigned DEFAULT NULL,
-	  queryTypeResult enum('0','1') NOT NULL DEFAULT '1',
-	  PRIMARY KEY (queryTypeID)
+		queryTypeID int(2) unsigned NOT NULL AUTO_INCREMENT,
+		queryTypePublic enum('0','1') NOT NULL DEFAULT '1',
+		queryTypeLang varchar(30) DEFAULT NULL,
+		queryTypeOrder int(2) unsigned DEFAULT NULL,
+		queryTypeResult enum('0','1') NOT NULL DEFAULT '1',
+		PRIMARY KEY (queryTypeID)
 	)";
 
 	foreach($arr_create_tables as $key => $value)
@@ -391,6 +372,7 @@ function form_activate()
 
 	$arr_update_tables[$wpdb->prefix."query"]['queryEmail'] = "ALTER TABLE ".$wpdb->prefix."query ADD queryEmail VARCHAR(100) AFTER queryAnswer";
 	$arr_update_tables[$wpdb->prefix."query"]['queryEmailName'] = "ALTER TABLE ".$wpdb->prefix."query ADD queryEmailName VARCHAR(100) AFTER queryEmail";
+	$arr_update_tables[$wpdb->prefix."query"]['queryButtonText'] = "ALTER TABLE ".$wpdb->prefix."query ADD queryButtonText VARCHAR(100) AFTER queryEmailName";
 
 	foreach($arr_update_tables as $table => $arr_col)
 	{
@@ -407,26 +389,29 @@ function form_activate()
 
 	$arr_insert_tables = array();
 
-	$arr_insert_tables[$wpdb->prefix."query_check"] = "INSERT INTO ".$wpdb->prefix."query_check VALUES('1','1','integer','int'),
-	('2','1','short_date','shortDate2'),
-	('3','1','date','date'),
-	('5','1','email','email'),
-	('6','1','phone','telno'),
-	('7','1','float','float'),
-	('8','1','url','url')";
-
-	$arr_insert_tables[$wpdb->prefix."query_type"] = "INSERT INTO ".$wpdb->prefix."query_type VALUES('1','1','Checkbox','4','1'),
-	('2','1','Range','5','1'),
-	('3','1','Input field','6','1'),
-	('4','1','Textarea','7','1'),
-	('5','1','Text','2','0'),
-	('6','1','Space','1','0'),
-	('8','1','Radio button','3','1'),
-	('10','1','Dropdown','8','1'),
-	('11', '1', 'Multiple selection', '9', '1')";
+	$arr_insert_tables[$wpdb->prefix."query_check"] = "INSERT INTO ".$wpdb->prefix."query_check VALUES('1','1','Number','int'),
+	('5','1','E-mail','email'),
+	('6','1','Phone no','telno'),
+	('7','1','Decimal number','float'),
+	('8','1','URL','url')";
 
 	/*
-		('7','0','Textarea (advanced)','','1'),
+		('2','1','Short date (YYMMDD)','shortDate2'),
+		('3','1','Date (YYYY-MM-DD)','date'),
+	*/
+
+	$arr_insert_tables[$wpdb->prefix."query_type"] = "INSERT INTO ".$wpdb->prefix."query_type VALUES('1','1','Checkbox','4','1'),
+	('2','1','Range','6','1'),
+	('3','1','Input field','5','1'),
+	('4','1','Textarea','8','1'),
+	('5','1','Text','2','0'),
+	('6','1','Space','1','0'),
+	('7','1','Datepicker','7','1'),
+	('8','1','Radio button','3','1'),
+	('10','1','Dropdown','9','1'),
+	('11', '1', 'Multiple selection', '10', '1')";
+
+	/*
 		('9','0','File upload','','1'),
 		('13','0','hidden_info','','1'),
 		('14','0','input_field_connected','','1'),
@@ -434,13 +419,8 @@ function form_activate()
 
 	foreach($arr_insert_tables as $key => $value)
 	{
-		//$result = $wpdb->get_results("SELECT * FROM ".$key);
-		$wpdb->get_results("DELETE FROM ".$key);
-
-		/*if(count($result) == 0)
-		{*/
-			$wpdb->query($value);
-		//}
+		$wpdb->query("DELETE FROM ".$key);
+		$wpdb->query($value);
 	}
 }
 
@@ -463,31 +443,23 @@ function edit_form()
 	$menu_root = 'mf_form/';
 	$menu_start = $menu_root.'list/index.php';
 
-	/*$user_levels = array('subscriber', 'author', 'contributor', 'editor', 'administrator');
+	/*$user_levels = array('editor', 'administrator');
 
 	foreach($user_levels as $level)
 	{
 		if(current_user_can($level))
 		{
-			$menu_label_1 = $level;
+			$menu_label = $level;
 		}
 	}*/
 
-	$user_levels = array('editor', 'administrator');
+	$menu_label = "edit_pages";
 
-	foreach($user_levels as $level)
-	{
-		if(current_user_can($level))
-		{
-			$menu_label_2 = $level;
-		}
-	}
-
-	add_menu_page(__('Forms'), __('Forms'), $menu_label_2, $menu_start);
+	add_menu_page(__('Forms'), __('Forms'), $menu_label, $menu_start);
 	
-	add_submenu_page($menu_start, __('Create'), __('Create'), $menu_label_2, $menu_root.'create/index.php');
-	add_submenu_page($menu_start, __('List'), __('List'), $menu_label_2, $menu_root.'list/index.php');
-	add_submenu_page($menu_start, __('All answers'), __(''), $menu_label_2, $menu_root.'answer/index.php');
-	add_submenu_page($menu_start, __('Latest answer'), __(''), $menu_label_2, $menu_root.'view/index.php');
-	add_submenu_page($menu_start, __('Export'), __(''), $menu_label_2, $menu_root.'export/index.php');
+	add_submenu_page($menu_start, __('Add New'), __('Add New'), $menu_label, $menu_root.'create/index.php');
+	add_submenu_page($menu_start, __('All Forms'), __('All Forms'), $menu_label, $menu_root.'list/index.php');
+	add_submenu_page($menu_start, __('All answers'), __(''), $menu_label, $menu_root.'answer/index.php');
+	add_submenu_page($menu_start, __('Latest answer'), __(''), $menu_label, $menu_root.'view/index.php');
+	add_submenu_page($menu_start, __('Export'), __(''), $menu_label, $menu_root.'export/index.php');
 }

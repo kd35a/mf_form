@@ -1,5 +1,14 @@
 <?php
 
+wp_register_style('forms-font_awesome', "//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css");
+wp_enqueue_style('forms-font_awesome');
+
+/*wp_register_style('forms-style', plugins_url()."/mf_form/include/style.css");
+wp_enqueue_style('forms-style');*/
+
+wp_register_style('forms-style_wp', plugins_url()."/mf_form/include/style_wp.css");
+wp_enqueue_style('forms-style_wp');
+
 $intQueryID = check_var('intQueryID');
 $intAnswerID = check_var('intAnswerID');
 
@@ -127,10 +136,7 @@ if(!($intAnswerID > 0))
 
 $strQueryName = $wpdb->get_var("SELECT queryName FROM ".$wpdb->prefix."query WHERE queryID = '".$intQueryID."'");
 
-echo "<link href='//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css' rel='stylesheet'>
-<link href='".plugins_url()."/mf_form/include/style.css' rel='stylesheet'/>
-<link href='".plugins_url()."/mf_form/include/style_wp.css' rel='stylesheet'/>
-<h1>Visa svar fr&aring;n ".$strQueryName."</h1>";
+echo "<h1>Visa svar fr&aring;n ".$strQueryName."</h1>";
 
 if($intAnswerID > 0)
 {

@@ -446,11 +446,12 @@ function show_query_form($data)
 
 	$out = "";
 
-	$result = $wpdb->get_results("SELECT queryDeadline, queryAnswerName, queryAnswer FROM ".$wpdb->prefix."query WHERE queryID = '".$data['query_id']."'");
+	$result = $wpdb->get_results("SELECT queryDeadline, queryAnswerName, queryAnswer, queryButtonText FROM ".$wpdb->prefix."query WHERE queryID = '".$data['query_id']."'");
 	$r = $result[0];
 	$dteQueryDeadline = $r->queryDeadline;
 	$strQueryAnswerName = $r->queryAnswerName;
 	$strQueryAnswer = $r->queryAnswer;
+	$strQueryButtonText = $r->queryButtonText;
 
 	if($data['sent'] == true)
 	{
@@ -503,7 +504,7 @@ function show_query_form($data)
 							}
 						}
 
-						//Tar fram medskickad variabel. Till för att fylla på med info från svar som man gjort på publik sidan men som av någon anledning inte skickats iväg
+						//
 						if($strAnswerText == '')
 						{
 							$strAnswerText = check_var($intQuery2TypeID2, 'char');
@@ -516,18 +517,24 @@ function show_query_form($data)
 
 							switch($intQueryTypeID2)
 							{
-								//Kryssruta
+								//Checkbox
 								case 1:
 									$out .= show_checkbox(array('name' => $intQuery2TypeID2, 'text' => $strQueryTypeText2, 'required' => $intQueryTypeRequired, 'value' => 1, 'compare' => $strAnswerText));
 								break;
 
+								//Input range
 								case 2:
 									$arr_content = explode("|", $strQueryTypeText2);
 
-									$out .= show_textfield($intQuery2TypeID2, $arr_content[0]." <span>(".$strAnswerText.")</span>", $strAnswerText, 200, 0, $intQueryTypeRequired, " min='".$arr_content[1]."' max='".$arr_content[2]."'", "", "", "range");
+									$out .= show_textfield($intQuery2TypeID2, $arr_content[0]." (<span>".$strAnswerText."</span>)", $strAnswerText, 200, 0, $intQueryTypeRequired, " min='".$arr_content[1]."' max='".$arr_content[2]."'", "", "", "range");
 								break;
 
-								//Flervalsruta v2
+								//Input date
+								case 7:
+									$out .= show_textfield($intQuery2TypeID2, $strQueryTypeText2, $strAnswerText, 200, 0, $intQueryTypeRequired, "", "", "", "date");
+								break;
+
+								//Radio button
 								case 8:
 									if($intQueryTypeID2 != $intQueryTypeID2_temp)
 									{
@@ -576,7 +583,7 @@ function show_query_form($data)
 									$out .= show_select(array('data' => $arr_data, 'name' => $intQuery2TypeID2."[]", 'text' => $arr_content1[0], 'compare' => $strAnswerText, 'required' => $intQueryTypeRequired));
 								break;
 
-								//Textrad
+								//Textfield
 								case 3:
 								//case 14:
 									/*if($intQueryTypeID2 == 14)
@@ -587,7 +594,7 @@ function show_query_form($data)
 									$out .= show_textfield($intQuery2TypeID2, $strQueryTypeText2, $strAnswerText, 200, 0, ($intQueryTypeRequired == 1 ? true : false));
 								break;
 
-								//Textruta
+								//Textarea
 								case 4:
 									$out .= show_textarea(array('name' => $intQuery2TypeID2, 'text' => $strQueryTypeText2, 'value' => $strAnswerText, 'size' => 'small', 'required' => $intQueryTypeRequired));
 								break;
@@ -597,12 +604,12 @@ function show_query_form($data)
 									$out .= "<p>".$strQueryTypeText2."</p>";
 								break;
 
-								//Mellanrum
+								//Space
 								case 6:
 									$out .= $data['edit'] == true ? "<p class='grey'>(space)</p>" : "<p>&nbsp;</p>";
 								break;
 
-								//Dold info
+								//Hidden info
 								/*case 13:
 									if($data['edit'] == true)
 									{
@@ -623,20 +630,20 @@ function show_query_form($data)
 
 						$i++;
 
-						//Sätter temporärt så att det går att jämföra med föregående objekt i formuläret och avgöra om det är sammanhängande radiobuttons
+						//Set temp id to check on next row if it is connected radio buttons
 						$intQueryTypeID2_temp = $intQueryTypeID2;
 					}
 
-					if($intAnswerID > 0) //$data['edit'] == true && 
+					if($intAnswerID > 0)
 					{
-						$out .= show_submit('btnQueryUpdate', "Uppdatera")
+						$out .= show_submit('btnQueryUpdate', "Update")
 						.input_hidden('intQueryID', $data['query_id'])
 						.input_hidden('intAnswerID', $intAnswerID);
 					}
 
 					else if($data['edit'] == false)
 					{
-						$out .= show_submit('btnQuerySubmit', "Skicka")
+						$out .= show_submit('btnQuerySubmit', ($strQueryButtonText != '' ? $strQueryButtonText : "Send"))
 						.input_hidden('intQueryID', $data['query_id']);
 					}
 
