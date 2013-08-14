@@ -143,6 +143,14 @@ if(!function_exists('check_var'))
 			}
 		}
 
+		else if(is_array($temp) || $type == 'array' || $type2 == 'arr')
+		{
+			if(is_array($temp) || $temp == '')
+			{
+				$out = $temp; //Får aldrig köras addslashes() på detta
+			}
+		}
+
 		else if($type == 'char' || $type2 == 'str')
 		{
 			$out = trim(addslashes($temp));
@@ -180,14 +188,6 @@ if(!function_exists('check_var'))
 			else
 			{
 				if($return_empty == false){$out = trim($temp);}
-			}
-		}
-
-		else if($type == 'array' || $type2 == 'arr')
-		{
-			if(is_array($temp) || $temp == '')
-			{
-				$out = $temp; //Får aldrig köras addslashes() på detta
 			}
 		}
 
