@@ -21,8 +21,6 @@ if(isset($_POST['btnQuerySubmit']))
 {
 	$folder = str_replace("plugins/mf_form", "themes/theme_2013", dirname(__FILE__));
 
-	include($folder."/functions.php");
-
 	$intQueryID = check_var('intQueryID');
 
 	$strAnswerIP = $_SERVER['REMOTE_ADDR'];
