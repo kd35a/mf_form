@@ -28,6 +28,7 @@ $intCheckID = check_var('intCheckID');
 $strQueryTypeSelect = check_var('strQueryTypeSelect', '', true, "0|-- Choose here --,1|Nej,2|Ja");
 $strQueryTypeMin = check_var('strQueryTypeMin', '', true, "0");
 $strQueryTypeMax = check_var('strQueryTypeMax', '', true, 100);
+$intQueryTypeForced = isset($_POST['intQueryTypeForced']) ? 1 : 0;
 
 if(isset($_POST['btnQueryCreate']))
 {
@@ -108,7 +109,7 @@ else if(isset($_POST['btnQueryAdd']))
 		{
 			if($intQueryTypeID > 0 && ($intQueryTypeID == 6 || $strQueryTypeText != ''))
 			{
-				$wpdb->get_results("UPDATE ".$wpdb->prefix."query2type SET queryTypeID = '".$intQueryTypeID."', queryTypeText = '".$strQueryTypeText."', checkID = '".$intCheckID."', userID = '".get_current_user_id()."' WHERE query2TypeID = '".$intQuery2TypeID."'");
+				$wpdb->get_results("UPDATE ".$wpdb->prefix."query2type SET queryTypeID = '".$intQueryTypeID."', queryTypeText = '".$strQueryTypeText."', checkID = '".$intCheckID."', queryTypeForced = '".$intQueryTypeForced."', userID = '".get_current_user_id()."' WHERE query2TypeID = '".$intQuery2TypeID."'");
 
 				$intQuery2TypeID = $intQueryTypeID = $strQueryTypeText = $intCheckID = "";
 			}
@@ -125,7 +126,7 @@ else if(isset($_POST['btnQueryAdd']))
 			{
 				$intQuery2TypeOrder = $wpdb->get_var("SELECT query2TypeOrder + 1 FROM ".$wpdb->prefix."query2type WHERE queryID = '".$intQueryID."' ORDER BY query2TypeOrder DESC");
 
-				$wpdb->get_results("INSERT INTO ".$wpdb->prefix."query2type SET queryID = '".$intQueryID."', queryTypeID = '".$intQueryTypeID."', queryTypeText = '".$strQueryTypeText."', checkID = '".$intCheckID."', query2TypeOrder = '".$intQuery2TypeOrder."', query2TypeCreated = NOW(), userID = '".get_current_user_id()."'");
+				$wpdb->get_results("INSERT INTO ".$wpdb->prefix."query2type SET queryID = '".$intQueryID."', queryTypeID = '".$intQueryTypeID."', queryTypeText = '".$strQueryTypeText."', checkID = '".$intCheckID."', queryTypeForced = '".$intQueryTypeForced."', query2TypeOrder = '".$intQuery2TypeOrder."', query2TypeCreated = NOW(), userID = '".get_current_user_id()."'");
 
 				if(mysql_affected_rows() > 0)
 				{
@@ -167,6 +168,7 @@ if($intQuery2TypeID > 0)
 	$intQueryTypeID = $r->queryTypeID;
 	$strQueryTypeText = $r->queryTypeText;
 	$intCheckID = $r->checkID;
+	$intQueryTypeForced = $r->queryTypeForced;
 
 	if($intQueryTypeID == 2)
 	{
@@ -232,7 +234,8 @@ if($intQueryID > 0)
 			.show_textarea(array('name' => 'strQueryTypeText', 'text' => "Text", 'value' => $strQueryTypeText, 'size' => 'small', 'class' => "tr_text"));
 
 		echo "</div>
-		<div class='alignright'>";
+		<div class='alignright'>"
+			.show_checkbox(array('name' => 'intQueryTypeForced', 'text' => 'Required', 'value' => $intQueryTypeForced, 'compare' => 1, 'xtra' => " class='tr_forced'"));
 
 			$arr_data = array();
 
