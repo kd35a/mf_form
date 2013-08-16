@@ -1,30 +1,43 @@
 @media all
 {
-	label
+	.mf_form label
 	{
+		display: block;
+		margin-bottom: 5px;
 	}
 
-	input[type=text], input[type=range], input[type=date], select, textarea
+	.mf_form input[type=text], .mf_form input[type=range], .mf_form input[type=date], .mf_form select, .mf_form textarea
 	{
 		border: 2px solid #ccc;
 		border-radius: 3px;
-		display: block;
+		display: inline-block;
 		margin: 0 0 10px;
 		padding: 5px;
 		width: 50%;
 	}
 
-	form .form_checkbox, form .form_radio
+	.mf_form .form_checkbox, .mf_form .form_radio
 	{
 		margin-bottom: 10px;	
 	}
 
-		form .form_checkbox input, form .form_radio input
+		.mf_form .form_checkbox label, .mf_form .form_radio label
+		{
+			display: inline-block;
+		}
+
+		.mf_form .form_checkbox input, .mf_form .form_radio input
 		{
 			margin-right: 5px;
 		}
 
-	button
+			.mf_form .input-buttons.input-button-size-2
+			{
+				margin-top: 6px;
+				margin-left: -46px;
+			}
+
+	.mf_form button
 	{
 		border: 2px solid #ccc;
 		border-radius: 3px;

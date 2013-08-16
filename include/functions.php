@@ -207,7 +207,7 @@ function show_textfield($var, $text, $id, $max_length = '', $field_length = 0, $
 
 	if($id == "0000-00-00"){$id = "";}
 
-	$xtra_class = $xtra_class != '' && substr($xtra_class, 0, 1) != " " ? " ".$xtra_class : $xtra_class;
+	//$xtra_class = $xtra_class != '' && substr($xtra_class, 0, 1) != " " ? " ".$xtra_class : $xtra_class;
 
 	if($required == true)
 	{
@@ -230,7 +230,7 @@ function show_textfield($var, $text, $id, $max_length = '', $field_length = 0, $
 		$label = "<label for='".$var."'>".$text.$after."</label>";
 	}
 
-	$out = "<div class='form_textfield".$xtra_class."'>"
+	$out = "<div class='form_textfield".($xtra_class != '' ? " ".$xtra_class : "")."'>"
 		.$label
 		."<input type='".$type."'".$size."".$max_length." name='".$var."' value='".stripslashes($id)."'".$xtra."/>
 	</div>";
@@ -350,9 +350,10 @@ function show_select($data)
 ######################################
 function show_checkbox($data)
 {
-	if(!isset($data['required'])){	$data['required'] = 0;}
-	if(!isset($data['compare'])){	$data['compare'] = 0;}
-	if(!isset($data['xtra'])){		$data['xtra'] = "";}
+	if(!isset($data['required'])){		$data['required'] = 0;}
+	if(!isset($data['compare'])){		$data['compare'] = 0;}
+	if(!isset($data['xtra'])){			$data['xtra'] = "";}
+	if(!isset($data['xtra_class'])){	$data['xtra_class'] = "";}
 
 	$label = "";
 
@@ -360,7 +361,7 @@ function show_checkbox($data)
 
 	if($data['text'] != '')
 	{
-		$label = "<label for='".$data['name']."'> ".$data['text'];
+		$label = "<label for='".$data['name']."'>".$data['text'];
 
 			if($data['required'] == 1)
 			{
@@ -370,7 +371,7 @@ function show_checkbox($data)
 		$label .= "</label>";
 	}
 
-	$out = "<div class='form_checkbox'>
+	$out = "<div class='form_checkbox".($data['xtra_class'] != '' ? " ".$data['xtra_class'] : "")."'>
 		<input type='checkbox' id='".$data['name']."' name='".$data['name']."' value='".$data['value']."'".$checked.$data['xtra']."/>".$label
 	."</div>";
 
@@ -385,6 +386,7 @@ function show_radio_input($data)
 	if(!isset($data['text'])){			$data['text'] = "";}
 	if(!isset($data['compare'])){		$data['compare'] = "";}
 	if(!isset($data['xtra'])){			$data['xtra'] = "";}
+	if(!isset($data['xtra_class'])){	$data['xtra_class'] = "";}
 	
 	$checked = "";
 
@@ -393,9 +395,17 @@ function show_radio_input($data)
 		$checked = " checked";
 	}
 
-	return "<div class='form_radio'>
-		<input type='radio' name='".$data['name']."' value='".$data['value']."'".$checked.$data['xtra']."/>".$data['label']
-	."</div>";
+	$out = "<div class='form_radio".($data['xtra_class'] != '' ? " ".$data['xtra_class'] : "")."'>
+		<input type='radio' name='".$data['name']."' value='".$data['value']."'".$checked.$data['xtra']."/>";
+
+		if($data['label'] != '')
+		{
+			$out .= "<label for='".$data['name']."'>".$data['label']."</label>";
+		}
+
+	$out .= "</div>";
+
+	return $out;
 }
 #################
 
@@ -471,12 +481,12 @@ function show_query_form($data)
 		{
 			$cols = $data['edit'] == true ? 5 : 2;
 
-			$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText, queryTypeForced, query2TypeOrder FROM ".$wpdb->prefix."query2type INNER JOIN ".$wpdb->prefix."query_type USING (queryTypeID) WHERE queryID = '".$data['query_id']."' GROUP BY ".$wpdb->prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC, query2TypeCreated ASC");
+			$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText, queryTypeForced, queryTypeClass, query2TypeOrder FROM ".$wpdb->prefix."query2type INNER JOIN ".$wpdb->prefix."query_type USING (queryTypeID) WHERE queryID = '".$data['query_id']."' GROUP BY ".$wpdb->prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC, query2TypeCreated ASC");
 			$intTotalRows = count($result);
 
 			if($intTotalRows > 0)
 			{
-				$out .= "<form method='post' action='' id='form_".$data['query_id']."' class='sortable_form'>";
+				$out .= "<form method='post' action='' id='form_".$data['query_id']."' class='mf_form'>";
 
 					$i = 1;
 
@@ -488,6 +498,7 @@ function show_query_form($data)
 						$intQueryTypeID2 = $r->queryTypeID;
 						$strQueryTypeText2 = $r->queryTypeText;
 						$intQueryTypeRequired = $r->queryTypeForced;
+						$strQueryTypeClass = $r->queryTypeClass;
 						$intQuery2TypeOrder = $r->query2TypeOrder;
 
 						$strAnswerText = "";
@@ -519,19 +530,19 @@ function show_query_form($data)
 							{
 								//Checkbox
 								case 1:
-									$out .= show_checkbox(array('name' => $intQuery2TypeID2, 'text' => $strQueryTypeText2, 'required' => $intQueryTypeRequired, 'value' => 1, 'compare' => $strAnswerText));
+									$out .= show_checkbox(array('name' => $intQuery2TypeID2, 'text' => $strQueryTypeText2, 'required' => $intQueryTypeRequired, 'value' => 1, 'compare' => $strAnswerText, 'xtra_class' => $strQueryTypeClass));
 								break;
 
 								//Input range
 								case 2:
 									$arr_content = explode("|", $strQueryTypeText2);
 
-									$out .= show_textfield($intQuery2TypeID2, $arr_content[0]." (<span>".$strAnswerText."</span>)", $strAnswerText, 200, 0, $intQueryTypeRequired, " min='".$arr_content[1]."' max='".$arr_content[2]."'", "", "", "range");
+									$out .= show_textfield($intQuery2TypeID2, $arr_content[0]." (<span>".$strAnswerText."</span>)", $strAnswerText, 200, 0, $intQueryTypeRequired, " min='".$arr_content[1]."' max='".$arr_content[2]."'", "", $strQueryTypeClass, "range");
 								break;
 
 								//Input date
 								case 7:
-									$out .= show_textfield($intQuery2TypeID2, $strQueryTypeText2, $strAnswerText, 200, 0, $intQueryTypeRequired, "", "", "", "date");
+									$out .= show_textfield($intQuery2TypeID2, $strQueryTypeText2, $strAnswerText, 200, 0, $intQueryTypeRequired, "", "", $strQueryTypeClass, "date");
 								break;
 
 								//Radio button
@@ -546,7 +557,7 @@ function show_query_form($data)
 										$strAnswerText = $intQuery2TypeID2;
 									}
 
-									$out .= show_radio_input(array('name' => 'radio_'.$intQuery2TypeID2_temp, 'label' => $strQueryTypeText2, 'value' => $intQuery2TypeID2, 'compare' => $strAnswerText));
+									$out .= show_radio_input(array('name' => 'radio_'.$intQuery2TypeID2_temp, 'label' => $strQueryTypeText2, 'value' => $intQuery2TypeID2, 'compare' => $strAnswerText, 'xtra_class' => $strQueryTypeClass));
 								break;
 
 								//Select
@@ -563,7 +574,7 @@ function show_query_form($data)
 										$arr_data[] = array($arr_content3[0], $arr_content3[1]);
 									}
 
-									$out .= show_select(array('data' => $arr_data, 'name' => $intQuery2TypeID2, 'text' => $arr_content1[0], 'compare' => $strAnswerText, 'required' => $intQueryTypeRequired));
+									$out .= show_select(array('data' => $arr_data, 'name' => $intQuery2TypeID2, 'text' => $arr_content1[0], 'compare' => $strAnswerText, 'required' => $intQueryTypeRequired, 'class' => $strQueryTypeClass));
 								break;
 
 								//Select (multiple)
@@ -580,7 +591,7 @@ function show_query_form($data)
 										$arr_data[] = array($arr_content3[0], $arr_content3[1]);
 									}
 
-									$out .= show_select(array('data' => $arr_data, 'name' => $intQuery2TypeID2."[]", 'text' => $arr_content1[0], 'compare' => $strAnswerText, 'required' => $intQueryTypeRequired));
+									$out .= show_select(array('data' => $arr_data, 'name' => $intQuery2TypeID2."[]", 'text' => $arr_content1[0], 'compare' => $strAnswerText, 'required' => $intQueryTypeRequired, 'class' => $strQueryTypeClass));
 								break;
 
 								//Textfield
@@ -591,29 +602,29 @@ function show_query_form($data)
 										list($strQueryTypeText2, $rest_value) = explode(":", $strQueryTypeText2);
 									}*/
 
-									$out .= show_textfield($intQuery2TypeID2, $strQueryTypeText2, $strAnswerText, 200, 0, ($intQueryTypeRequired == 1 ? true : false));
+									$out .= show_textfield($intQuery2TypeID2, $strQueryTypeText2, $strAnswerText, 200, 0, ($intQueryTypeRequired == 1 ? true : false), '', '', $strQueryTypeClass);
 								break;
 
 								//Textarea
 								case 4:
-									$out .= show_textarea(array('name' => $intQuery2TypeID2, 'text' => $strQueryTypeText2, 'value' => $strAnswerText, 'size' => 'small', 'required' => $intQueryTypeRequired));
+									$out .= show_textarea(array('name' => $intQuery2TypeID2, 'text' => $strQueryTypeText2, 'value' => $strAnswerText, 'size' => 'small', 'required' => $intQueryTypeRequired, 'class' => $strQueryTypeClass));
 								break;
 
 								//Text
 								case 5:
-									$out .= "<p>".$strQueryTypeText2."</p>";
+									$out .= "<p".($strQueryTypeClass != '' ? " class='".$strQueryTypeClass."'" : "").">".$strQueryTypeText2."</p>";
 								break;
 
 								//Space
 								case 6:
-									$out .= $data['edit'] == true ? "<p class='grey'>(space)</p>" : "<p>&nbsp;</p>";
+									$out .= $data['edit'] == true ? "<p class='grey".($strQueryTypeClass != '' ? " ".$strQueryTypeClass : "")."'>(space)</p>" : "<p".($strQueryTypeClass != '' ? " class='".$strQueryTypeClass."'" : "").">&nbsp;</p>";
 								break;
 
 								//Hidden info
 								/*case 13:
 									if($data['edit'] == true)
 									{
-										$out .= "<p class='grey'>(Hidden: '".$strQueryTypeText2."')</p>";
+										$out .= "<p class='grey".($strQueryTypeClass != '' ? " ".$strQueryTypeClass : "")."'>(Hidden: '".$strQueryTypeText2."')</p>";
 									}
 								break;*/
 							}
@@ -621,7 +632,7 @@ function show_query_form($data)
 						if($data['edit'] == true)
 						{
 							$out .= "<div class='form_buttons'>"
-									.show_checkbox(array('name' => $intQuery2TypeID2, 'text' => "Tvinga", 'value' => 1, 'compare' => $intQueryTypeRequired, 'xtra' => " class='ajax_checkbox' rel='require/type/".$intQuery2TypeID2."'"))
+									.show_checkbox(array('name' => $intQuery2TypeID2, 'text' => "Required", 'value' => 1, 'compare' => $intQueryTypeRequired, 'xtra' => " class='ajax_checkbox' rel='require/type/".$intQuery2TypeID2."'"))
 									."<a href='?page=mf_form/create/index.php&intQueryID=".$data['query_id']."&intQuery2TypeID=".$intQuery2TypeID2."#content' class='icon-edit'></a>
 									<a href='#delete/type/".$intQuery2TypeID2."' class='ajax_link confirm_link icon-trash'></a>
 								</div>

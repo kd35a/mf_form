@@ -1,3 +1,5 @@
+jQuery.webshims.polyfill();
+
 function update_range_text(dom_obj)
 {
 	dom_obj.siblings('label').children('span').text(dom_obj.val());

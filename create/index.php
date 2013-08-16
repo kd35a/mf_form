@@ -24,6 +24,7 @@ $dteQueryDeadline = check_var('dteQueryDeadline', 'date');
 $intQueryTypeID = check_var('intQueryTypeID');
 $strQueryTypeText = check_var('strQueryTypeText');
 $intCheckID = check_var('intCheckID');
+$strQueryTypeClass = check_var('strQueryTypeClass');
 
 $strQueryTypeSelect = check_var('strQueryTypeSelect', '', true, "0|-- Choose here --,1|Nej,2|Ja");
 $strQueryTypeMin = check_var('strQueryTypeMin', '', true, "0");
@@ -109,9 +110,9 @@ else if(isset($_POST['btnQueryAdd']))
 		{
 			if($intQueryTypeID > 0 && ($intQueryTypeID == 6 || $strQueryTypeText != ''))
 			{
-				$wpdb->get_results("UPDATE ".$wpdb->prefix."query2type SET queryTypeID = '".$intQueryTypeID."', queryTypeText = '".$strQueryTypeText."', checkID = '".$intCheckID."', queryTypeForced = '".$intQueryTypeForced."', userID = '".get_current_user_id()."' WHERE query2TypeID = '".$intQuery2TypeID."'");
+				$wpdb->get_results("UPDATE ".$wpdb->prefix."query2type SET queryTypeID = '".$intQueryTypeID."', queryTypeText = '".$strQueryTypeText."', checkID = '".$intCheckID."', queryTypeClass = '".$strQueryTypeClass."', queryTypeForced = '".$intQueryTypeForced."', userID = '".get_current_user_id()."' WHERE query2TypeID = '".$intQuery2TypeID."'");
 
-				$intQuery2TypeID = $intQueryTypeID = $strQueryTypeText = $intCheckID = "";
+				$intQuery2TypeID = $intQueryTypeID = $strQueryTypeText = $intCheckID = $strQueryTypeClass = "";
 			}
 
 			else
@@ -126,11 +127,11 @@ else if(isset($_POST['btnQueryAdd']))
 			{
 				$intQuery2TypeOrder = $wpdb->get_var("SELECT query2TypeOrder + 1 FROM ".$wpdb->prefix."query2type WHERE queryID = '".$intQueryID."' ORDER BY query2TypeOrder DESC");
 
-				$wpdb->get_results("INSERT INTO ".$wpdb->prefix."query2type SET queryID = '".$intQueryID."', queryTypeID = '".$intQueryTypeID."', queryTypeText = '".$strQueryTypeText."', checkID = '".$intCheckID."', queryTypeForced = '".$intQueryTypeForced."', query2TypeOrder = '".$intQuery2TypeOrder."', query2TypeCreated = NOW(), userID = '".get_current_user_id()."'");
+				$wpdb->get_results("INSERT INTO ".$wpdb->prefix."query2type SET queryID = '".$intQueryID."', queryTypeID = '".$intQueryTypeID."', queryTypeText = '".$strQueryTypeText."', checkID = '".$intCheckID."', queryTypeClass = '".$strQueryTypeClass."', queryTypeForced = '".$intQueryTypeForced."', query2TypeOrder = '".$intQuery2TypeOrder."', query2TypeCreated = NOW(), userID = '".get_current_user_id()."'");
 
 				if(mysql_affected_rows() > 0)
 				{
-					$intQueryTypeID = $strQueryTypeText = $intCheckID = "";
+					$intQueryTypeID = $strQueryTypeText = $intCheckID = $strQueryTypeClass = "";
 				}
 			}
 
@@ -163,11 +164,12 @@ if($intQueryID > 0)
 
 if($intQuery2TypeID > 0)
 {
-	$result = $wpdb->get_results("SELECT queryTypeID, queryTypeText, checkID, queryTypeForced FROM ".$wpdb->prefix."query2type WHERE query2TypeID = '".$intQuery2TypeID."'");
+	$result = $wpdb->get_results("SELECT queryTypeID, queryTypeText, checkID, queryTypeClass, queryTypeForced FROM ".$wpdb->prefix."query2type WHERE query2TypeID = '".$intQuery2TypeID."'");
 	$r = $result[0];
 	$intQueryTypeID = $r->queryTypeID;
 	$strQueryTypeText = $r->queryTypeText;
 	$intCheckID = $r->checkID;
+	$strQueryTypeClass = $r->queryTypeClass;
 	$intQueryTypeForced = $r->queryTypeForced;
 
 	if($intQueryTypeID == 2)
@@ -235,7 +237,8 @@ if($intQueryID > 0)
 
 		echo "</div>
 		<div class='alignright'>"
-			.show_checkbox(array('name' => 'intQueryTypeForced', 'text' => 'Required', 'value' => $intQueryTypeForced, 'compare' => 1, 'xtra' => " class='tr_forced'"));
+			//.show_checkbox(array('name' => 'intQueryTypeForced', 'text' => 'Required', 'value' => $intQueryTypeForced, 'compare' => 1, 'xtra' => " class='tr_forced'"))
+			.show_textfield('strQueryTypeClass', "Custom CSS class", $strQueryTypeClass, 50);
 
 			$arr_data = array();
 

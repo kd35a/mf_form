@@ -116,7 +116,7 @@ jQuery(function($)
 		$('.select_rows').append("<div>" + dom_content + "</div>");
 	});
 
-	$('.sortable_form').sortable(
+	$('.mf_form').sortable(
 	{
 		//handle: $('.form_row'),
 		opacity: .7,

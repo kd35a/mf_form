@@ -12,6 +12,12 @@ add_shortcode('form_shortcode', 'form_shortcode');
 wp_register_style('forms-style', plugins_url()."/mf_form/include/style.css");
 wp_enqueue_style('forms-style');
 
+wp_enqueue_script('forms-modernizr', plugins_url()."/mf_form/include/js-webshim/extras/modernizr-custom.js", array('jquery'), '1.0', true);
+wp_enqueue_script('forms-modernizr');
+
+wp_enqueue_script('forms-webshim', plugins_url()."/mf_form/include/js-webshim/polyfiller.js", array('jquery'), '1.0', true);
+wp_enqueue_script('forms-webshim');
+
 wp_enqueue_script('forms-js', plugins_url()."/mf_form/include/script.js", array('jquery'), '1.0', true);
 wp_enqueue_script('forms-js');
 
@@ -19,8 +25,6 @@ include("include/functions.php");
 
 if(isset($_POST['btnQuerySubmit']))
 {
-	$folder = str_replace("plugins/mf_form", "themes/theme_2013", dirname(__FILE__));
-
 	$intQueryID = check_var('intQueryID');
 
 	$strAnswerIP = $_SERVER['REMOTE_ADDR'];
@@ -182,10 +186,34 @@ if(isset($_POST['btnQuerySubmit']))
 		{
 			if($strQueryEmail != '' && isset($send_text) && $send_text != '')
 			{
-				$headers = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
+				require("include/phpmailer/class.phpmailer.php");
 
-				//add_filter('wp_mail_content_type', 'set_html_content_type');
-				wp_mail($strQueryEmail, $strQueryEmailName, $send_text, $headers);
+				$mail = new PHPMailer();
+
+				/*$mail->IsSMTP();
+				$mail->Host = "mail.yourdomain.com";
+				//$mail->SMTPDebug  = 2;
+				
+				$mail->SMTPAuth = true;
+				$mail->Host = "mail.yourdomain.com";
+				$mail->Port = 26;
+				$mail->Username = "yourname@yourdomain";
+				$mail->Password = "yourpassword";*/
+
+				$mail->From = get_bloginfo('admin_email');
+				$mail->FromName = get_bloginfo('name');
+				$mail->AddAddress($strQueryEmail);
+				$mail->IsHTML(true);
+				$mail->Subject = $strQueryEmailName;
+				$mail->Body = $send_text;
+
+				if(!$mail->Send())
+				{
+					echo "Mailer Error: ".$mail->ErrorInfo;
+				}
+				
+				//$headers = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
+				//wp_mail($strQueryEmail, $strQueryEmailName, $send_text, $headers);
 			}
 
 			$this_url = $_SERVER['HTTP_REFERER'];
@@ -322,6 +350,7 @@ function form_activate()
 		queryTypeID int(2) unsigned DEFAULT '0',
 		queryTypeText text,
 		checkID int(1) unsigned DEFAULT NULL,
+		queryTypeClass varchar(50) DEFAULT NULL,
 		queryTypeForced enum('0','1') NOT NULL DEFAULT '0',
 		query2TypeOrder int(2) unsigned NOT NULL DEFAULT '0',
 		query2TypeCreated datetime DEFAULT NULL,
@@ -371,6 +400,8 @@ function form_activate()
 	$arr_update_tables[$wpdb->prefix."query"]['queryEmail'] = "ALTER TABLE ".$wpdb->prefix."query ADD queryEmail VARCHAR(100) AFTER queryAnswer";
 	$arr_update_tables[$wpdb->prefix."query"]['queryEmailName'] = "ALTER TABLE ".$wpdb->prefix."query ADD queryEmailName VARCHAR(100) AFTER queryEmail";
 	$arr_update_tables[$wpdb->prefix."query"]['queryButtonText'] = "ALTER TABLE ".$wpdb->prefix."query ADD queryButtonText VARCHAR(100) AFTER queryEmailName";
+
+	$arr_update_tables[$wpdb->prefix."query2type"]['queryTypeClass'] = "ALTER TABLE ".$wpdb->prefix."query2type ADD queryTypeClass varchar(50) AFTER checkID";
 
 	foreach($arr_update_tables as $table => $arr_col)
 	{
