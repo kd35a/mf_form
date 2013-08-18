@@ -1,16 +1,8 @@
 <?php
 
-wp_register_style('forms-font_awesome', "//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css");
-wp_enqueue_style('forms-font_awesome');
-
-/*wp_register_style('forms-style', plugins_url()."/mf_form/include/style.css");
-wp_enqueue_style('forms-style');*/
-
-wp_register_style('forms-style_wp', plugins_url()."/mf_form/include/style_wp.css");
-wp_enqueue_style('forms-style_wp');
-
+wp_enqueue_style('forms-font_awesome', "//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css");
+wp_enqueue_style('forms-style_wp', plugins_url()."/mf_form/include/style_wp.css");
 wp_enqueue_script('jquery-forms', plugins_url()."/mf_form/include/script_wp.js", array('jquery'), '1.0', true);
-wp_enqueue_script('jquery-forms');
 
 $intQueryID = check_var('intQueryID');
 

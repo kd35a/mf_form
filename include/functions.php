@@ -207,8 +207,6 @@ function show_textfield($var, $text, $id, $max_length = '', $field_length = 0, $
 
 	if($id == "0000-00-00"){$id = "";}
 
-	//$xtra_class = $xtra_class != '' && substr($xtra_class, 0, 1) != " " ? " ".$xtra_class : $xtra_class;
-
 	if($required == true)
 	{
 		$after .= " *";
@@ -412,9 +410,7 @@ function show_radio_input($data)
 #################
 function show_submit($var, $text, $xtra = '', $type = 'submit', $class = '')
 {
-	$out = "<button type='".$type."'".($var != '' ? " name='".$var."'" : "").($class != '' ? " class='".$class."'" : "").$xtra."><span>".$text."</span></button>";
-
-	return $out;
+	return "<button type='".$type."'".($var != '' ? " name='".$var."'" : "").($class != '' ? " class='".$class."'" : "").$xtra."><span>".$text."</span></button>";
 }
 #################
 
@@ -456,7 +452,7 @@ function on_post_query_form()
 
 		$strAnswerIP = $_SERVER['REMOTE_ADDR'];
 
-		$send_text = "";
+		$send_text = $error_text = "";
 
 		$result = $wpdb->get_results("SELECT queryName, queryEmail, queryEmailName FROM ".$wpdb->prefix."query WHERE queryID = '".$intQueryID."'");
 		$r = $result[0];
@@ -474,9 +470,7 @@ function on_post_query_form()
 			$strCheckCode = $r->checkCode != '' ? $r->checkCode : "char";
 			$intQueryTypeRequired = $r->queryTypeForced;
 
-			$var = check_var($intQuery2TypeID2, $strCheckCode, true, '', false, 'post');
-
-			$send_text .= $strQueryTypeText;
+			$var = $var_send = check_var($intQuery2TypeID2, $strCheckCode, true, '', false, 'post');
 
 			//Hidden
 			/*if($intQueryTypeID2 == 13)
@@ -534,13 +528,35 @@ function on_post_query_form()
 				{
 					$var = "";
 
-					echo "Error (".$strQueryTypeText.")";
-					exit;
+					$error_text = "Error (".$strQueryTypeText.")";
 				}
 			}*/
 			###################################
 
-			if($intQueryTypeID2 == 11)
+			if($intQueryTypeID2 == 2)
+			{
+				list($strQueryTypeText, $rest) = explode("|", $strQueryTypeText);
+			}
+
+			else if($intQueryTypeID2 == 10)
+			{
+				$arr_content1 = explode(":", $strQueryTypeText);
+				$arr_content2 = explode(",", $arr_content1[1]);
+
+				foreach($arr_content2 as $str_content)
+				{
+					$arr_content3 = explode("|", $str_content);
+
+					if($var == $arr_content3[0])
+					{
+						$var_send = $arr_content3[1];
+					}
+				}
+
+				$strQueryTypeText = $arr_content1[0];
+			}
+
+			else if($intQueryTypeID2 == 11)
 			{
 				$var = "";
 
@@ -551,13 +567,34 @@ function on_post_query_form()
 						$var .= ($var != '' ? "," : "").check_var($value, $strCheckCode, false);
 					}
 				}
+
+				$arr_content1 = explode(":", $strQueryTypeText);
+				$arr_content2 = explode(",", $arr_content1[1]);
+
+				$arr_answer_text = explode(",", $var);
+
+				$var_send = "";
+
+				foreach($arr_content2 as $str_content)
+				{
+					$arr_content3 = explode("|", $str_content);
+
+					if(in_array($arr_content3[0], $arr_answer_text))
+					{
+						$var_send .= ($var_send != '' ? ", " : "").$arr_content3[1];
+					}
+				}
+
+				$strQueryTypeText = $arr_content1[0];
 			}
+
+			$send_text .= $strQueryTypeText;
 
 			if($var != '')
 			{
 				$arr_query[] = "INSERT INTO ".$wpdb->prefix."query_answer (answerID, query2TypeID, answerText) VALUES ([answer_id], '".$intQuery2TypeID2."', '".$var."')";
 
-				$send_text .= " ".$var."\n";
+				$send_text .= " ".$var_send."\n";
 			}
 
 			else if($intQueryTypeID2 == 8)
@@ -578,15 +615,19 @@ function on_post_query_form()
 			{
 				if($intQueryTypeRequired == true && $globals['error_text'] == '')
 				{
-					echo "You have to enter all mandatory fields (".$strQueryTypeText.")";
-					exit;
+					$error_text = "You have to enter all mandatory fields (".$strQueryTypeText.")";
 				}
 
 				$send_text .= "\n";
 			}
 		}
 
-		if(isset($arr_query))
+		if($error_text != '')
+		{
+			echo $error_text;
+		}
+
+		else if(isset($arr_query))
 		{
 			$updated = true;
 
@@ -616,37 +657,13 @@ function on_post_query_form()
 			{
 				if($strQueryEmail != '' && isset($send_text) && $send_text != '')
 				{
-					/*require("include/phpmailer/class.phpmailer.php");
-
-					$mail = new PHPMailer();*/
-
-					/*$mail->IsSMTP();
-					$mail->Host = "mail.yourdomain.com";
-					//$mail->SMTPDebug  = 2;
-					
-					$mail->SMTPAuth = true;
-					$mail->Host = "mail.yourdomain.com";
-					$mail->Port = 26;
-					$mail->Username = "yourname@yourdomain";
-					$mail->Password = "yourpassword";*/
-
-					/*$mail->From = get_bloginfo('admin_email');
-					$mail->FromName = get_bloginfo('name');
-					$mail->AddAddress($strQueryEmail);
-					$mail->IsHTML(true);
-					$mail->Subject = $strQueryEmailName;
-					$mail->Body = $send_text;
-
-					if(!$mail->Send())
-					{
-						echo "Mailer Error: ".$mail->ErrorInfo;
-					}*/
-					
 					$headers = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
 					wp_mail($strQueryEmail, $strQueryEmailName, $send_text, $headers);
 				}
 
 				$this_url = $_SERVER['HTTP_REFERER'];
+
+				//echo nl2br($send_text);
 
 				echo "<script>location.href = '".$this_url.(preg_match("/\?/", $this_url) ? "&" : "?")."sent';</script>";
 			}
@@ -661,7 +678,7 @@ function on_post_query_form()
 
 		else
 		{
-			echo "You have to enter all mandatory fields";
+			echo "Something went wrong...";
 			exit;
 		}
 	}

@@ -32,7 +32,7 @@ jQuery(function($)
 	{
 		var type = $(this).attr('href').substring(1);
 
-		if($(this).hasClass("confirm_link") && !confirm("Verkligen?"))
+		if($(this).hasClass("confirm_link") && !confirm("Are you sure?"))
 		{
 			return false;
 		}

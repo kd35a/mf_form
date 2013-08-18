@@ -1,16 +1,8 @@
 <?php
 
-wp_register_style('forms-font_awesome', "//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css");
-wp_enqueue_style('forms-font_awesome');
-
-/*wp_register_style('forms-style', plugins_url()."/mf_form/include/style.css");
-wp_enqueue_style('forms-style');*/
-
-wp_register_style('forms-style_wp', plugins_url()."/mf_form/include/style_wp.css");
-wp_enqueue_style('forms-style_wp');
-
+wp_enqueue_style('forms-font_awesome', "//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css");
+wp_enqueue_style('forms-style_wp', plugins_url()."/mf_form/include/style_wp.css");
 wp_enqueue_script('jquery-forms', plugins_url()."/mf_form/include/script_wp.js", array('jquery'), '1.0', true);
-wp_enqueue_script('jquery-forms');
 
 $intQueryID = check_var('intQueryID');
 $intAnswerID = check_var('intAnswerID');
@@ -67,7 +59,7 @@ echo "<h1>Answers in ".$strQueryName."</h1>
 	}
 
 	$arr_header[] = "Created";
-	$arr_header[] = "";
+	//$arr_header[] = "";
 	$arr_header[] = "";
 
 	echo show_table_header($arr_header);
@@ -204,12 +196,13 @@ echo "<h1>Answers in ".$strQueryName."</h1>
 
 				echo "<td>".$strAnswerCreated."</td>
 				<td>
-					<a href='?page=mf_form/view/index.php&intQueryID=".$intQueryID."&intAnswerID=".$intAnswerID."' class='icon-edit'></a>
-				</td>
-				<td>
 					<a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link icon-trash'></a>
 				</td>
 			</tr>";
+
+			/*<td>
+					<a href='?page=mf_form/view/index.php&intQueryID=".$intQueryID."&intAnswerID=".$intAnswerID."' class='icon-edit'></a>
+				</td>*/
 		}
 	}
 

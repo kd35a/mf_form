@@ -1,13 +1,8 @@
 <?php
 
-wp_register_style('forms-font_awesome', "//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css");
-wp_enqueue_style('forms-font_awesome');
-
-wp_register_style('forms-style_wp', plugins_url()."/mf_form/include/style_wp.css");
-wp_enqueue_style('forms-style_wp');
-
+wp_enqueue_style('forms-font_awesome', "//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css");
+wp_enqueue_style('forms-style_wp', plugins_url()."/mf_form/include/style_wp.css");
 wp_enqueue_script('jquery-forms', plugins_url()."/mf_form/include/script_wp.js", array('jquery'), '1.0', true);
-wp_enqueue_script('jquery-forms');
 
 $intQueryID = check_var('intQueryID');
 
@@ -22,7 +17,8 @@ $strQueryEmailName = check_var('strQueryEmailName');
 $strQueryButtonText = check_var('strQueryButtonText');
 $dteQueryDeadline = check_var('dteQueryDeadline', 'date');
 $intQueryTypeID = check_var('intQueryTypeID');
-$strQueryTypeText = check_var('strQueryTypeText');
+//$strQueryTypeText = check_var('strQueryTypeText');
+$strQueryTypeText = isset($_POST['strQueryTypeText']) ? $_POST['strQueryTypeText'] : "";
 $intCheckID = check_var('intCheckID');
 $strQueryTypeClass = check_var('strQueryTypeClass');
 
@@ -110,7 +106,7 @@ else if(isset($_POST['btnQueryAdd']))
 		{
 			if($intQueryTypeID > 0 && ($intQueryTypeID == 6 || $strQueryTypeText != ''))
 			{
-				$wpdb->get_results("UPDATE ".$wpdb->prefix."query2type SET queryTypeID = '".$intQueryTypeID."', queryTypeText = '".$strQueryTypeText."', checkID = '".$intCheckID."', queryTypeClass = '".$strQueryTypeClass."', queryTypeForced = '".$intQueryTypeForced."', userID = '".get_current_user_id()."' WHERE query2TypeID = '".$intQuery2TypeID."'");
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."query2type SET queryTypeID = '".$intQueryTypeID."', queryTypeText = %s, checkID = '".$intCheckID."', queryTypeClass = '".$strQueryTypeClass."', queryTypeForced = '".$intQueryTypeForced."', userID = '".get_current_user_id()."' WHERE query2TypeID = '".$intQuery2TypeID."'", $strQueryTypeText));
 
 				$intQuery2TypeID = $intQueryTypeID = $strQueryTypeText = $intCheckID = $strQueryTypeClass = "";
 			}
@@ -127,7 +123,7 @@ else if(isset($_POST['btnQueryAdd']))
 			{
 				$intQuery2TypeOrder = $wpdb->get_var("SELECT query2TypeOrder + 1 FROM ".$wpdb->prefix."query2type WHERE queryID = '".$intQueryID."' ORDER BY query2TypeOrder DESC");
 
-				$wpdb->get_results("INSERT INTO ".$wpdb->prefix."query2type SET queryID = '".$intQueryID."', queryTypeID = '".$intQueryTypeID."', queryTypeText = '".$strQueryTypeText."', checkID = '".$intCheckID."', queryTypeClass = '".$strQueryTypeClass."', queryTypeForced = '".$intQueryTypeForced."', query2TypeOrder = '".$intQuery2TypeOrder."', query2TypeCreated = NOW(), userID = '".get_current_user_id()."'");
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."query2type SET queryID = '".$intQueryID."', queryTypeID = '".$intQueryTypeID."', queryTypeText = %s, checkID = '".$intCheckID."', queryTypeClass = '".$strQueryTypeClass."', queryTypeForced = '".$intQueryTypeForced."', query2TypeOrder = '".$intQuery2TypeOrder."', query2TypeCreated = NOW(), userID = '".get_current_user_id()."'", $strQueryTypeText));
 
 				if(mysql_affected_rows() > 0)
 				{
@@ -144,7 +140,7 @@ else if(isset($_POST['btnQueryAdd']))
 
 	if($intQueryTypeID == 0)
 	{
-		echo "<script>location.href='/wp-admin/admin.php?page=mf_form/create/index.php&intQueryID=".$intQueryID."#preview'</script>";
+		echo "<script>location.href='/wp-admin/admin.php?page=mf_form/create/index.php&intQueryID=".$intQueryID."#content'</script>";
 	}
 }
 
@@ -189,7 +185,7 @@ if($intQuery2TypeID > 0)
 }
 
 echo "<h1>".($intQueryID > 0 ? "Update ".$strQueryName : "Add New")."</h1>
-<form method='post' action=''>
+<form method='post' action='' class='mf_form'>
 	<div class='alignleft'>"
 		.show_textfield('strQueryName', "Name", $strQueryName, 100, 0, true)
 		."<h2>Confirmation message</h2>"
@@ -212,7 +208,7 @@ echo "<h1>".($intQueryID > 0 ? "Update ".$strQueryName : "Add New")."</h1>
 
 if($intQueryID > 0)
 {
-	echo "<form method='post' action='' id='content'>"
+	echo "<form method='post' action='' id='content' class='mf_form'>"
 		."<h2>Content</h2>
 		<div class='alignleft'>";
 
@@ -291,6 +287,6 @@ if($intQueryID > 0)
 			.input_hidden('intQuery2TypeID', $intQuery2TypeID)
 		."</div>
 	</form>
-	<h2 id='preview'>Preview</h2>"
+	<h2>Preview</h2>"
 	.show_query_form(array('query_id' => $intQueryID, 'edit' => true));
 }

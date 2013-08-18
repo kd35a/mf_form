@@ -11,6 +11,7 @@
 		border: 2px solid #ccc;
 		border-radius: 3px;
 		display: inline-block;
+		height: auto;
 		margin: 0 0 10px;
 		padding: 5px;
 		width: 50%;
