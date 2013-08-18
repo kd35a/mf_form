@@ -11,6 +11,7 @@ add_shortcode('form_shortcode', 'form_shortcode');
 add_action('widgets_init', 'form_load_widgets');
 
 wp_enqueue_style('forms-style', plugins_url()."/mf_form/include/style.css");
+wp_enqueue_script('jquery-ui-sortable');
 wp_enqueue_script('forms-modernizr', plugins_url()."/mf_form/include/js-webshim/extras/modernizr-custom.js", array('jquery'), '1.0', true);
 wp_enqueue_script('forms-webshim', plugins_url()."/mf_form/include/js-webshim/polyfiller.js", array('jquery'), '1.0', true);
 wp_enqueue_script('forms-js', plugins_url()."/mf_form/include/script.js", array('jquery'), '1.0', true);
