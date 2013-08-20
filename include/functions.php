@@ -850,7 +850,7 @@ function show_query_form($data)
 
 								//Text
 								case 5:
-									$out .= "<p".($strQueryTypeClass != '' ? " class='".$strQueryTypeClass."'" : "").">".$strQueryTypeText2."</p>";
+									$out .= "<div".($strQueryTypeClass != '' ? " class='".$strQueryTypeClass."'" : "").">".$strQueryTypeText2."</div>";
 								break;
 
 								//Space

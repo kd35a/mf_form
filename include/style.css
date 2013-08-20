@@ -8,6 +8,7 @@
 
 	.mf_form input[type=text], .mf_form input[type=range], .mf_form input[type=date], .mf_form select, .mf_form textarea
 	{
+		background: #fff;
 		border: 2px solid #ccc;
 		border-radius: 3px;
 		display: inline-block;
