@@ -6,7 +6,7 @@ $intQueryID = check_var('intQueryID');
 
 if(!($intQueryID > 0))
 {
-	$intQueryID = $wpdb->get_var("SELECT queryID FROM ".$wpdb->prefix."query LEFT JOIN ".$wpdb->prefix."query2answer USING (queryID) ORDER BY answerCreated DESC, queryCreated DESC LIMIT 0, 1");
+	$intQueryID = $wpdb->get_var("SELECT queryID FROM ".$wpdb->base_prefix."query LEFT JOIN ".$wpdb->base_prefix."query2answer USING (queryID) ORDER BY answerCreated DESC, queryCreated DESC LIMIT 0, 1");
 }
 
 echo "<h1>Export</h1>
@@ -15,7 +15,7 @@ echo "<h1>Export</h1>
 
 $strExportDate = date("Y-m-d H:i:s");
 
-$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->prefix."query2type INNER JOIN ".$wpdb->prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC");
+$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC");
 
 $file_type = "csv";
 $field_separator = ",";
@@ -47,7 +47,7 @@ foreach($result as $r)
 
 $out .= $field_separator."Skapad".$row_separator;
 
-$result = $wpdb->get_results("SELECT answerID, queryID, answerCreated, answerIP FROM ".$wpdb->prefix."query2answer INNER JOIN ".$wpdb->prefix."query_answer USING (answerID) WHERE queryID = '".$intQueryID."' GROUP BY answerID ORDER BY answerCreated DESC");
+$result = $wpdb->get_results("SELECT answerID, queryID, answerCreated, answerIP FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '".$intQueryID."' GROUP BY answerID ORDER BY answerCreated DESC");
 $rows = count($result);
 
 if($rows == 0)
@@ -64,7 +64,7 @@ else
 		$strAnswerCreated = $r->answerCreated;
 		$strAnswerIP = $r->answerIP;
 
-		$resultText = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->prefix."query2type INNER JOIN ".$wpdb->prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC");
+		$resultText = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC");
 
 		$i = 0;
 
@@ -74,7 +74,7 @@ else
 			$intQueryTypeID = $r->queryTypeID;
 			$strQueryTypeText = $r->queryTypeText;
 
-			$resultAnswer = $wpdb->get_results("SELECT answerText FROM ".$wpdb->prefix."query_answer WHERE query2TypeID = '".$intQuery2TypeID."' AND answerID = '".$intAnswerID."'");
+			$resultAnswer = $wpdb->get_results("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE query2TypeID = '".$intQuery2TypeID."' AND answerID = '".$intAnswerID."'");
 			$rowsAnswer = count($resultAnswer);
 
 			if($i > 0){$out .= $field_separator;}
@@ -142,7 +142,7 @@ else
 
 	$out .= $row_separator."Row count: ".$rows.$row_separator."Date: ".$strExportDate;
 
-	$strQueryName = $wpdb->get_var("SELECT queryName FROM ".$wpdb->prefix."query WHERE queryID = '".$intQueryID."'");
+	$strQueryName = $wpdb->get_var("SELECT queryName FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."'");
 
 	$file = sanitize_title_with_dashes(sanitize_title($strQueryName))."_".date("YmdHis").".".$file_type;
 

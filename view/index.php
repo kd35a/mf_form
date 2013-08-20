@@ -10,7 +10,7 @@ if(isset($_POST['btnQueryUpdate']))
 {
 	$updated = true;
 
-	$result = $wpdb->get_results("SELECT query2TypeID FROM ".$wpdb->prefix."query2type INNER JOIN ".$wpdb->prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' AND queryTypeID != '13' ORDER BY query2TypeOrder ASC, query2TypeCreated ASC");
+	$result = $wpdb->get_results("SELECT query2TypeID FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' AND queryTypeID != '13' ORDER BY query2TypeOrder ASC, query2TypeCreated ASC");
 
 	$strAnswerIP = $_SERVER['REMOTE_ADDR'];
 
@@ -22,17 +22,17 @@ if(isset($_POST['btnQueryUpdate']))
 
 		if($var != '')
 		{
-			$result_temp = $wpdb->get_results("SELECT answerID FROM ".$wpdb->prefix."query_answer WHERE answerID = '".$intAnswerID."' AND query2TypeID = '".$intQuery2TypeID2."' LIMIT 0, 1");
+			$result_temp = $wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '".$intAnswerID."' AND query2TypeID = '".$intQuery2TypeID2."' LIMIT 0, 1");
 			$rowsCheck = count($result_temp);
 
 			if($rowsCheck > 0)
 			{
-				$result_temp = $wpdb->get_results("SELECT answerID FROM ".$wpdb->prefix."query_answer WHERE answerID = '".$intAnswerID."' AND query2TypeID = '".$intQuery2TypeID2."' AND answerText = '".$var."' LIMIT 0, 1");
+				$result_temp = $wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '".$intAnswerID."' AND query2TypeID = '".$intQuery2TypeID2."' AND answerText = '".$var."' LIMIT 0, 1");
 				$rowsCheck = count($result_temp);
 
 				if($rowsCheck == 0)
 				{
-					$wpdb->get_results("UPDATE ".$wpdb->prefix."query_answer SET answerText = '".$var."' WHERE answerID = '".$intAnswerID."' AND query2TypeID = '".$intQuery2TypeID2."'");
+					$wpdb->get_results("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '".$var."' WHERE answerID = '".$intAnswerID."' AND query2TypeID = '".$intQuery2TypeID2."'");
 
 					if(mysql_affected_rows() == 0)
 					{
@@ -43,7 +43,7 @@ if(isset($_POST['btnQueryUpdate']))
 
 			else
 			{
-				$wpdb->get_results("INSERT INTO ".$wpdb->prefix."query_answer (answerID, query2TypeID, answerText) VALUES ('".$intAnswerID."', '".$intQuery2TypeID2."', '".$var."')");
+				$wpdb->get_results("INSERT INTO ".$wpdb->base_prefix."query_answer (answerID, query2TypeID, answerText) VALUES ('".$intAnswerID."', '".$intQuery2TypeID2."', '".$var."')");
 
 				if(mysql_affected_rows() == 0)
 				{
@@ -54,12 +54,12 @@ if(isset($_POST['btnQueryUpdate']))
 
 		else
 		{
-			$result_temp = $wpdb->get_results("SELECT answerID FROM ".$wpdb->prefix."query_answer WHERE answerID = '".$intAnswerID."' AND query2TypeID = '".$intQuery2TypeID2."' LIMIT 0, 1");
+			$result_temp = $wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '".$intAnswerID."' AND query2TypeID = '".$intQuery2TypeID2."' LIMIT 0, 1");
 			$rowsCheck = count($result_temp);
 
 			if($rowsCheck > 0)
 			{
-				$wpdb->get_results("DELETE FROM ".$wpdb->prefix."query_answer WHERE answerID = '".$intAnswerID."' AND query2TypeID = '".$intQuery2TypeID2."'");
+				$wpdb->get_results("DELETE FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '".$intAnswerID."' AND query2TypeID = '".$intQuery2TypeID2."'");
 			}
 		}
 	}
@@ -70,12 +70,12 @@ if(isset($_POST['btnQueryUpdate']))
 
 	if($var != '')
 	{
-		$result_temp = $wpdb->get_results("SELECT answerID FROM ".$wpdb->prefix."query_answer WHERE answerID = '".$intAnswerID."' AND query2TypeID = '".$var."' LIMIT 0, 2");
+		$result_temp = $wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '".$intAnswerID."' AND query2TypeID = '".$var."' LIMIT 0, 2");
 		$rowsCheck = count($result_temp);
 
 		if($rowsCheck == 1)
 		{
-			$wpdb->get_results("UPDATE ".$wpdb->prefix."query_answer SET answerText = '' WHERE answerID = '".$intAnswerID."' AND query2TypeID = '".$var."'");
+			$wpdb->get_results("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '' WHERE answerID = '".$intAnswerID."' AND query2TypeID = '".$var."'");
 
 			if(mysql_affected_rows() == 0)
 			{
@@ -85,16 +85,16 @@ if(isset($_POST['btnQueryUpdate']))
 
 		else
 		{
-			$resultRadios = $wpdb->get_results("SELECT query2TypeID FROM ".$wpdb->prefix."query2type WHERE queryID = '".$intQueryID."' AND queryTypeID = '2'");
+			$resultRadios = $wpdb->get_results("SELECT query2TypeID FROM ".$wpdb->base_prefix."query2type WHERE queryID = '".$intQueryID."' AND queryTypeID = '2'");
 
 			foreach($resultRadios as $r)
 			{
 				$intQuery2TypeID = $r->query2TypeID;
 
-				$wpdb->get_results("DELETE FROM ".$wpdb->prefix."query_answer WHERE answerID = '".$intAnswerID."' AND query2TypeID = '".$intQuery2TypeID."'");
+				$wpdb->get_results("DELETE FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '".$intAnswerID."' AND query2TypeID = '".$intQuery2TypeID."'");
 			}
 
-			$wpdb->get_results("INSERT INTO ".$wpdb->prefix."query_answer (answerID, query2TypeID, answerText) VALUES ('".$intAnswerID."', '".$var."', '')");
+			$wpdb->get_results("INSERT INTO ".$wpdb->base_prefix."query_answer (answerID, query2TypeID, answerText) VALUES ('".$intAnswerID."', '".$var."', '')");
 
 			if(mysql_affected_rows() == 0)
 			{
@@ -119,7 +119,7 @@ if(isset($_POST['btnQueryUpdate']))
 
 if(!($intAnswerID > 0))
 {
-	$result = $wpdb->get_results("SELECT queryID, answerID FROM ".$wpdb->prefix."query INNER JOIN ".$wpdb->prefix."query2answer USING (queryID) ORDER BY answerCreated DESC LIMIT 0, 1");
+	$result = $wpdb->get_results("SELECT queryID, answerID FROM ".$wpdb->base_prefix."query INNER JOIN ".$wpdb->base_prefix."query2answer USING (queryID) ORDER BY answerCreated DESC LIMIT 0, 1");
 
 	foreach($result as $r)
 	{
@@ -128,7 +128,7 @@ if(!($intAnswerID > 0))
 	}
 }
 
-$strQueryName = $wpdb->get_var("SELECT queryName FROM ".$wpdb->prefix."query WHERE queryID = '".$intQueryID."'");
+$strQueryName = $wpdb->get_var("SELECT queryName FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."'");
 
 echo "<h1>Visa svar fr&aring;n ".$strQueryName."</h1>";
 

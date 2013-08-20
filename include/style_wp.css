@@ -1,9 +1,30 @@
 @media all
 {
-	/*[class*="foundicon-"]
+	#notification div
 	{
-		font-size: 1.2em;
-	}*/
+		border-width: 2px;
+		border-style: solid;
+		margin: 0 10px 10px 0;
+		padding: 5px;
+	}
+
+		#notification .error
+		{
+			background: #fbe3e4;
+			border-color: #fbc2c4;
+		}
+
+		#notification .notice
+		{
+			background: #fff6bf;
+			border-color: #ffd324;
+		}
+
+		#notification .done
+		{
+			background: #d9f1bf;
+			border-color: #b5e56a;
+		}
 
 	table
 	{
@@ -57,6 +78,11 @@
 	.alignleft, .alignright
 	{
 		width: 50%;
+	}
+
+	.mf_form
+	{
+		border-bottom: 1px solid #aaa;
 	}
 
 	.form_row

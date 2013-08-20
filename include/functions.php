@@ -452,15 +452,15 @@ function on_post_query_form()
 
 		$strAnswerIP = $_SERVER['REMOTE_ADDR'];
 
-		$send_text = $error_text = "";
+		$send_text = $error_text = $send_from = "";
 
-		$result = $wpdb->get_results("SELECT queryName, queryEmail, queryEmailName FROM ".$wpdb->prefix."query WHERE queryID = '".$intQueryID."'");
+		$result = $wpdb->get_results("SELECT queryName, queryEmail, queryEmailName FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."'");
 		$r = $result[0];
 		$strQueryName = $r->queryName;
 		$strQueryEmail = $r->queryEmail;
 		$strQueryEmailName = $r->queryEmailName;
 
-		$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode, queryTypeForced FROM ".$wpdb->prefix."query_check RIGHT JOIN ".$wpdb->prefix."query2type USING (checkID) INNER JOIN ".$wpdb->prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' ORDER BY query2TypeOrder ASC, query2TypeCreated ASC");
+		$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode, queryTypeForced FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' ORDER BY query2TypeOrder ASC, query2TypeCreated ASC");
 
 		foreach($result as $r)
 		{
@@ -472,47 +472,10 @@ function on_post_query_form()
 
 			$var = $var_send = check_var($intQuery2TypeID2, $strCheckCode, true, '', false, 'post');
 
-			//Hidden
-			/*if($intQueryTypeID2 == 13)
+			if($var != '' && $intQueryTypeID2 == 3 && $strCheckCode == 'email')
 			{
-				$regexp1 = "/\[var=(.*?)]/";
-				$regexp2 = "/\[(x*?)]/";
-
-				if(preg_match($regexp1, $strQueryTypeText))
-				{
-					$query_var_name = get_match($regexp1, $strQueryTypeText, false);
-
-					$var = check_var($query_var_name);
-				}
-
-				else if(preg_match($regexp2, $strQueryTypeText))
-				{
-					$query_counter_value = get_match($regexp2, $strQueryTypeText, false);
-					$query_counter_label = str_replace("[".$query_counter_value."]", "", $strQueryTypeText);
-
-					$strQueryCounter = $wpdb->get_var("SELECT answerText FROM ".$wpdb->prefix."query2answer INNER JOIN ".$wpdb->prefix."query_answer USING (answerID) INNER JOIN ".$wpdb->prefix."query2type USING (query2TypeID) WHERE ".$wpdb->prefix."query2answer.queryID = '".$intQueryID."' AND queryTypeID = '".$intQueryTypeID2."' AND answerText LIKE '%".$query_counter_label."%' ORDER BY answerCreated DESC");
-
-					$query_counter_value_old = str_replace($query_counter_label, "", $strQueryCounter);
-
-					if($query_counter_value_old == "")
-					{
-						$query_counter_value_old = 0;
-					}
-
-					$query_counter_value_old++;
-
-					$var = $query_counter_label.zeroise($query_counter_value_old, strlen($query_counter_value));
-				}
-
-				else
-				{
-					$var = $strQueryTypeText;
-				}
-
-				$arr_query[] = "INSERT INTO ".$wpdb->prefix."query_answer (answerID, query2TypeID, answerText) VALUES ([answer_id], '".$intQuery2TypeID2."', '".$var."')";
-
-				$send_text .= " ".$var."\n";
-			}*/
+				$send_from = $var;
+			}
 
 			//Connected
 			###################################
@@ -521,7 +484,7 @@ function on_post_query_form()
 				list($strQueryTypeText, $arr_content1) = explode(":", $strQueryTypeText);
 				list($intQueryID_temp, $intQuery2TypeID2_temp) = explode("|", $arr_content1);
 
-				$result = $wpdb->get_results("SELECT answerID FROM ".$wpdb->prefix."query2answer INNER JOIN ".$wpdb->prefix."query_answer USING (answerID) WHERE queryID = '".$intQueryID_temp."' AND query2TypeID = '".$intQuery2TypeID2_temp."' AND answerText = '".$var."'");
+				$result = $wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '".$intQueryID_temp."' AND query2TypeID = '".$intQuery2TypeID2_temp."' AND answerText = '".$var."'");
 				$rows = count($result);
 
 				if($rows == 0)
@@ -588,11 +551,11 @@ function on_post_query_form()
 				$strQueryTypeText = $arr_content1[0];
 			}
 
-			$send_text .= $strQueryTypeText;
+			$send_text .= "\n".$strQueryTypeText."\n";
 
 			if($var != '')
 			{
-				$arr_query[] = "INSERT INTO ".$wpdb->prefix."query_answer (answerID, query2TypeID, answerText) VALUES ([answer_id], '".$intQuery2TypeID2."', '".$var."')";
+				$arr_query[] = "INSERT INTO ".$wpdb->base_prefix."query_answer (answerID, query2TypeID, answerText) VALUES ([answer_id], '".$intQuery2TypeID2."', '".$var."')";
 
 				$send_text .= " ".$var_send."\n";
 			}
@@ -603,10 +566,10 @@ function on_post_query_form()
 
 				if($var_radio != '')
 				{
-					$arr_query[] = "INSERT INTO ".$wpdb->prefix."query_answer (answerID, query2TypeID, answerText) VALUES ([answer_id], '".$var_radio."', '')";
+					$arr_query[] = "INSERT INTO ".$wpdb->base_prefix."query_answer (answerID, query2TypeID, answerText) VALUES ([answer_id], '".$var_radio."', '')";
 				}
 
-				$strQueryTypeText_temp = $wpdb->get_var("SELECT queryTypeText FROM ".$wpdb->prefix."query2type WHERE query2TypeID = '".$var_radio."'");
+				$strQueryTypeText_temp = $wpdb->get_var("SELECT queryTypeText FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '".$var_radio."'");
 
 				$send_text .= ($strQueryTypeText_temp == $strQueryTypeText ? " x" : "")."\n";
 			}
@@ -618,7 +581,7 @@ function on_post_query_form()
 					$error_text = "You have to enter all mandatory fields (".$strQueryTypeText.")";
 				}
 
-				$send_text .= "\n";
+				//$send_text .= "\n";
 			}
 		}
 
@@ -631,7 +594,7 @@ function on_post_query_form()
 		{
 			$updated = true;
 
-			$wpdb->get_results("INSERT INTO ".$wpdb->prefix."query2answer (queryID, answerIP, answerCreated) VALUES ('".$intQueryID."', '".$strAnswerIP."', NOW())");
+			$wpdb->get_results("INSERT INTO ".$wpdb->base_prefix."query2answer (queryID, answerIP, answerCreated) VALUES ('".$intQueryID."', '".$strAnswerIP."', NOW())");
 
 			$intAnswerID = mysql_insert_id();
 
@@ -657,7 +620,19 @@ function on_post_query_form()
 			{
 				if($strQueryEmail != '' && isset($send_text) && $send_text != '')
 				{
-					$headers = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
+					if($send_from != '')
+					{
+						$headers = "From: ".$send_from." <".$send_from.">\r\n";
+					}
+
+					else
+					{
+						$headers = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
+					}
+
+					/*echo $headers;
+					exit;*/
+
 					wp_mail($strQueryEmail, $strQueryEmailName, $send_text, $headers);
 				}
 
@@ -694,7 +669,7 @@ function show_query_form($data)
 
 	$out = "";
 
-	$result = $wpdb->get_results("SELECT queryDeadline, queryAnswerName, queryAnswer, queryButtonText FROM ".$wpdb->prefix."query WHERE queryID = '".$data['query_id']."'");
+	$result = $wpdb->get_results("SELECT queryDeadline, queryAnswerName, queryAnswer, queryButtonText FROM ".$wpdb->base_prefix."query WHERE queryID = '".$data['query_id']."'");
 	$r = $result[0];
 	$dteQueryDeadline = $r->queryDeadline;
 	$strQueryAnswerName = $r->queryAnswerName;
@@ -719,7 +694,7 @@ function show_query_form($data)
 		{
 			$cols = $data['edit'] == true ? 5 : 2;
 
-			$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText, queryTypeForced, queryTypeClass, query2TypeOrder FROM ".$wpdb->prefix."query2type INNER JOIN ".$wpdb->prefix."query_type USING (queryTypeID) WHERE queryID = '".$data['query_id']."' GROUP BY ".$wpdb->prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC, query2TypeCreated ASC");
+			$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText, queryTypeForced, queryTypeClass, query2TypeOrder FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$data['query_id']."' GROUP BY ".$wpdb->base_prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC, query2TypeCreated ASC");
 			$intTotalRows = count($result);
 
 			if($intTotalRows > 0)
@@ -743,7 +718,7 @@ function show_query_form($data)
 
 						if($intAnswerID > 0)
 						{
-							$resultInfo = $wpdb->get_results("SELECT answerText FROM ".$wpdb->prefix."query_answer WHERE query2TypeID = '".$intQuery2TypeID2."' AND answerID = '".$intAnswerID."' LIMIT 0, 1");
+							$resultInfo = $wpdb->get_results("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE query2TypeID = '".$intQuery2TypeID2."' AND answerID = '".$intAnswerID."' LIMIT 0, 1");
 							$rowsInfo = count($resultInfo);
 
 							if($rowsInfo > 0)
@@ -774,6 +749,11 @@ function show_query_form($data)
 								//Input range
 								case 2:
 									$arr_content = explode("|", $strQueryTypeText2);
+
+									if($strAnswerText == '')
+									{
+										$strAnswerText = $arr_content[3];
+									}
 
 									$out .= show_textfield($intQuery2TypeID2, $arr_content[0]." (<span>".$strAnswerText."</span>)", $strAnswerText, 200, 0, $intQueryTypeRequired, " min='".$arr_content[1]."' max='".$arr_content[2]."'", "", $strQueryTypeClass, "range");
 								break;

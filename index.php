@@ -7,10 +7,11 @@ Author URI: www.martinfors.se
 */
 
 /* External */
+add_shortcode('mf_form', 'form_shortcode');
 add_shortcode('form_shortcode', 'form_shortcode');
 add_action('widgets_init', 'form_load_widgets');
 
-wp_enqueue_style('forms-style', plugins_url()."/mf_form/include/style.css");
+wp_enqueue_style('style-forms', plugins_url()."/mf_form/include/style.css");
 wp_enqueue_script('jquery-ui-sortable');
 wp_enqueue_script('forms-modernizr', plugins_url()."/mf_form/include/js-webshim/extras/modernizr-custom.js", array('jquery'), '1.0', true);
 wp_enqueue_script('forms-webshim', plugins_url()."/mf_form/include/js-webshim/polyfiller.js", array('jquery'), '1.0', true);
@@ -81,7 +82,7 @@ class form_Widget extends WP_Widget
 			<select name='".$this->get_field_name('form_id')."' id='".$this->get_field_id('form_id')."' class='widefat'>
 				<option value=''>-- Choose here --</option>";
 
-				$result = $wpdb->get_results("SELECT queryID, queryName FROM ".$wpdb->prefix."query ORDER BY queryName ASC");
+				$result = $wpdb->get_results("SELECT queryID, queryName FROM ".$wpdb->base_prefix."query ORDER BY queryName ASC");
 
 				foreach($result as $r)
 				{
@@ -104,7 +105,7 @@ function form_activate()
 
 	$arr_create_tables = array();
 
-	$arr_create_tables[$wpdb->prefix."query"] = "CREATE TABLE ".$wpdb->prefix."query (
+	$arr_create_tables[$wpdb->base_prefix."query"] = "CREATE TABLE ".$wpdb->base_prefix."query (
 		queryID int(4) unsigned NOT NULL AUTO_INCREMENT,
 		queryName varchar(100) DEFAULT NULL,
 		queryAnswerName varchar(50) DEFAULT NULL,
@@ -118,7 +119,7 @@ function form_activate()
 		PRIMARY KEY (queryID)
 	)";
 
-	$arr_create_tables[$wpdb->prefix."query2answer"] = "CREATE TABLE ".$wpdb->prefix."query2answer (
+	$arr_create_tables[$wpdb->base_prefix."query2answer"] = "CREATE TABLE ".$wpdb->base_prefix."query2answer (
 		answerID int(4) unsigned NOT NULL AUTO_INCREMENT,
 		queryID int(4) unsigned NOT NULL,
 		answerIP varchar(15) DEFAULT NULL,
@@ -128,7 +129,7 @@ function form_activate()
 		KEY queryID (queryID)
 	)";
 
-	$arr_create_tables[$wpdb->prefix."query2type"] = "CREATE TABLE ".$wpdb->prefix."query2type (
+	$arr_create_tables[$wpdb->base_prefix."query2type"] = "CREATE TABLE ".$wpdb->base_prefix."query2type (
 		query2TypeID int(4) unsigned NOT NULL AUTO_INCREMENT,
 		queryID int(4) unsigned DEFAULT '0',
 		queryTypeID int(2) unsigned DEFAULT '0',
@@ -144,7 +145,7 @@ function form_activate()
 		KEY queryTypeID (queryTypeID)
 	)";
 	
-	$arr_create_tables[$wpdb->prefix."query_answer"] = "CREATE TABLE ".$wpdb->prefix."query_answer (
+	$arr_create_tables[$wpdb->base_prefix."query_answer"] = "CREATE TABLE ".$wpdb->base_prefix."query_answer (
 		answerID int(4) unsigned DEFAULT NULL,
 		query2TypeID int(4) unsigned DEFAULT '0',
 		answerText text,
@@ -152,7 +153,7 @@ function form_activate()
 		KEY answerID (answerID)
 	) ENGINE=MyISAM DEFAULT CHARSET=latin1";
 
-	$arr_create_tables[$wpdb->prefix."query_check"] = "CREATE TABLE ".$wpdb->prefix."query_check (
+	$arr_create_tables[$wpdb->base_prefix."query_check"] = "CREATE TABLE ".$wpdb->base_prefix."query_check (
 		checkID int(1) unsigned NOT NULL AUTO_INCREMENT,
 		checkPublic enum('0','1') NOT NULL DEFAULT '1',
 		checkLang varchar(20) DEFAULT NULL,
@@ -160,7 +161,7 @@ function form_activate()
 		PRIMARY KEY (checkID)
 	)";
 
-	$arr_create_tables[$wpdb->prefix."query_type"] = "CREATE TABLE ".$wpdb->prefix."query_type (
+	$arr_create_tables[$wpdb->base_prefix."query_type"] = "CREATE TABLE ".$wpdb->base_prefix."query_type (
 		queryTypeID int(2) unsigned NOT NULL AUTO_INCREMENT,
 		queryTypePublic enum('0','1') NOT NULL DEFAULT '1',
 		queryTypeLang varchar(30) DEFAULT NULL,
@@ -181,11 +182,11 @@ function form_activate()
 
 	$arr_update_tables = array();
 
-	$arr_update_tables[$wpdb->prefix."query"]['queryEmail'] = "ALTER TABLE ".$wpdb->prefix."query ADD queryEmail VARCHAR(100) AFTER queryAnswer";
-	$arr_update_tables[$wpdb->prefix."query"]['queryEmailName'] = "ALTER TABLE ".$wpdb->prefix."query ADD queryEmailName VARCHAR(100) AFTER queryEmail";
-	$arr_update_tables[$wpdb->prefix."query"]['queryButtonText'] = "ALTER TABLE ".$wpdb->prefix."query ADD queryButtonText VARCHAR(100) AFTER queryEmailName";
+	$arr_update_tables[$wpdb->base_prefix."query"]['queryEmail'] = "ALTER TABLE ".$wpdb->base_prefix."query ADD queryEmail VARCHAR(100) AFTER queryAnswer";
+	$arr_update_tables[$wpdb->base_prefix."query"]['queryEmailName'] = "ALTER TABLE ".$wpdb->base_prefix."query ADD queryEmailName VARCHAR(100) AFTER queryEmail";
+	$arr_update_tables[$wpdb->base_prefix."query"]['queryButtonText'] = "ALTER TABLE ".$wpdb->base_prefix."query ADD queryButtonText VARCHAR(100) AFTER queryEmailName";
 
-	$arr_update_tables[$wpdb->prefix."query2type"]['queryTypeClass'] = "ALTER TABLE ".$wpdb->prefix."query2type ADD queryTypeClass varchar(50) AFTER checkID";
+	$arr_update_tables[$wpdb->base_prefix."query2type"]['queryTypeClass'] = "ALTER TABLE ".$wpdb->base_prefix."query2type ADD queryTypeClass varchar(50) AFTER checkID";
 
 	foreach($arr_update_tables as $table => $arr_col)
 	{
@@ -202,7 +203,7 @@ function form_activate()
 
 	$arr_insert_tables = array();
 
-	$arr_insert_tables[$wpdb->prefix."query_check"] = "INSERT INTO ".$wpdb->prefix."query_check VALUES('1','1','Number','int'),
+	$arr_insert_tables[$wpdb->base_prefix."query_check"] = "INSERT INTO ".$wpdb->base_prefix."query_check VALUES('1','1','Number','int'),
 	('5','1','E-mail','email'),
 	('6','1','Phone no','telno'),
 	('7','1','Decimal number','float'),
@@ -213,7 +214,7 @@ function form_activate()
 		('3','1','Date (YYYY-MM-DD)','date'),
 	*/
 
-	$arr_insert_tables[$wpdb->prefix."query_type"] = "INSERT INTO ".$wpdb->prefix."query_type VALUES('1','1','Checkbox','4','1'),
+	$arr_insert_tables[$wpdb->base_prefix."query_type"] = "INSERT INTO ".$wpdb->base_prefix."query_type VALUES('1','1','Checkbox','4','1'),
 	('2','1','Range','6','1'),
 	('3','1','Input field','5','1'),
 	('4','1','Textarea','8','1'),
@@ -226,7 +227,6 @@ function form_activate()
 
 	/*
 		('9','0','File upload','','1'),
-		('13','0','hidden_info','','1'),
 		('14','0','input_field_connected','','1'),
 	*/
 
@@ -263,6 +263,6 @@ function edit_form()
 	add_submenu_page($menu_start, __('Add New'), __('Add New'), $menu_label, $menu_root.'create/index.php');
 	add_submenu_page($menu_start, __('All Forms'), __('All Forms'), $menu_label, $menu_root.'list/index.php');
 	add_submenu_page($menu_start, __('All answers'), __(''), $menu_label, $menu_root.'answer/index.php');
-	add_submenu_page($menu_start, __('Latest answer'), __(''), $menu_label, $menu_root.'view/index.php');
+	//add_submenu_page($menu_start, __('Latest answer'), __(''), $menu_label, $menu_root.'view/index.php');
 	add_submenu_page($menu_start, __('Export'), __(''), $menu_label, $menu_root.'export/index.php');
 }

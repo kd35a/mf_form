@@ -2,6 +2,7 @@
 
 wp_enqueue_style('forms-font_awesome', "//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css");
 wp_enqueue_style('forms-style_wp', plugins_url()."/mf_form/include/style_wp.css");
+//wp_enqueue_style('style-theme', get_bloginfo('template_url')."/style.css");
 wp_enqueue_script('jquery-forms', plugins_url()."/mf_form/include/script_wp.js", array('jquery'), '1.0', true);
 
 $intQueryID = check_var('intQueryID');
@@ -25,35 +26,37 @@ $strQueryTypeClass = check_var('strQueryTypeClass');
 $strQueryTypeSelect = check_var('strQueryTypeSelect', '', true, "0|-- Choose here --,1|Nej,2|Ja");
 $strQueryTypeMin = check_var('strQueryTypeMin', '', true, "0");
 $strQueryTypeMax = check_var('strQueryTypeMax', '', true, 100);
+$strQueryTypeDefault = check_var('strQueryTypeDefault', '', true, 1);
 $intQueryTypeForced = isset($_POST['intQueryTypeForced']) ? 1 : 0;
+
+$error_text = "";
 
 if(isset($_POST['btnQueryCreate']))
 {
 	if($strQueryName == '')
 	{
-		echo "Enter all mandatory fields";
-		exit;
+		$error_text = "Enter all mandatory fields";
 	}
 
 	else
 	{
 		if($intQueryID > 0)
 		{
-			$wpdb->get_results("UPDATE ".$wpdb->prefix."query SET queryName = '".$strQueryName."', queryAnswerName = '".$strQueryAnswerName."', queryAnswer = '".$strQueryAnswer."', queryEmail = '".$strQueryEmail."', queryEmailName = '".$strQueryEmailName."', queryButtonText = '".$strQueryButtonText."' WHERE queryID = '".$intQueryID."'");
+			$wpdb->get_results("UPDATE ".$wpdb->base_prefix."query SET queryName = '".$strQueryName."', queryAnswerName = '".$strQueryAnswerName."', queryAnswer = '".$strQueryAnswer."', queryEmail = '".$strQueryEmail."', queryEmailName = '".$strQueryEmailName."', queryButtonText = '".$strQueryButtonText."' WHERE queryID = '".$intQueryID."'");
 		}
 
 		else
 		{
-			$result = $wpdb->get_results("SELECT queryID FROM ".$wpdb->prefix."query WHERE queryName = '".$strQueryName."'");
+			$result = $wpdb->get_results("SELECT queryID FROM ".$wpdb->base_prefix."query WHERE queryName = '".$strQueryName."'");
 
 			if(count($result) > 0)
 			{
-				echo "There is already a form with that name. Try with another one.";
+				$error_text = "There is already a form with that name. Try with another one.";
 			}
 
 			else
 			{
-				$wpdb->get_results("INSERT INTO ".$wpdb->prefix."query SET queryName = '".$strQueryName."', queryAnswerName = '".$strQueryAnswerName."', queryAnswer = '".$strQueryAnswer."', queryEmail = '".$strQueryEmail."', queryEmailName = '".$strQueryEmailName."', queryButtonText = '".$strQueryButtonText."', queryCreated = NOW(), userID = '".get_current_user_id()."'");
+				$wpdb->get_results("INSERT INTO ".$wpdb->base_prefix."query SET queryName = '".$strQueryName."', queryAnswerName = '".$strQueryAnswerName."', queryAnswer = '".$strQueryAnswer."', queryEmail = '".$strQueryEmail."', queryEmailName = '".$strQueryEmailName."', queryButtonText = '".$strQueryButtonText."', queryCreated = NOW(), userID = '".get_current_user_id()."'");
 				$intQueryID = mysql_insert_id();
 			}
 		}
@@ -62,37 +65,37 @@ if(isset($_POST['btnQueryCreate']))
 		{
 			echo "<script>location.href='/wp-admin/admin.php?page=mf_form/create/index.php&intQueryID=".$intQueryID."#content'</script>";
 		}
-
-		else
-		{
-			echo "Error creating...";
-		}
 	}
 }
 
 else if(isset($_POST['btnQueryAdd']))
 {
-	//Tar bort medskickad info om det är "fel" typ
+	//Clean up settings if not used for the specific type of field
 	################
-	if($intQueryTypeID == 6) //Mellanrum
+	if($intQueryTypeID == 6) //Space
 	{
 		$strQueryTypeText = '';
+	}
+
+	if($intQueryTypeID != 3)
+	{
+		$intCheckID = '';
 	}
 	################
 
 	if(($intQueryTypeID == 10 || $intQueryTypeID == 11) && $strQueryTypeSelect == "")
 	{
-		echo "Enter all mandatory fields";
+		$error_text = "Enter all mandatory fields";
 	}
 
 	else
 	{
 		if($intQueryTypeID == 2)
 		{
-			$strQueryTypeText = str_replace("|", "", $strQueryTypeText)."|".str_replace("|", "", $strQueryTypeMin)."|".str_replace("|", "", $strQueryTypeMax);
+			$strQueryTypeText = str_replace("|", "", $strQueryTypeText)."|".str_replace("|", "", $strQueryTypeMin)."|".str_replace("|", "", $strQueryTypeMax)."|".str_replace("|", "", $strQueryTypeDefault);
 		}
 
-		if($intQueryTypeID == 10 || $intQueryTypeID == 11)
+		else if($intQueryTypeID == 10 || $intQueryTypeID == 11)
 		{
 			$strQueryTypeText = str_replace(":", "", $strQueryTypeText).":".str_replace(":", "", $strQueryTypeSelect);
 		}
@@ -106,14 +109,14 @@ else if(isset($_POST['btnQueryAdd']))
 		{
 			if($intQueryTypeID > 0 && ($intQueryTypeID == 6 || $strQueryTypeText != ''))
 			{
-				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."query2type SET queryTypeID = '".$intQueryTypeID."', queryTypeText = %s, checkID = '".$intCheckID."', queryTypeClass = '".$strQueryTypeClass."', queryTypeForced = '".$intQueryTypeForced."', userID = '".get_current_user_id()."' WHERE query2TypeID = '".$intQuery2TypeID."'", $strQueryTypeText));
+				$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."query2type SET queryTypeID = '".$intQueryTypeID."', queryTypeText = %s, checkID = '".$intCheckID."', queryTypeClass = '".$strQueryTypeClass."', queryTypeForced = '".$intQueryTypeForced."', userID = '".get_current_user_id()."' WHERE query2TypeID = '".$intQuery2TypeID."'", $strQueryTypeText));
 
 				$intQuery2TypeID = $intQueryTypeID = $strQueryTypeText = $intCheckID = $strQueryTypeClass = "";
 			}
 
 			else
 			{
-				echo "Error...";
+				$error_text = "Couldn't update the field";
 			}
 		}
 
@@ -121,9 +124,9 @@ else if(isset($_POST['btnQueryAdd']))
 		{
 			if($intQueryID > 0 && $intQueryTypeID > 0 && ($intQueryTypeID == 6 || $strQueryTypeText != ''))
 			{
-				$intQuery2TypeOrder = $wpdb->get_var("SELECT query2TypeOrder + 1 FROM ".$wpdb->prefix."query2type WHERE queryID = '".$intQueryID."' ORDER BY query2TypeOrder DESC");
+				$intQuery2TypeOrder = $wpdb->get_var("SELECT query2TypeOrder + 1 FROM ".$wpdb->base_prefix."query2type WHERE queryID = '".$intQueryID."' ORDER BY query2TypeOrder DESC");
 
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."query2type SET queryID = '".$intQueryID."', queryTypeID = '".$intQueryTypeID."', queryTypeText = %s, checkID = '".$intCheckID."', queryTypeClass = '".$strQueryTypeClass."', queryTypeForced = '".$intQueryTypeForced."', query2TypeOrder = '".$intQuery2TypeOrder."', query2TypeCreated = NOW(), userID = '".get_current_user_id()."'", $strQueryTypeText));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query2type SET queryID = '".$intQueryID."', queryTypeID = '".$intQueryTypeID."', queryTypeText = %s, checkID = '".$intCheckID."', queryTypeClass = '".$strQueryTypeClass."', queryTypeForced = '".$intQueryTypeForced."', query2TypeOrder = '".$intQuery2TypeOrder."', query2TypeCreated = NOW(), userID = '".get_current_user_id()."'", $strQueryTypeText));
 
 				if(mysql_affected_rows() > 0)
 				{
@@ -133,7 +136,7 @@ else if(isset($_POST['btnQueryAdd']))
 
 			else
 			{
-				echo "Error...";
+				$error_text = "Couldn't insert the new field";
 			}
 		}
 	}
@@ -146,7 +149,7 @@ else if(isset($_POST['btnQueryAdd']))
 
 if($intQueryID > 0)
 {
-	$result = $wpdb->get_results("SELECT queryName, queryAnswerName, queryAnswer, queryEmail, queryEmailName, queryButtonText, queryCreated FROM ".$wpdb->prefix."query WHERE queryID = '".$intQueryID."'"); //, queryDeadline
+	$result = $wpdb->get_results("SELECT queryName, queryAnswerName, queryAnswer, queryEmail, queryEmailName, queryButtonText, queryCreated FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."'"); //, queryDeadline
 	$r = $result[0];
 	$strQueryName = $r->queryName;
 	$strQueryAnswerName = $r->queryAnswerName;
@@ -160,7 +163,7 @@ if($intQueryID > 0)
 
 if($intQuery2TypeID > 0)
 {
-	$result = $wpdb->get_results("SELECT queryTypeID, queryTypeText, checkID, queryTypeClass, queryTypeForced FROM ".$wpdb->prefix."query2type WHERE query2TypeID = '".$intQuery2TypeID."'");
+	$result = $wpdb->get_results("SELECT queryTypeID, queryTypeText, checkID, queryTypeClass, queryTypeForced FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '".$intQuery2TypeID."'");
 	$r = $result[0];
 	$intQueryTypeID = $r->queryTypeID;
 	$strQueryTypeText = $r->queryTypeText;
@@ -170,7 +173,7 @@ if($intQuery2TypeID > 0)
 
 	if($intQueryTypeID == 2)
 	{
-		list($strQueryTypeText, $strQueryTypeMin, $strQueryTypeMax) = explode("|", $strQueryTypeText);
+		list($strQueryTypeText, $strQueryTypeMin, $strQueryTypeMax, $strQueryTypeDefault) = explode("|", $strQueryTypeText);
 	}
 
 	else if($intQueryTypeID == 10 || $intQueryTypeID == 11)
@@ -184,8 +187,14 @@ if($intQuery2TypeID > 0)
 	}*/
 }
 
-echo "<h1>".($intQueryID > 0 ? "Update ".$strQueryName : "Add New")."</h1>
-<form method='post' action='' class='mf_form'>
+echo "<h1>".($intQueryID > 0 ? "Update ".$strQueryName : "Add New")."</h1>";
+
+if($error_text != '')
+{
+	echo "<div id='notification'><div class='error'>".$error_text."</div></div>";
+}
+
+echo "<form method='post' action='' class='mf_form'>
 	<div class='alignleft'>"
 		.show_textfield('strQueryName', "Name", $strQueryName, 100, 0, true)
 		."<h2>Confirmation message</h2>"
@@ -214,21 +223,21 @@ if($intQueryID > 0)
 
 			if($intQueryTypeID == '')
 			{
-				$intQueryTypeID = $wpdb->get_var("SELECT queryTypeID FROM ".$wpdb->prefix."query2type WHERE userID = '".get_current_user_id()."' ORDER BY query2TypeCreated DESC");
+				$intQueryTypeID = $wpdb->get_var("SELECT queryTypeID FROM ".$wpdb->base_prefix."query2type WHERE userID = '".get_current_user_id()."' ORDER BY query2TypeCreated DESC");
 			}
 
 			$arr_data = array();
 
 			$arr_data[] = array("", "-- Choose here --");
 
-			$result = $wpdb->get_results("SELECT queryTypeID, queryTypeLang FROM ".$wpdb->prefix."query_type WHERE (queryTypeID = '".$intQueryTypeID."' OR queryTypePublic >= '1') ORDER BY queryTypeOrder ASC");
+			$result = $wpdb->get_results("SELECT queryTypeID, queryTypeLang FROM ".$wpdb->base_prefix."query_type WHERE (queryTypeID = '".$intQueryTypeID."' OR queryTypePublic >= '1') ORDER BY queryTypeOrder ASC");
 
 			foreach($result as $r)
 			{
 				$arr_data[] = array($r->queryTypeID, $r->queryTypeLang);
 			}
 
-			echo show_select(array('data' => $arr_data, 'name' => 'intQueryTypeID', 'compare' => $intQueryTypeID, 'text' => "Typ"))
+			echo show_select(array('data' => $arr_data, 'name' => 'intQueryTypeID', 'compare' => $intQueryTypeID, 'text' => "Type"))
 			.show_textarea(array('name' => 'strQueryTypeText', 'text' => "Text", 'value' => $strQueryTypeText, 'size' => 'small', 'class' => "tr_text"));
 
 		echo "</div>
@@ -240,7 +249,7 @@ if($intQueryID > 0)
 
 			$arr_data[] = array("", "-- Choose here --");
 
-			$result = $wpdb->get_results("SELECT checkID, checkLang FROM ".$wpdb->prefix."query_check WHERE checkPublic = '1' ORDER BY checkLang ASC");
+			$result = $wpdb->get_results("SELECT checkID, checkLang FROM ".$wpdb->base_prefix."query_check WHERE checkPublic = '1' ORDER BY checkLang ASC");
 			$rows = count($result);
 
 			foreach($result as $r)
@@ -254,6 +263,7 @@ if($intQueryID > 0)
 			."<div class='tr_range'>"
 				.show_textfield('strQueryTypeMin', 'Min value', $strQueryTypeMin, 3, 5, false)
 				.show_textfield('strQueryTypeMax', 'Max value', $strQueryTypeMax, 3, 5, false)
+				.show_textfield('strQueryTypeDefault', 'Default value', $strQueryTypeDefault, 3, 5, false)
 			."</div>
 			<div class='tr_select'>
 				<label>Value:</label>

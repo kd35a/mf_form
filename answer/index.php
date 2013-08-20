@@ -9,7 +9,7 @@ $intAnswerID = check_var('intAnswerID');
 
 if(!($intQueryID > 0))
 {
-	$intQueryID = $wpdb->get_var("SELECT queryID FROM ".$wpdb->prefix."query LEFT JOIN ".$wpdb->prefix."query2answer USING (queryID) ORDER BY answerCreated DESC, queryCreated DESC LIMIT 0, 1");
+	$intQueryID = $wpdb->get_var("SELECT queryID FROM ".$wpdb->base_prefix."query LEFT JOIN ".$wpdb->base_prefix."query2answer USING (queryID) ORDER BY answerCreated DESC, queryCreated DESC LIMIT 0, 1");
 }
 
 $dteQueryStartDate = check_var('dteQueryStartDate', 'char', true, date("Y-m-d", strtotime("-2 year")));
@@ -33,12 +33,12 @@ if($dteQueryEndDate > "1982-08-04 23:15:00")
 	$strQuerySearch .= " AND answerCreated <= '".$dteQueryEndDate."'";
 }
 
-$strQueryName = $wpdb->get_var("SELECT queryName FROM ".$wpdb->prefix."query WHERE queryID = '".$intQueryID."'");
+$strQueryName = $wpdb->get_var("SELECT queryName FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."'");
 
 echo "<h1>Answers in ".$strQueryName."</h1>
 <table class='table_list'>";
 
-	$result = $wpdb->get_results("SELECT queryTypeID, queryTypeText FROM ".$wpdb->prefix."query2type INNER JOIN ".$wpdb->prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC");
+	$result = $wpdb->get_results("SELECT queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC");
 
 	foreach($result as $r)
 	{
@@ -64,7 +64,7 @@ echo "<h1>Answers in ".$strQueryName."</h1>
 
 	echo show_table_header($arr_header);
 
-	$result = $wpdb->get_results("SELECT answerID, queryID, answerCreated, answerIP FROM ".$wpdb->prefix."query2answer INNER JOIN ".$wpdb->prefix."query_answer USING (answerID) WHERE queryID = '".$intQueryID."'".$strQuerySearch." GROUP BY answerID ORDER BY answerCreated DESC");
+	$result = $wpdb->get_results("SELECT answerID, queryID, answerCreated, answerIP FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '".$intQueryID."'".$strQuerySearch." GROUP BY answerID ORDER BY answerCreated DESC");
 	$rows = count($result);
 
 	if($rows > 0)
@@ -78,7 +78,7 @@ echo "<h1>Answers in ".$strQueryName."</h1>
 
 			echo "<tr id='answer_".$intAnswerID."'>";
 
-				$resultText = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode FROM ".$wpdb->prefix."query_check RIGHT JOIN ".$wpdb->prefix."query2type USING (checkID) INNER JOIN ".$wpdb->prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC");
+				$resultText = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC");
 
 				foreach($resultText as $r)
 				{
@@ -90,7 +90,7 @@ echo "<h1>Answers in ".$strQueryName."</h1>
 					$value = 0;
 					$xtra = "";
 
-					$resultAnswer = $wpdb->get_results("SELECT answerText FROM ".$wpdb->prefix."query_answer WHERE query2TypeID = '".$intQuery2TypeID."' AND answerID = '".$intAnswerID."'");
+					$resultAnswer = $wpdb->get_results("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE query2TypeID = '".$intQuery2TypeID."' AND answerID = '".$intAnswerID."'");
 					$rowsAnswer = count($resultAnswer);
 
 					if($rowsAnswer > 0)

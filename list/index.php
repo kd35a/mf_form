@@ -10,19 +10,19 @@ if(isset($_GET['btnQueryCopy']))
 {
 	$inserted = true;
 
-	$result_temp = $wpdb->get_results("SELECT queryID FROM ".$wpdb->prefix."query WHERE queryID = '".$intQueryID."'");
+	$result_temp = $wpdb->get_results("SELECT queryID FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."'");
 	$rows = count($result_temp);
 
 	if($rows > 0)
 	{
 		$fields = ", queryAnswerName, queryAnswer, queryDeadline";
 
-		$wpdb->query("INSERT INTO ".$wpdb->prefix."query (queryName".$fields.", queryCreated, userID) (SELECT CONCAT(queryName, ' (copy)')".$fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->prefix."query WHERE queryID = '".$intQueryID."')");
+		$wpdb->query("INSERT INTO ".$wpdb->base_prefix."query (queryName".$fields.", queryCreated, userID) (SELECT CONCAT(queryName, ' (copy)')".$fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."')");
 		$intQueryID_new = mysql_insert_id();
 
 		if($intQueryID_new > 0)
 		{
-			$result = $wpdb->get_results("SELECT query2TypeID FROM ".$wpdb->prefix."query2type WHERE queryID = '".$intQueryID."' ORDER BY query2TypeID DESC");
+			$result = $wpdb->get_results("SELECT query2TypeID FROM ".$wpdb->base_prefix."query2type WHERE queryID = '".$intQueryID."' ORDER BY query2TypeID DESC");
 
 			foreach($result as $r)
 			{
@@ -30,7 +30,7 @@ if(isset($_GET['btnQueryCopy']))
 
 				$fields = "queryTypeID, queryTypeText, checkID, queryTypeForced, query2TypeOrder";
 
-				$wpdb->query("INSERT INTO ".$wpdb->prefix."query2type (queryID, ".$fields.", query2TypeCreated, userID) (SELECT '".$intQueryID_new."', ".$fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->prefix."query2type WHERE query2TypeID = '".$intQuery2TypeID."')");
+				$wpdb->query("INSERT INTO ".$wpdb->base_prefix."query2type (queryID, ".$fields.", query2TypeCreated, userID) (SELECT '".$intQueryID_new."', ".$fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '".$intQuery2TypeID."')");
 
 				if(!(mysql_insert_id() > 0))
 				{
@@ -67,7 +67,7 @@ echo "<h1>All Forms</h1>
 
 	echo show_table_header($arr_header);
 
-	$result = $wpdb->get_results("SELECT queryID, queryName, queryDeadline, queryCreated FROM ".$wpdb->prefix."query GROUP BY queryID ORDER BY queryCreated DESC");
+	$result = $wpdb->get_results("SELECT queryID, queryName, queryDeadline, queryCreated FROM ".$wpdb->base_prefix."query GROUP BY queryID ORDER BY queryCreated DESC");
 
 	if(count($result) == 0)
 	{
@@ -83,12 +83,12 @@ echo "<h1>All Forms</h1>
 			//$dteQueryDeadline = $r->queryDeadline;
 			$strQueryCreated = $r->queryCreated;
 
-			$resultContent = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->prefix."query2type INNER JOIN ".$wpdb->prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' ORDER BY query2TypeCreated ASC");
+			$resultContent = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' ORDER BY query2TypeCreated ASC");
 
-			$result_temp = $wpdb->get_results("SELECT answerID FROM ".$wpdb->prefix."query2answer INNER JOIN ".$wpdb->prefix."query_answer USING (answerID) WHERE queryID = '".$intQueryID."' GROUP BY answerID");
+			$result_temp = $wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '".$intQueryID."' GROUP BY answerID");
 			$intQueryTotal = count($result_temp);
 
-			$result_temp = $wpdb->get_results("SELECT queryID FROM ".$wpdb->prefix."query2type WHERE queryID = '".$intQueryID."' LIMIT 0, 1");
+			$result_temp = $wpdb->get_results("SELECT queryID FROM ".$wpdb->base_prefix."query2type WHERE queryID = '".$intQueryID."' LIMIT 0, 1");
 			$rowsQuery = count($result_temp);
 
 			if($intQueryTotal > 0)
@@ -102,7 +102,7 @@ echo "<h1>All Forms</h1>
 				$a_start = $a_end = "";
 			}
 
-			$strQueryShortcode = "[form_shortcode id=".$intQueryID."]";
+			$strQueryShortcode = "[mf_form id=".$intQueryID."]";
 
 			echo "<tr id='query_".$intQueryID."'>
 				<td>".$a_start.$strQueryName.$a_end."</td>
