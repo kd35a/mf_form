@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Forms
-Version: 1.3.2
+Version: 1.3.4
 Author: Martin Fors
 Author URI: www.martinfors.se
 */
@@ -258,5 +258,4 @@ function edit_form()
 	add_submenu_page($menu_start, __('Add New'), __('Add New'), $menu_label, $menu_root.'create/index.php');
 	add_submenu_page($menu_start, __('All Forms'), __('All Forms'), $menu_label, $menu_root.'list/index.php');
 	add_submenu_page($menu_start, __('All answers'), __(''), $menu_label, $menu_root.'answer/index.php');
-	//add_submenu_page($menu_start, __('Export'), __(''), $menu_label, $menu_root.'export/index.php');
 }

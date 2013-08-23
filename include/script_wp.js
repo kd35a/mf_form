@@ -104,18 +104,17 @@ jQuery(function($)
 
 			if(temp_id != "" || temp_value != "")
 			{
-				if(has_empty_id == true)
+				if(temp_id == "")
 				{
-					temp_id = "auto_" + i++;
+					if(has_empty_id == true)
+					{
+						temp_id = "auto_" + i++;
+					}
 
-					console.log('True again');
-				}
-
-				else if(temp_id != "")
-				{
-					has_empty_id = true;
-
-					console.log('True');
+					else
+					{
+						has_empty_id = true;
+					}
 				}
 
 				select_value += (select_value != '' ? "," : "") + temp_id + "|" + temp_value;

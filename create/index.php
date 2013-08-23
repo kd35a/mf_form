@@ -49,7 +49,7 @@ if(isset($_POST['btnFormExport']))
 			{
 				//$r->$str_col = str_replace("\n", "\\n", addslashes($r->$str_col));
 
-				$db_info .= ", ".$str_col." = ".(isset($r->$str_col) ? "'".$r->$str_col."'" : "'NULL'");
+				$db_info .= ", ".$str_col." = ".(isset($r->$str_col) ? "'".str_replace("\n", "[nl]", $r->$str_col)."'" : "'NULL'");
 			}
 
 		$db_info .= ", query2TypeCreated = NOW(), userID = [user_id]\n";
@@ -104,7 +104,7 @@ else if(isset($_POST['btnFormImport']))
 			{
 				if($str_row != '')
 				{
-					$wpdb->query("INSERT INTO ".$wpdb->base_prefix."query2type SET ".$str_row);
+					$wpdb->query("INSERT INTO ".$wpdb->base_prefix."query2type SET ".str_replace("[nl]", "\n", $str_row));
 
 					if(mysql_affected_rows() > 0)
 					{

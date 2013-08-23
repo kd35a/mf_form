@@ -10,11 +10,6 @@ $intQueryID = check_var('intQueryID');
 
 if(isset($_GET['btnQueryExport']))
 {
-	/*if(!($intQueryID > 0))
-	{
-		$intQueryID = $wpdb->get_var("SELECT queryID FROM ".$wpdb->base_prefix."query LEFT JOIN ".$wpdb->base_prefix."query2answer USING (queryID) ORDER BY answerCreated DESC, queryCreated DESC LIMIT 0, 1");
-	}*/
-
 	echo "<h1>Export</h1>
 	<a href='javascript:history.go(-1)'>&laquo; Back</a><br/>
 	<br/>";

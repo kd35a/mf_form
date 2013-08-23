@@ -9,6 +9,7 @@
 	{
 		border-width: 2px;
 		border-style: solid;
+		border-radius: 5px;
 		margin: 0 10px 10px 0;
 		padding: 5px;
 	}
@@ -100,6 +101,7 @@
 		.form_row:hover
 		{
 			background: #eee;
+			min-height: 50px;
 		}
 
 		.form_buttons
