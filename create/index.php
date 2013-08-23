@@ -5,6 +5,8 @@ wp_enqueue_style('forms-style_wp', plugins_url()."/mf_form/include/style_wp.css"
 //wp_enqueue_style('style-theme', get_bloginfo('template_url')."/style.css");
 wp_enqueue_script('jquery-forms', plugins_url()."/mf_form/include/script_wp.js", array('jquery'), '1.0', true);
 
+$folder = str_replace("plugins/mf_form/create", "", dirname(__FILE__));
+
 $intQueryID = check_var('intQueryID');
 
 $intQuery2TypeID = check_var('intQuery2TypeID');
@@ -29,9 +31,107 @@ $strQueryTypeMax = check_var('strQueryTypeMax', '', true, 100);
 $strQueryTypeDefault = check_var('strQueryTypeDefault', '', true, 1);
 //$intQueryTypeForced = isset($_POST['intQueryTypeForced']) ? 1 : 0;
 
-$error_text = "";
+$error_text = $done_text = "";
 
-if(isset($_POST['btnQueryCreate']))
+if(isset($_POST['btnFormExport']))
+{
+	$db_info = "";
+
+	$arr_cols = array("queryTypeID", "queryTypeText", "checkID", "queryTypeClass", "queryTypeForced", "query2TypeOrder");
+
+	$result = $wpdb->get_results("SELECT ".implode(", ", $arr_cols)." FROM ".$wpdb->base_prefix."query2type WHERE queryID = '".$intQueryID."'");
+
+	foreach($result as $r)
+	{
+		$db_info .= "queryID = '[query_id]'";
+
+			foreach($arr_cols as $str_col)
+			{
+				//$r->$str_col = str_replace("\n", "\\n", addslashes($r->$str_col));
+
+				$db_info .= ", ".$str_col." = ".(isset($r->$str_col) ? "'".$r->$str_col."'" : "'NULL'");
+			}
+
+		$db_info .= ", query2TypeCreated = NOW(), userID = [user_id]\n";
+	}
+
+	if($db_info != '')
+	{
+		$strQueryName = $wpdb->get_var("SELECT queryName FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."'");
+
+		$file = sanitize_title_with_dashes(sanitize_title($strQueryName))."_".date("YmdHis").".sql";
+
+		$success = set_file_content(array('file' => $folder."/uploads/".$file, 'mode' => 'a', 'content' => trim($db_info)));
+
+		$done_text = "Download exported file at <a href='../wp-content/uploads/".$file."'>".$file."</a>";
+	}
+
+	else
+	{
+		echo "It was not possible to export the form";
+	}
+}
+
+else if(isset($_POST['btnFormImport']))
+{
+	if(isset($_FILES['strFileForm']))
+	{
+		$file_name = $_FILES['strFileForm']['name'];
+		$file_location = $_FILES['strFileForm']['tmp_name'];
+
+		if($file_name == '')
+		{
+			$error_text = "You have to submit a file";
+		}
+
+		else if(!is_uploaded_file($file_location))
+		{
+			$error_text = "Could not upload the file for import";
+		}
+
+		else
+		{
+			$inserted = 0;
+
+			$content = get_file_content(array('file' => $file_location));
+
+			$content = str_replace("[query_id]", $intQueryID, $content);
+			$content = str_replace("[user_id]", get_current_user_id(), $content);
+
+			$arr_row = explode("\n", trim($content));
+
+			foreach($arr_row as $str_row)
+			{
+				if($str_row != '')
+				{
+					$wpdb->query("INSERT INTO ".$wpdb->base_prefix."query2type SET ".$str_row);
+
+					if(mysql_affected_rows() > 0)
+					{
+						$inserted++;
+					}
+				}
+			}
+
+			if($inserted > 0)
+			{
+				$done_text = $inserted." fields imported to the form";
+			}
+
+			else
+			{
+				$error_text = "No fields were imported";
+			}
+		}
+	}
+
+	else
+	{
+		$error_text = "There is no file to import";
+	}
+}
+
+else if(isset($_POST['btnQueryCreate']))
 {
 	if($strQueryName == '')
 	{
@@ -194,6 +294,11 @@ if($error_text != '')
 	echo "<div id='notification'><div class='error'>".$error_text."</div></div>";
 }
 
+if($done_text != '')
+{
+	echo "<div id='notification'><div class='done'>".$done_text."</div></div>";
+}
+
 echo "<form method='post' action='' class='mf_form'>
 	<div class='alignleft'>"
 		.show_textfield('strQueryName', "Name", $strQueryName, 100, 0, true)
@@ -296,7 +401,26 @@ if($intQueryID > 0)
 			.input_hidden('intQueryID', $intQueryID)
 			.input_hidden('intQuery2TypeID', $intQuery2TypeID)
 		."</div>
-	</form>
-	<h2>Preview</h2>"
-	.show_query_form(array('query_id' => $intQueryID, 'edit' => true));
+	</form>";
+
+	$form_output = show_query_form(array('query_id' => $intQueryID, 'edit' => true));
+
+	if($form_output != '')
+	{
+		echo "<h2>Preview</h2>"
+		.$form_output;
+
+		echo "<h2>Export to file</h2>
+		<form method='post' action='' class='mf_form'>"
+			.show_submit('btnFormExport', "Export")
+			.input_hidden('intQueryID', $intQueryID)
+		."</form>";
+	}
+
+	echo "<h2>Import from file</h2>
+	<form method='post' action='' enctype='multipart/form-data' class='mf_form'>"
+		.show_file_field(array('name' => 'strFileForm', 'text' => "File"))
+		.show_submit('btnFormImport', "Import")
+		.input_hidden('intQueryID', $intQueryID)
+	."</form>";
 }

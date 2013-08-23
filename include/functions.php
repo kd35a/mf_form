@@ -1,5 +1,12 @@
 <?php
 
+function wp_date_format()
+{
+	global $wpdb;
+
+	return $wpdb->get_var("SELECT option_value FROM ".$wpdb->options." WHERE option_name = 'date_format'"); //links_updated_date_format for full datetime
+}
+
 if(!function_exists('check_var'))
 {
 	function check_var($in, $type = '', $v2 = true, $default = '', $return_empty = false, $force_req_type = '')
@@ -407,6 +414,32 @@ function show_radio_input($data)
 }
 #################
 
+######################
+function show_file_field($data)
+{
+	if(!isset($data['text'])){		$data['text'] = "";}
+	if(!isset($data['class'])){		$data['class'] = "";}
+	//if(!isset($data['size'])){		$data['size'] = 0;}
+	if(!isset($data['multiple'])){	$data['multiple'] = false;}
+
+	$label = "";
+
+	if($data['text'] != '')
+	{
+		$label = "<label for='".$data['name']."'>".$data['text']."</label>";
+	}
+
+	//$out = $start."<input type='file'".($data['multiple'] == true ? " multiple='true'" : "")." class='h_20' size='".$data['size']."' name='".$data['name'].($data['multiple'] == true ? "[]" : "")."' value=''/>".$end;
+
+	$out .= "<div class='form_file_input".($data['class'] != '' ? " ".$data['class'] : "")."'>"
+		.$label
+		."<input type='file'".($data['multiple'] == true ? " multiple='true'" : "")." name='".$data['name'].($data['multiple'] == true ? "[]" : "")."' value=''/>
+	</div>";
+
+	return $out;
+}
+######################
+
 #################
 function show_submit($var, $text, $xtra = '', $type = 'submit', $class = '')
 {
@@ -423,6 +456,29 @@ function input_hidden($name, $value, $allow_empty = false, $xtra = "")
 	}
 }
 #####################
+
+function get_file_content($data)
+{
+	global $globals, $arr_lang;
+
+	$content = "";
+
+	if(filesize($data['file']) > 0)
+	{
+		if($fh = fopen(realpath($data['file']), 'r'))
+		{
+			$content = fread($fh, filesize($data['file']));
+			fclose($fh);
+		}
+
+		else
+		{
+			insert_error($arr_lang['file_not_opened']." (".$data['file'].")");
+		}
+	}
+
+	return $content;
+}
 
 ########################################
 function show_table_header($arr_header)
@@ -499,6 +555,11 @@ function on_post_query_form()
 			if($intQueryTypeID2 == 2)
 			{
 				list($strQueryTypeText, $rest) = explode("|", $strQueryTypeText);
+			}
+
+			else if($intQueryTypeID2 == 7)
+			{
+				$var_send = date(wp_date_format(), strtotime($var));
 			}
 
 			else if($intQueryTypeID2 == 10)
@@ -750,7 +811,7 @@ function show_query_form($data)
 								case 2:
 									$arr_content = explode("|", $strQueryTypeText2);
 
-									if($strAnswerText == '')
+									if($strAnswerText == '' && isset($arr_content[3]))
 									{
 										$strAnswerText = $arr_content[3];
 									}

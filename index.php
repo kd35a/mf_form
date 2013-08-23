@@ -209,11 +209,6 @@ function form_activate()
 	('7','1','Decimal number','float'),
 	('8','1','URL','url')";
 
-	/*
-		('2','1','Short date (YYMMDD)','shortDate2'),
-		('3','1','Date (YYYY-MM-DD)','date'),
-	*/
-
 	$arr_insert_tables[$wpdb->base_prefix."query_type"] = "INSERT INTO ".$wpdb->base_prefix."query_type VALUES('1','1','Checkbox','4','1'),
 	('2','1','Range','6','1'),
 	('3','1','Input field','5','1'),
@@ -263,6 +258,5 @@ function edit_form()
 	add_submenu_page($menu_start, __('Add New'), __('Add New'), $menu_label, $menu_root.'create/index.php');
 	add_submenu_page($menu_start, __('All Forms'), __('All Forms'), $menu_label, $menu_root.'list/index.php');
 	add_submenu_page($menu_start, __('All answers'), __(''), $menu_label, $menu_root.'answer/index.php');
-	//add_submenu_page($menu_start, __('Latest answer'), __(''), $menu_label, $menu_root.'view/index.php');
-	add_submenu_page($menu_start, __('Export'), __(''), $menu_label, $menu_root.'export/index.php');
+	//add_submenu_page($menu_start, __('Export'), __(''), $menu_label, $menu_root.'export/index.php');
 }

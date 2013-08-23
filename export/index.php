@@ -92,7 +92,12 @@ else
 				{
 					$strAnswerText = $r->answerText;
 
-					if($intQueryTypeID == 10)
+					if($intQueryTypeID == 7)
+					{
+						$strAnswerText = date(wp_date_format(), strtotime($strAnswerText));
+					}
+
+					else if($intQueryTypeID == 10)
 					{
 						$arr_content1 = explode(":", $strQueryTypeText);
 						$arr_content2 = explode(",", $arr_content1[1]);

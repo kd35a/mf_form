@@ -105,7 +105,12 @@ echo "<h1>Answers in ".$strQueryName."</h1>
 							$r = $resultAnswer[0];
 							$strAnswerText = $r->answerText;
 
-							if($intQueryTypeID == 10)
+							if($intQueryTypeID == 7)
+							{
+								$strAnswerText = date(wp_date_format(), strtotime($strAnswerText));
+							}
+
+							else if($intQueryTypeID == 10)
 							{
 								$arr_content1 = explode(":", $strQueryTypeText);
 								$arr_content2 = explode(",", $arr_content1[1]);
@@ -199,10 +204,6 @@ echo "<h1>Answers in ".$strQueryName."</h1>
 					<a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link icon-trash'></a>
 				</td>
 			</tr>";
-
-			/*<td>
-					<a href='?page=mf_form/view/index.php&intQueryID=".$intQueryID."&intAnswerID=".$intAnswerID."' class='icon-edit'></a>
-				</td>*/
 		}
 	}
 

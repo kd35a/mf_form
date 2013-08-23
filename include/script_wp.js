@@ -9,7 +9,7 @@ function show_query_settings(this_val)
 			jQuery('.tr_range').show();
 		}
 
-		if(this_val == 3) /*this_val == 2 || */
+		if(this_val == 3)
 		{
 			jQuery('.tr_check').show();
 		}
@@ -19,7 +19,7 @@ function show_query_settings(this_val)
 			jQuery('.tr_text').show();
 		}
 
-		if(this_val == 10 || this_val == 11) /* || this_val == 14*/
+		if(this_val == 10 || this_val == 11)
 		{
 			jQuery('.tr_select').show();
 		}
@@ -93,15 +93,31 @@ jQuery(function($)
 
 	$('.select_rows').on('blur', 'input', function()
 	{
-		var select_value = "";
+		var select_value = "",
+			has_empty_id = false,
+			i = 1;
 
 		$('.select_rows > div').each(function()
 		{
-			var temp_id = $(this).children('.form_textfield').children('input[name=strQueryTypeSelect_id]').val(),
-				temp_value = $(this).children('.form_textfield').children('input[name=strQueryTypeSelect_value]').val();
+			var temp_id = $(this).children('.form_textfield').children('input[name=strQueryTypeSelect_id]').val() + "",
+				temp_value = $(this).children('.form_textfield').children('input[name=strQueryTypeSelect_value]').val() + "";
 
-			if(temp_id + "" != "" && temp_value + "" != "")
+			if(temp_id != "" || temp_value != "")
 			{
+				if(has_empty_id == true)
+				{
+					temp_id = "auto_" + i++;
+
+					console.log('True again');
+				}
+
+				else if(temp_id != "")
+				{
+					has_empty_id = true;
+
+					console.log('True');
+				}
+
 				select_value += (select_value != '' ? "," : "") + temp_id + "|" + temp_value;
 			}
 		});

@@ -1,5 +1,10 @@
 @media all
 {
+	[class^="icon-"], [class*=" icon-"]
+	{
+		font-size: 1.4em;
+	}
+
 	#notification div
 	{
 		border-width: 2px;
