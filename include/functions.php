@@ -289,6 +289,13 @@ function show_select($data)
 		{
 			$data['class'] .= ($data['class'] != '' ? " " : "")."top";
 			$data['xtra'] .= " multiple='multiple' size='".($count_temp > $data['maxsize'] ? $data['maxsize'] : $count_temp)."'";
+
+			$container_class = "form_select_multiple";
+		}
+
+		else
+		{
+			$container_class = "form_select";
 		}
 
 		if($data['text'] != '')
@@ -303,7 +310,7 @@ function show_select($data)
 
 		else
 		{
-			$out = "<div class='form_select".($data['class'] != '' ? " ".$data['class'] : "")."'>"
+			$out = "<div class='".$container_class.($data['class'] != '' ? " ".$data['class'] : "")."'>"
 				.$label
 				."<select id='".str_replace("[]", "", $data['name'])."' name='".$data['name']."'".$data['xtra'].">";
 
