@@ -91,17 +91,29 @@
 		border-bottom: 1px solid #aaa;
 	}
 
+		.mf_form.active, .form_row.active
+		{
+			background: #fff6bf;
+			border: 2px solid #ffd324;
+			border-radius: 5px;
+			margin: 10px 10px 10px 0;
+			padding: 0 5px;
+		}
+
 	.form_row
 	{
+		border: 2px solid transparent;
 		margin-right: 20px;
 		position: relative;
 		padding: 5px;
 	}
 
-		.form_row:hover
+		.form_row:hover:not(.active)
 		{
 			background: #eee;
-			min-height: 50px;
+			border-color: #ccc;
+			border-radius: 5px;
+			min-height: 60px;
 		}
 
 		.form_buttons
@@ -109,9 +121,11 @@
 			display: none;
 		}
 
-			.form_row:hover .form_buttons
+			.form_row:hover:not(.active) .form_buttons
 			{
+				background: #eee;
 				display: block;
+				padding: 5px;
 				position: absolute;
 				right: 5px;
 				top: 5px;

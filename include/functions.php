@@ -734,6 +734,7 @@ function show_query_form($data)
 
 	if(!isset($data['edit'])){			$data['edit'] = false;}
 	if(!isset($data['sent'])){			$data['sent'] = false;}
+	if(!isset($data['query2type_id'])){	$data['query2type_id'] = 0;}
 
 	$out = "";
 
@@ -804,7 +805,7 @@ function show_query_form($data)
 
 						if($data['edit'] == true)
 						{
-							$out .= "<div id='type_".$intQuery2TypeID2."' class='form_row'>";
+							$out .= "<div id='type_".$intQuery2TypeID2."' class='form_row".($data['query2type_id'] == $intQuery2TypeID2 ? " active" : "")."'>";
 						}
 
 							switch($intQueryTypeID2)

@@ -322,8 +322,8 @@ echo "<form method='post' action='' class='mf_form'>
 
 if($intQueryID > 0)
 {
-	echo "<form method='post' action='' id='content' class='mf_form'>"
-		."<h2>Content</h2>
+	echo "<form method='post' action='' id='content' class='mf_form".($intQuery2TypeID > 0 ? " active" : "")."'>"
+		."<h2>".($intQuery2TypeID > 0 ? "Update content" : "Add content")."</h2>
 		<div class='alignleft'>";
 
 			if($intQueryTypeID == '')
@@ -403,7 +403,7 @@ if($intQueryID > 0)
 		."</div>
 	</form>";
 
-	$form_output = show_query_form(array('query_id' => $intQueryID, 'edit' => true));
+	$form_output = show_query_form(array('query_id' => $intQueryID, 'edit' => true, 'query2type_id' => $intQuery2TypeID));
 
 	if($form_output != '')
 	{
