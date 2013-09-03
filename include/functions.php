@@ -1,10 +1,12 @@
 <?php
 
-function wp_date_format()
+function wp_date_format($date)
 {
 	global $wpdb;
 
-	return $wpdb->get_var("SELECT option_value FROM ".$wpdb->options." WHERE option_name = 'date_format'"); //links_updated_date_format for full datetime
+	$date_format = $wpdb->get_var("SELECT option_value FROM ".$wpdb->options." WHERE option_name = 'date_format'");
+
+	return date($date_format, strtotime($date)); //links_updated_date_format for full datetime
 }
 
 if(!function_exists('check_var'))
@@ -567,7 +569,7 @@ function show_query_form($data)
 
 			else if($intQueryTypeID2 == 7)
 			{
-				$var_send = date(wp_date_format(), strtotime($var));
+				$var_send = wp_date_format($var);
 			}
 
 			else if($intQueryTypeID2 == 10)

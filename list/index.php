@@ -95,7 +95,7 @@ if(isset($_GET['btnQueryExport']))
 
 						if($intQueryTypeID == 7)
 						{
-							$strAnswerText = date(wp_date_format(), strtotime($strAnswerText));
+							$strAnswerText = wp_date_format($strAnswerText);
 						}
 
 						else if($intQueryTypeID == 10)
