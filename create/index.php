@@ -314,11 +314,10 @@ echo "<form method='post' action='' class='mf_form'>
 		.show_textfield('strQueryButtonText', "Button text", $strQueryButtonText, 100, 0, false, '', "Send")
 		//.show_textfield('dteQueryDeadline', "Deadline", $dteQueryDeadline, 10)
 	."</div>
-	<div class='clear'>"
-		.show_submit('btnQueryCreate', ($intQueryID > 0 ? "Update" : "Add"))
-		.input_hidden('intQueryID', $intQueryID)
-	."</div>
-</form>";
+	<div class='clear'></div>"
+	.show_submit('btnQueryCreate', ($intQueryID > 0 ? "Update" : "Add"))
+	.input_hidden('intQueryID', $intQueryID)
+."</form>";
 
 if($intQueryID > 0)
 {
@@ -396,12 +395,11 @@ if($intQueryID > 0)
 				.input_hidden('strQueryTypeSelect', $strQueryTypeSelect)
 			."</div>
 		</div>
-		<div class='clear'>"
-			.show_submit('btnQueryAdd', ($intQuery2TypeID > 0 ? "Update" : "Add"))
-			.input_hidden('intQueryID', $intQueryID)
-			.input_hidden('intQuery2TypeID', $intQuery2TypeID)
-		."</div>
-	</form>";
+		<div class='clear'></div>"
+		.show_submit('btnQueryAdd', ($intQuery2TypeID > 0 ? "Update" : "Add"))
+		.input_hidden('intQueryID', $intQueryID)
+		.input_hidden('intQuery2TypeID', $intQuery2TypeID)
+	."</form>";
 
 	$form_output = show_query_form(array('query_id' => $intQueryID, 'edit' => true, 'query2type_id' => $intQuery2TypeID));
 
