@@ -39,7 +39,7 @@
 				margin-left: -46px;
 			}
 
-	.mf_form button
+	.mf_form > button
 	{
 		border: 2px solid #ccc;
 		border-radius: 3px;
