@@ -25,11 +25,7 @@ function form_shortcode($atts)
 		'id' => ''
 	), $atts));
 
-	on_post_query_form();
-
-	$sent = isset($_GET['sent']) ? true : false;
-
-	return show_query_form(array('query_id' => $id, 'sent' => $sent));
+	return show_query_form(array('query_id' => $id));
 }
 
 function form_load_widgets()
@@ -54,11 +50,7 @@ class form_Widget extends WP_Widget
 
 		extract($args);
 
-		on_post_query_form();
-
-		$sent = isset($_GET['sent']) ? true : false;
-
-		echo show_query_form(array('query_id' => $instance['form_id'], 'sent' => $sent));
+		echo show_query_form(array('query_id' => $instance['form_id']));
 	}
 
 	function update($new_instance, $old_instance)

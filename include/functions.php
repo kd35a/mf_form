@@ -505,9 +505,10 @@ function show_table_header($arr_header)
 }
 ########################################
 
-function on_post_query_form()
+################################
+function show_query_form($data)
 {
-	global $wpdb;
+	global $wpdb, $intAnswerID;
 
 	if(isset($_POST['btnQuerySubmit']))
 	{
@@ -698,25 +699,23 @@ function on_post_query_form()
 						$headers = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
 					}
 
-					/*echo $headers;
-					exit;*/
-
-					wp_mail($strQueryEmail, $strQueryEmailName, $send_text, $headers);
+					wp_mail($strQueryEmail, $strQueryEmailName, strip_tags($send_text), $headers);
 				}
 
 				$this_url = $_SERVER['HTTP_REFERER'];
 
 				//echo nl2br($send_text);
 
-				echo "<script>location.href = '".$this_url.(preg_match("/\?/", $this_url) ? "&" : "?")."sent';</script>";
+				//echo "<script>location.href = '".$this_url.(preg_match("/\?/", $this_url) ? "&" : "?")."sent';</script>";
+
+				$data['sent'] = true;
 			}
 
 			else
 			{
 				echo "There was an error...";
+				exit;
 			}
-
-			exit;
 		}
 
 		else
@@ -725,12 +724,6 @@ function on_post_query_form()
 			exit;
 		}
 	}
-}
-
-################################
-function show_query_form($data)
-{
-	global $wpdb, $intAnswerID;
 
 	if(!isset($data['edit'])){			$data['edit'] = false;}
 	if(!isset($data['sent'])){			$data['sent'] = false;}
