@@ -1,12 +1,12 @@
 <?php
 
-function wp_date_format($date)
+function wp_date_format($date, $full_datetime = false)
 {
 	global $wpdb;
 
-	$date_format = $wpdb->get_var("SELECT option_value FROM ".$wpdb->options." WHERE option_name = 'date_format'");
+	$date_format = $wpdb->get_var("SELECT option_value FROM ".$wpdb->options." WHERE option_name = '".($full_datetime == true ? "links_updated_date_format" : "date_format")."'");
 
-	return date($date_format, strtotime($date)); //links_updated_date_format for full datetime
+	return date($date_format, strtotime($date));
 }
 
 if(!function_exists('check_var'))
@@ -743,7 +743,7 @@ function show_query_form($data)
 	if($data['sent'] == true)
 	{
 		$out .= "<h2>".$strQueryAnswerName."</h2>
-		<p>".$strQueryAnswer."</p>";
+		<div>".$strQueryAnswer."</div>";
 	}
 
 	else

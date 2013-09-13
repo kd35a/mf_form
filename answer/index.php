@@ -199,7 +199,7 @@ echo "<h1>Answers in ".$strQueryName."</h1>
 					echo "</td>";
 				}
 
-				echo "<td>".$strAnswerCreated."</td>
+				echo "<td>".wp_date_format($strAnswerCreated, true)."</td>
 				<td>
 					<a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link icon-trash'></a>
 				</td>
