@@ -14,14 +14,15 @@ $intQuery2TypeOrder = check_var('intQuery2TypeOrder');
 
 $strQueryName = check_var('strQueryName');
 $strQueryAnswerName = check_var('strQueryAnswerName');
-$strQueryAnswer = check_var('strQueryAnswer');
+//$strQueryAnswer = check_var('strQueryAnswer');
+$strQueryAnswer = isset($_POST['strQueryAnswer']) ? $_POST['strQueryAnswer'] : ""; //Allow HTML here
 $strQueryEmail = check_var('strQueryEmail', 'email');
 $strQueryEmailName = check_var('strQueryEmailName');
 $strQueryButtonText = check_var('strQueryButtonText');
 //$dteQueryDeadline = check_var('dteQueryDeadline', 'date');
 $intQueryTypeID = check_var('intQueryTypeID');
 //$strQueryTypeText = check_var('strQueryTypeText');
-$strQueryTypeText = isset($_POST['strQueryTypeText']) ? $_POST['strQueryTypeText'] : "";
+$strQueryTypeText = isset($_POST['strQueryTypeText']) ? $_POST['strQueryTypeText'] : ""; //Allow HTML here
 $intCheckID = check_var('intCheckID');
 $strQueryTypeClass = check_var('strQueryTypeClass');
 
@@ -314,11 +315,10 @@ echo "<form method='post' action='' class='mf_form'>
 		.show_textfield('strQueryButtonText', "Button text", $strQueryButtonText, 100, 0, false, '', "Send")
 		//.show_textfield('dteQueryDeadline', "Deadline", $dteQueryDeadline, 10)
 	."</div>
-	<div class='clear'>"
-		.show_submit('btnQueryCreate', ($intQueryID > 0 ? "Update" : "Add"))
-		.input_hidden('intQueryID', $intQueryID)
-	."</div>
-</form>";
+	<div class='clear'></div>"
+	.show_submit('btnQueryCreate', ($intQueryID > 0 ? "Update" : "Add"))
+	.input_hidden('intQueryID', $intQueryID)
+."</form>";
 
 if($intQueryID > 0)
 {
@@ -396,12 +396,17 @@ if($intQueryID > 0)
 				.input_hidden('strQueryTypeSelect', $strQueryTypeSelect)
 			."</div>
 		</div>
-		<div class='clear'>"
-			.show_submit('btnQueryAdd', ($intQuery2TypeID > 0 ? "Update" : "Add"))
-			.input_hidden('intQueryID', $intQueryID)
-			.input_hidden('intQuery2TypeID', $intQuery2TypeID)
-		."</div>
-	</form>";
+		<div class='clear'></div>"
+		.show_submit('btnQueryAdd', ($intQuery2TypeID > 0 ? "Update" : "Add"));
+
+		if($intQuery2TypeID > 0)
+		{
+			echo "<a href='?page=mf_form/create/index.php&intQueryID=".$intQueryID."#content'>".show_submit('btnQueryCancel', "Cancel", '', 'button')."</a>";
+		}
+
+		echo input_hidden('intQueryID', $intQueryID)
+		.input_hidden('intQuery2TypeID', $intQuery2TypeID)
+	."</form>";
 
 	$form_output = show_query_form(array('query_id' => $intQueryID, 'edit' => true, 'query2type_id' => $intQuery2TypeID));
 

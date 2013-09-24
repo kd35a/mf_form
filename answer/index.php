@@ -107,7 +107,7 @@ echo "<h1>Answers in ".$strQueryName."</h1>
 
 							if($intQueryTypeID == 7)
 							{
-								$strAnswerText = date(wp_date_format(), strtotime($strAnswerText));
+								$strAnswerText = wp_date_format($strAnswerText);
 							}
 
 							else if($intQueryTypeID == 10)
@@ -199,7 +199,7 @@ echo "<h1>Answers in ".$strQueryName."</h1>
 					echo "</td>";
 				}
 
-				echo "<td>".$strAnswerCreated."</td>
+				echo "<td>".wp_date_format($strAnswerCreated, true)."</td>
 				<td>
 					<a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link icon-trash'></a>
 				</td>

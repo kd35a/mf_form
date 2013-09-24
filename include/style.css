@@ -77,4 +77,52 @@
             margin-bottom: 10px;
             padding: 4px 10px 3px;
         }
+	.mf_form label
+	{
+		display: block;
+		margin-bottom: 5px;
+	}
+
+	.mf_form input[type=text], .mf_form input[type=range], .mf_form input[type=date], .mf_form select, .mf_form textarea
+	{
+		background: #fff;
+		border: 2px solid #ccc;
+		border-radius: 3px;
+		display: inline-block;
+		height: auto;
+		margin: 0 0 10px;
+		padding: 5px;
+		width: 50%;
+	}
+
+	.mf_form .form_checkbox, .mf_form .form_radio
+	{
+		margin-bottom: 10px;	
+	}
+
+		.mf_form .form_checkbox label, .mf_form .form_radio label
+		{
+			display: inline-block;
+		}
+
+		.mf_form .form_checkbox input, .mf_form .form_radio input
+		{
+			margin-right: 5px;
+		}
+
+			.mf_form .input-buttons.input-button-size-2
+			{
+				margin-top: 6px;
+				margin-left: -46px;
+			}
+
+	.mf_form > button, .mf_form > a > button
+	{
+		border: 2px solid #ccc;
+		border-radius: 3px;
+		cursor: pointer;
+		display: inline-block;
+		margin: 0 10px 10px 0;
+		padding: 4px 10px 3px;
+	}
 }
