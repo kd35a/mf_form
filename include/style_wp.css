@@ -91,6 +91,11 @@
 		border-bottom: 1px solid #aaa;
 	}
 
+		.mf_form .alignleft, .mf_form .alignright
+		{
+			clear: none;
+		}
+
 		.mf_form.active, .form_row.active
 		{
 			background: #fff6bf;
