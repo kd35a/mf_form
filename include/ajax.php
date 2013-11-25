@@ -26,13 +26,13 @@ if($type_action == "delete")
 {
 	if($type_table == "query")
 	{
-		$wpdb->query("DELETE FROM ".$wpdb->prefix."query2type WHERE queryID = '".$type_id."'");
+		$wpdb->query("DELETE FROM ".$wpdb->base_prefix."query2type WHERE queryID = '".$type_id."'");
 
-		$intAnswerID = $wpdb->get_var("SELECT answerID FROM ".$wpdb->prefix."query2answer WHERE queryID = '".$type_id."'");
-		$wpdb->query("DELETE FROM ".$wpdb->prefix."query_answer WHERE answerID = '".$intAnswerID."'");
+		$intAnswerID = $wpdb->get_var("SELECT answerID FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '".$type_id."'");
+		$wpdb->query("DELETE FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '".$intAnswerID."'");
 
-		$wpdb->query("DELETE FROM ".$wpdb->prefix."query2answer WHERE queryID = '".$type_id."'");
-		$wpdb->query("DELETE FROM ".$wpdb->prefix."query WHERE queryID = '".$type_id."'");
+		$wpdb->query("DELETE FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '".$type_id."'");
+		$wpdb->query("DELETE FROM ".$wpdb->base_prefix."query WHERE queryID = '".$type_id."'");
 
 		if(mysql_affected_rows() > 0)
 		{
@@ -43,8 +43,8 @@ if($type_action == "delete")
 
 	else if($type_table == "answer")
 	{
-		$wpdb->query("DELETE FROM ".$wpdb->prefix."query_answer WHERE answerID = '".$type_id."'");
-		$wpdb->query("DELETE FROM ".$wpdb->prefix."query2answer WHERE answerID = '".$type_id."'");
+		$wpdb->query("DELETE FROM ".$wpdb->base_prefix."query_answer WHERE answerID = '".$type_id."'");
+		$wpdb->query("DELETE FROM ".$wpdb->base_prefix."query2answer WHERE answerID = '".$type_id."'");
 
 		if(mysql_affected_rows() > 0)
 		{
@@ -55,7 +55,7 @@ if($type_action == "delete")
 	
 	else if($type_table == "type")
 	{
-		$wpdb->query("DELETE FROM ".$wpdb->prefix."query2type WHERE query2TypeID = '".$type_id."'");
+		$wpdb->query("DELETE FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '".$type_id."'");
 
 		if(mysql_affected_rows() > 0)
 		{
@@ -69,9 +69,9 @@ else if($type_action == "require")
 {
 	if($type_table == "type")
 	{
-		$intQueryTypeRequired = $wpdb->get_var("SELECT queryTypeForced FROM ".$wpdb->prefix."query2type WHERE query2TypeID = '".$type_id."'");
+		$intQueryTypeRequired = $wpdb->get_var("SELECT queryTypeForced FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '".$type_id."'");
 
-		$wpdb->query("UPDATE ".$wpdb->prefix."query2type SET queryTypeForced = '".($intQueryTypeRequired == 1 ? 0 : 1)."' WHERE query2TypeID = '".$type_id."'");
+		$wpdb->query("UPDATE ".$wpdb->base_prefix."query2type SET queryTypeForced = '".($intQueryTypeRequired == 1 ? 0 : 1)."' WHERE query2TypeID = '".$type_id."'");
 
 		if(mysql_affected_rows() > 0)
 		{
@@ -105,7 +105,7 @@ else if($type_action == "sortOrder")
 
 		if($sort_id > 0)
 		{
-			$wpdb->query("UPDATE ".$wpdb->prefix."query2type SET query2TypeOrder = '".$i."' WHERE query2TypeID = '".$sort_id."'");
+			$wpdb->query("UPDATE ".$wpdb->base_prefix."query2type SET query2TypeOrder = '".$i."' WHERE query2TypeID = '".$sort_id."'");
 
 			$i++;
 

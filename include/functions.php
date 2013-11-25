@@ -1,5 +1,14 @@
 <?php
 
+function wp_date_format($date, $full_datetime = false)
+{
+	global $wpdb;
+
+	$date_format = $wpdb->get_var("SELECT option_value FROM ".$wpdb->options." WHERE option_name = '".($full_datetime == true ? "links_updated_date_format" : "date_format")."'");
+
+	return date($date_format, strtotime($date));
+}
+
 if(!function_exists('check_var'))
 {
 	function check_var($in, $type = '', $v2 = true, $default = '', $return_empty = false, $force_req_type = '')
@@ -143,6 +152,14 @@ if(!function_exists('check_var'))
 			}
 		}
 
+		else if(is_array($temp) || $type == 'array' || $type2 == 'arr')
+		{
+			if(is_array($temp) || $temp == '')
+			{
+				$out = $temp; //Får aldrig köras addslashes() på detta
+			}
+		}
+
 		else if($type == 'char' || $type2 == 'str')
 		{
 			$out = trim(addslashes($temp));
@@ -183,14 +200,6 @@ if(!function_exists('check_var'))
 			}
 		}
 
-		else if($type == 'array' || $type2 == 'arr')
-		{
-			if(is_array($temp) || $temp == '')
-			{
-				$out = $temp; //Får aldrig köras addslashes() på detta
-			}
-		}
-
 		if($out == '')
 		{
 			$out = $default;
@@ -206,8 +215,6 @@ function show_textfield($var, $text, $id, $max_length = '', $field_length = 0, $
 	$label = $after = $color = "";
 
 	if($id == "0000-00-00"){$id = "";}
-
-	$xtra_class = $xtra_class != '' && substr($xtra_class, 0, 1) != " " ? " ".$xtra_class : $xtra_class;
 
 	if($required == true)
 	{
@@ -227,10 +234,10 @@ function show_textfield($var, $text, $id, $max_length = '', $field_length = 0, $
 
 	if($text != '')
 	{
-		$label = "<label for='".$var."'>".$text.":".$after."</label>";
+		$label = "<label for='".$var."'>".$text.$after."</label>";
 	}
 
-	$out = "<div class='form_textfield".$xtra_class."'>"
+	$out = "<div class='form_textfield".($xtra_class != '' ? " ".$xtra_class : "")."'>"
 		.$label
 		."<input type='".$type."'".$size."".$max_length." name='".$var."' value='".stripslashes($id)."'".$xtra."/>
 	</div>";
@@ -254,7 +261,7 @@ function show_textarea($data)
 
 		if($data['text'] != '')
 		{
-			$out .= "<label for='".$data['name']."'>".$data['text'].":".($data['required'] == 1 ? " *" : "")."</label>";
+			$out .= "<label for='".$data['name']."'>".$data['text'].($data['required'] == 1 ? " *" : "")."</label>";
 		}
 
 		$out .= "<textarea class='".(isset($data['size']) ? "textarea_".$data['size'] : "")."' name='".$data['name']."' id='".$data['name']."'".($data['xtra'] != '' ? " ".$data['xtra'] : "").">".stripslashes($data['value'])."</textarea>
@@ -284,6 +291,13 @@ function show_select($data)
 		{
 			$data['class'] .= ($data['class'] != '' ? " " : "")."top";
 			$data['xtra'] .= " multiple='multiple' size='".($count_temp > $data['maxsize'] ? $data['maxsize'] : $count_temp)."'";
+
+			$container_class = "form_select_multiple";
+		}
+
+		else
+		{
+			$container_class = "form_select";
 		}
 
 		if($data['text'] != '')
@@ -298,7 +312,7 @@ function show_select($data)
 
 		else
 		{
-			$out = "<div class='form_select".($data['class'] != '' ? " ".$data['class'] : "")."'>"
+			$out = "<div class='".$container_class.($data['class'] != '' ? " ".$data['class'] : "")."'>"
 				.$label
 				."<select id='".str_replace("[]", "", $data['name'])."' name='".$data['name']."'".$data['xtra'].">";
 
@@ -350,9 +364,10 @@ function show_select($data)
 ######################################
 function show_checkbox($data)
 {
-	if(!isset($data['required'])){	$data['required'] = 0;}
-	if(!isset($data['compare'])){	$data['compare'] = 0;}
-	if(!isset($data['xtra'])){		$data['xtra'] = "";}
+	if(!isset($data['required'])){		$data['required'] = 0;}
+	if(!isset($data['compare'])){		$data['compare'] = 0;}
+	if(!isset($data['xtra'])){			$data['xtra'] = "";}
+	if(!isset($data['xtra_class'])){	$data['xtra_class'] = "";}
 
 	$label = "";
 
@@ -360,7 +375,7 @@ function show_checkbox($data)
 
 	if($data['text'] != '')
 	{
-		$label = "<label for='".$data['name']."'> ".$data['text'];
+		$label = "<label for='".$data['name']."'>".$data['text'];
 
 			if($data['required'] == 1)
 			{
@@ -370,7 +385,7 @@ function show_checkbox($data)
 		$label .= "</label>";
 	}
 
-	$out = "<div class='form_checkbox'>
+	$out = "<div class='form_checkbox".($data['xtra_class'] != '' ? " ".$data['xtra_class'] : "")."'>
 		<input type='checkbox' id='".$data['name']."' name='".$data['name']."' value='".$data['value']."'".$checked.$data['xtra']."/>".$label
 	."</div>";
 
@@ -385,6 +400,7 @@ function show_radio_input($data)
 	if(!isset($data['text'])){			$data['text'] = "";}
 	if(!isset($data['compare'])){		$data['compare'] = "";}
 	if(!isset($data['xtra'])){			$data['xtra'] = "";}
+	if(!isset($data['xtra_class'])){	$data['xtra_class'] = "";}
 	
 	$checked = "";
 
@@ -393,18 +409,50 @@ function show_radio_input($data)
 		$checked = " checked";
 	}
 
-	return "<div class='form_radio'>
-		<input type='radio' name='".$data['name']."' value='".$data['value']."'".$checked.$data['xtra']."/>".$data['label']
-	."</div>";
+	$out = "<div class='form_radio".($data['xtra_class'] != '' ? " ".$data['xtra_class'] : "")."'>
+		<input type='radio' name='".$data['name']."' value='".$data['value']."'".$checked.$data['xtra']."/>";
+
+		if($data['label'] != '')
+		{
+			$out .= "<label for='".$data['name']."'>".$data['label']."</label>";
+		}
+
+	$out .= "</div>";
+
+	return $out;
 }
 #################
+
+######################
+function show_file_field($data)
+{
+	if(!isset($data['text'])){		$data['text'] = "";}
+	if(!isset($data['class'])){		$data['class'] = "";}
+	//if(!isset($data['size'])){		$data['size'] = 0;}
+	if(!isset($data['multiple'])){	$data['multiple'] = false;}
+
+	$label = "";
+
+	if($data['text'] != '')
+	{
+		$label = "<label for='".$data['name']."'>".$data['text']."</label>";
+	}
+
+	//$out = $start."<input type='file'".($data['multiple'] == true ? " multiple='true'" : "")." class='h_20' size='".$data['size']."' name='".$data['name'].($data['multiple'] == true ? "[]" : "")."' value=''/>".$end;
+
+	$out .= "<div class='form_file_input".($data['class'] != '' ? " ".$data['class'] : "")."'>"
+		.$label
+		."<input type='file'".($data['multiple'] == true ? " multiple='true'" : "")." name='".$data['name'].($data['multiple'] == true ? "[]" : "")."' value=''/>
+	</div>";
+
+	return $out;
+}
+######################
 
 #################
 function show_submit($var, $text, $xtra = '', $type = 'submit', $class = '')
 {
-	$out = "<button type='".$type."'".($var != '' ? " name='".$var."'" : "").($class != '' ? " class='".$class."'" : "").$xtra."><span>".$text."</span></button>";
-
-	return $out;
+	return "<button type='".$type."'".($var != '' ? " name='".$var."'" : "").($class != '' ? " class='".$class."'" : "").$xtra."><span>".$text."</span></button>";
 }
 #################
 
@@ -417,6 +465,29 @@ function input_hidden($name, $value, $allow_empty = false, $xtra = "")
 	}
 }
 #####################
+
+function get_file_content($data)
+{
+	global $globals, $arr_lang;
+
+	$content = "";
+
+	if(filesize($data['file']) > 0)
+	{
+		if($fh = fopen(realpath($data['file']), 'r'))
+		{
+			$content = fread($fh, filesize($data['file']));
+			fclose($fh);
+		}
+
+		else
+		{
+			insert_error($arr_lang['file_not_opened']." (".$data['file'].")");
+		}
+	}
+
+	return $content;
+}
 
 ########################################
 function show_table_header($arr_header)
@@ -441,21 +512,238 @@ function show_query_form($data)
 {
 	global $wpdb, $intAnswerID;
 
+	if(isset($_POST['btnQuerySubmit']))
+	{
+		$intQueryID = check_var('intQueryID');
+
+		$strAnswerIP = $_SERVER['REMOTE_ADDR'];
+
+		$send_text = $error_text = $send_from = "";
+
+		$result = $wpdb->get_results("SELECT queryName, queryEmail, queryEmailName FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."'");
+		$r = $result[0];
+		$strQueryName = $r->queryName;
+		$strQueryEmail = $r->queryEmail;
+		$strQueryEmailName = $r->queryEmailName;
+
+		$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode, queryTypeForced FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' ORDER BY query2TypeOrder ASC, query2TypeCreated ASC");
+
+		foreach($result as $r)
+		{
+			$intQuery2TypeID2 = $r->query2TypeID;
+			$intQueryTypeID2 = $r->queryTypeID;
+			$strQueryTypeText = $r->queryTypeText;
+			$strCheckCode = $r->checkCode != '' ? $r->checkCode : "char";
+			$intQueryTypeRequired = $r->queryTypeForced;
+
+			$var = $var_send = check_var($intQuery2TypeID2, $strCheckCode, true, '', false, 'post');
+
+			if($var != '' && $intQueryTypeID2 == 3 && $strCheckCode == 'email')
+			{
+				$send_from = $var;
+			}
+
+			//Connected
+			###################################
+			/*else if($intQueryTypeID2 == 14)
+			{
+				list($strQueryTypeText, $arr_content1) = explode(":", $strQueryTypeText);
+				list($intQueryID_temp, $intQuery2TypeID2_temp) = explode("|", $arr_content1);
+
+				$result = $wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '".$intQueryID_temp."' AND query2TypeID = '".$intQuery2TypeID2_temp."' AND answerText = '".$var."'");
+				$rows = count($result);
+
+				if($rows == 0)
+				{
+					$var = "";
+
+					$error_text = "Error (".$strQueryTypeText.")";
+				}
+			}*/
+			###################################
+
+			if($intQueryTypeID2 == 2)
+			{
+				list($strQueryTypeText, $rest) = explode("|", $strQueryTypeText);
+			}
+
+			else if($intQueryTypeID2 == 7)
+			{
+				$var_send = wp_date_format($var);
+			}
+
+			else if($intQueryTypeID2 == 10)
+			{
+				$arr_content1 = explode(":", $strQueryTypeText);
+				$arr_content2 = explode(",", $arr_content1[1]);
+
+				foreach($arr_content2 as $str_content)
+				{
+					$arr_content3 = explode("|", $str_content);
+
+					if($var == $arr_content3[0])
+					{
+						$var_send = $arr_content3[1];
+					}
+				}
+
+				$strQueryTypeText = $arr_content1[0];
+			}
+
+			else if($intQueryTypeID2 == 11)
+			{
+				$var = "";
+
+				if(is_array($_POST[$intQuery2TypeID2]))
+				{
+					foreach($_POST[$intQuery2TypeID2] as $value)
+					{
+						$var .= ($var != '' ? "," : "").check_var($value, $strCheckCode, false);
+					}
+				}
+
+				$arr_content1 = explode(":", $strQueryTypeText);
+				$arr_content2 = explode(",", $arr_content1[1]);
+
+				$arr_answer_text = explode(",", $var);
+
+				$var_send = "";
+
+				foreach($arr_content2 as $str_content)
+				{
+					$arr_content3 = explode("|", $str_content);
+
+					if(in_array($arr_content3[0], $arr_answer_text))
+					{
+						$var_send .= ($var_send != '' ? ", " : "").$arr_content3[1];
+					}
+				}
+
+				$strQueryTypeText = $arr_content1[0];
+			}
+
+			$send_text .= "\n".$strQueryTypeText."\n";
+
+			if($var != '')
+			{
+				$arr_query[] = "INSERT INTO ".$wpdb->base_prefix."query_answer (answerID, query2TypeID, answerText) VALUES ([answer_id], '".$intQuery2TypeID2."', '".$var."')";
+
+				$send_text .= " ".$var_send."\n";
+			}
+
+			else if($intQueryTypeID2 == 8)
+			{
+				$var_radio = isset($_POST['radio_'.$intQuery2TypeID2]) ? check_var($_POST['radio_'.$intQuery2TypeID2], 'int', false) : '';
+
+				if($var_radio != '')
+				{
+					$arr_query[] = "INSERT INTO ".$wpdb->base_prefix."query_answer (answerID, query2TypeID, answerText) VALUES ([answer_id], '".$var_radio."', '')";
+				}
+
+				$strQueryTypeText_temp = $wpdb->get_var("SELECT queryTypeText FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '".$var_radio."'");
+
+				$send_text .= ($strQueryTypeText_temp == $strQueryTypeText ? " x" : "")."\n";
+			}
+
+			else
+			{
+				if($intQueryTypeRequired == true && $globals['error_text'] == '')
+				{
+					$error_text = "You have to enter all mandatory fields (".$strQueryTypeText.")";
+				}
+
+				//$send_text .= "\n";
+			}
+		}
+
+		if($error_text != '')
+		{
+			echo $error_text;
+		}
+
+		else if(isset($arr_query))
+		{
+			$updated = true;
+
+			$wpdb->get_results("INSERT INTO ".$wpdb->base_prefix."query2answer (queryID, answerIP, answerCreated) VALUES ('".$intQueryID."', '".$strAnswerIP."', NOW())");
+
+			$intAnswerID = mysql_insert_id();
+
+			if($intAnswerID > 0)
+			{
+				foreach($arr_query as $query)
+				{
+					$wpdb->get_results(str_replace("[answer_id]", $intAnswerID, $query));
+
+					if(mysql_affected_rows() == 0)
+					{
+						$updated = false;
+					}
+				}
+			}
+
+			else
+			{
+				$updated = false;
+			}
+
+			if($updated == true)
+			{
+				if($strQueryEmail != '' && isset($send_text) && $send_text != '')
+				{
+					if($send_from != '')
+					{
+						$headers = "From: ".$send_from." <".$send_from.">\r\n";
+					}
+
+					else
+					{
+						$headers = "From: ".get_bloginfo('name')." <".get_bloginfo('admin_email').">\r\n";
+					}
+
+					wp_mail($strQueryEmail, $strQueryEmailName, strip_tags($send_text), $headers);
+				}
+
+				$this_url = $_SERVER['HTTP_REFERER'];
+
+				//echo nl2br($send_text);
+
+				//echo "<script>location.href = '".$this_url.(preg_match("/\?/", $this_url) ? "&" : "?")."sent';</script>";
+
+				$data['sent'] = true;
+			}
+
+			else
+			{
+				echo "There was an error...";
+				exit;
+			}
+		}
+
+		else
+		{
+			echo "Something went wrong...";
+			exit;
+		}
+	}
+
 	if(!isset($data['edit'])){			$data['edit'] = false;}
 	if(!isset($data['sent'])){			$data['sent'] = false;}
+	if(!isset($data['query2type_id'])){	$data['query2type_id'] = 0;}
 
 	$out = "";
 
-	$result = $wpdb->get_results("SELECT queryDeadline, queryAnswerName, queryAnswer FROM ".$wpdb->prefix."query WHERE queryID = '".$data['query_id']."'");
+	$result = $wpdb->get_results("SELECT queryDeadline, queryAnswerName, queryAnswer, queryButtonText FROM ".$wpdb->base_prefix."query WHERE queryID = '".$data['query_id']."'");
 	$r = $result[0];
 	$dteQueryDeadline = $r->queryDeadline;
 	$strQueryAnswerName = $r->queryAnswerName;
 	$strQueryAnswer = $r->queryAnswer;
+	$strQueryButtonText = $r->queryButtonText;
 
 	if($data['sent'] == true)
 	{
 		$out .= "<h2>".$strQueryAnswerName."</h2>
-		<p>".$strQueryAnswer."</p>";
+		<div>".$strQueryAnswer."</div>";
 	}
 
 	else
@@ -470,12 +758,12 @@ function show_query_form($data)
 		{
 			$cols = $data['edit'] == true ? 5 : 2;
 
-			$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText, queryTypeForced, query2TypeOrder FROM ".$wpdb->prefix."query2type INNER JOIN ".$wpdb->prefix."query_type USING (queryTypeID) WHERE queryID = '".$data['query_id']."' GROUP BY ".$wpdb->prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC, query2TypeCreated ASC");
+			$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText, queryTypeForced, queryTypeClass, query2TypeOrder FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$data['query_id']."' GROUP BY ".$wpdb->base_prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC, query2TypeCreated ASC");
 			$intTotalRows = count($result);
 
 			if($intTotalRows > 0)
 			{
-				$out .= "<form method='post' action='' id='form_".$data['query_id']."' class='sortable_form'>";
+				$out .= "<form method='post' action='' id='form_".$data['query_id']."' class='mf_form'>";
 
 					$i = 1;
 
@@ -487,13 +775,14 @@ function show_query_form($data)
 						$intQueryTypeID2 = $r->queryTypeID;
 						$strQueryTypeText2 = $r->queryTypeText;
 						$intQueryTypeRequired = $r->queryTypeForced;
+						$strQueryTypeClass = $r->queryTypeClass;
 						$intQuery2TypeOrder = $r->query2TypeOrder;
 
 						$strAnswerText = "";
 
 						if($intAnswerID > 0)
 						{
-							$resultInfo = $wpdb->get_results("SELECT answerText FROM ".$wpdb->prefix."query_answer WHERE query2TypeID = '".$intQuery2TypeID2."' AND answerID = '".$intAnswerID."' LIMIT 0, 1");
+							$resultInfo = $wpdb->get_results("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE query2TypeID = '".$intQuery2TypeID2."' AND answerID = '".$intAnswerID."' LIMIT 0, 1");
 							$rowsInfo = count($resultInfo);
 
 							if($rowsInfo > 0)
@@ -503,7 +792,7 @@ function show_query_form($data)
 							}
 						}
 
-						//Tar fram medskickad variabel. Till för att fylla på med info från svar som man gjort på publik sidan men som av någon anledning inte skickats iväg
+						//
 						if($strAnswerText == '')
 						{
 							$strAnswerText = check_var($intQuery2TypeID2, 'char');
@@ -511,17 +800,34 @@ function show_query_form($data)
 
 						if($data['edit'] == true)
 						{
-							$out .= "<div id='type_".$intQuery2TypeID2."' class='form_row'>";
+							$out .= "<div id='type_".$intQuery2TypeID2."' class='form_row".($data['query2type_id'] == $intQuery2TypeID2 ? " active" : "")."'>";
 						}
 
 							switch($intQueryTypeID2)
 							{
-								//Kryssruta
+								//Checkbox
 								case 1:
-									$out .= show_checkbox(array('name' => $intQuery2TypeID2, 'text' => $strQueryTypeText2, 'required' => $intQueryTypeRequired, 'value' => 1, 'compare' => $strAnswerText));
+									$out .= show_checkbox(array('name' => $intQuery2TypeID2, 'text' => $strQueryTypeText2, 'required' => $intQueryTypeRequired, 'value' => 1, 'compare' => $strAnswerText, 'xtra_class' => $strQueryTypeClass));
 								break;
 
-								//Flervalsruta v2
+								//Input range
+								case 2:
+									$arr_content = explode("|", $strQueryTypeText2);
+
+									if($strAnswerText == '' && isset($arr_content[3]))
+									{
+										$strAnswerText = $arr_content[3];
+									}
+
+									$out .= show_textfield($intQuery2TypeID2, $arr_content[0]." (<span>".$strAnswerText."</span>)", $strAnswerText, 200, 0, $intQueryTypeRequired, " min='".$arr_content[1]."' max='".$arr_content[2]."'", "", $strQueryTypeClass, "range");
+								break;
+
+								//Input date
+								case 7:
+									$out .= show_textfield($intQuery2TypeID2, $strQueryTypeText2, $strAnswerText, 200, 0, $intQueryTypeRequired, "", "", $strQueryTypeClass, "date");
+								break;
+
+								//Radio button
 								case 8:
 									if($intQueryTypeID2 != $intQueryTypeID2_temp)
 									{
@@ -533,7 +839,7 @@ function show_query_form($data)
 										$strAnswerText = $intQuery2TypeID2;
 									}
 
-									$out .= show_radio_input(array('name' => 'radio_'.$intQuery2TypeID2_temp, 'label' => $strQueryTypeText2, 'value' => $intQuery2TypeID2, 'compare' => $strAnswerText));
+									$out .= show_radio_input(array('name' => 'radio_'.$intQuery2TypeID2_temp, 'label' => $strQueryTypeText2, 'value' => $intQuery2TypeID2, 'compare' => $strAnswerText, 'xtra_class' => $strQueryTypeClass));
 								break;
 
 								//Select
@@ -550,72 +856,87 @@ function show_query_form($data)
 										$arr_data[] = array($arr_content3[0], $arr_content3[1]);
 									}
 
-									$out .= show_select(array('data' => $arr_data, 'name' => $intQuery2TypeID2, 'text' => $arr_content1[0], 'compare' => $strAnswerText, 'required' => $intQueryTypeRequired));
+									$out .= show_select(array('data' => $arr_data, 'name' => $intQuery2TypeID2, 'text' => $arr_content1[0], 'compare' => $strAnswerText, 'required' => $intQueryTypeRequired, 'class' => $strQueryTypeClass));
 								break;
 
-								//Textrad
-								case 3:
-								case 14:
-									if($intQueryTypeID2 == 14)
+								//Select (multiple)
+								case 11:
+									$arr_content1 = explode(":", $strQueryTypeText2);
+									$arr_content2 = explode(",", $arr_content1[1]);
+
+									$arr_data = array();
+
+									foreach($arr_content2 as $str_content)
 									{
-										list($strQueryTypeText2, $rest_value) = explode(":", $strQueryTypeText2);
+										$arr_content3 = explode("|", $str_content);
+
+										$arr_data[] = array($arr_content3[0], $arr_content3[1]);
 									}
 
-									$out .= show_textfield($intQuery2TypeID2, $strQueryTypeText2, $strAnswerText, 200, 0, ($intQueryTypeRequired == 1 ? true : false));
+									$out .= show_select(array('data' => $arr_data, 'name' => $intQuery2TypeID2."[]", 'text' => $arr_content1[0], 'compare' => $strAnswerText, 'required' => $intQueryTypeRequired, 'class' => $strQueryTypeClass));
 								break;
 
-								//Textruta
+								//Textfield
+								case 3:
+								//case 14:
+									/*if($intQueryTypeID2 == 14)
+									{
+										list($strQueryTypeText2, $rest_value) = explode(":", $strQueryTypeText2);
+									}*/
+
+									$out .= show_textfield($intQuery2TypeID2, $strQueryTypeText2, $strAnswerText, 200, 0, ($intQueryTypeRequired == 1 ? true : false), '', '', $strQueryTypeClass);
+								break;
+
+								//Textarea
 								case 4:
-									$out .= show_textarea(array('name' => $intQuery2TypeID2, 'text' => $strQueryTypeText2, 'value' => $strAnswerText, 'size' => 'small', 'required' => $intQueryTypeRequired));
+									$out .= show_textarea(array('name' => $intQuery2TypeID2, 'text' => $strQueryTypeText2, 'value' => $strAnswerText, 'size' => 'small', 'required' => $intQueryTypeRequired, 'class' => $strQueryTypeClass));
 								break;
 
 								//Text
 								case 5:
-									$out .= "<p>".$strQueryTypeText2."</p>";
+									$out .= "<div".($strQueryTypeClass != '' ? " class='".$strQueryTypeClass."'" : "").">".$strQueryTypeText2."</div>";
 								break;
 
-								//Mellanrum
+								//Space
 								case 6:
-									$out .= $data['edit'] == true ? "<p class='grey'>(mellanrum)</p>" : "<p>&nbsp;</p>";
+									$out .= $data['edit'] == true ? "<p class='grey".($strQueryTypeClass != '' ? " ".$strQueryTypeClass : "")."'>(space)</p>" : "<p".($strQueryTypeClass != '' ? " class='".$strQueryTypeClass."'" : "").">&nbsp;</p>";
 								break;
 
-								//Dold info
-								case 13:
+								//Hidden info
+								/*case 13:
 									if($data['edit'] == true)
 									{
-										$out .= "<p class='grey'>(Dolt: '".$strQueryTypeText2."')</p>";
+										$out .= "<p class='grey".($strQueryTypeClass != '' ? " ".$strQueryTypeClass : "")."'>(Hidden: '".$strQueryTypeText2."')</p>";
 									}
-								break;
+								break;*/
 							}
 
 						if($data['edit'] == true)
 						{
 							$out .= "<div class='form_buttons'>"
-									.show_checkbox(array('name' => $intQuery2TypeID2, 'text' => "Tvinga", 'value' => 1, 'compare' => $intQueryTypeRequired, 'xtra' => " class='ajax_checkbox' rel='require/type/".$intQuery2TypeID2."'"))
-									."<a href='?page=mf_form/create/index.php&intQueryID=".$data['query_id']."&intQuery2TypeID=".$intQuery2TypeID2."' class='icon-edit'></a>
+									.show_checkbox(array('name' => $intQuery2TypeID2, 'text' => "Required", 'value' => 1, 'compare' => $intQueryTypeRequired, 'xtra' => " class='ajax_checkbox' rel='require/type/".$intQuery2TypeID2."'"))
+									."<a href='?page=mf_form/create/index.php&intQueryID=".$data['query_id']."&intQuery2TypeID=".$intQuery2TypeID2."#content' class='icon-edit'></a>
 									<a href='#delete/type/".$intQuery2TypeID2."' class='ajax_link confirm_link icon-trash'></a>
 								</div>
 							</div>";
-
-							//<span class='moveable'>Flytta</span>
 						}
 
 						$i++;
 
-						//Sätter temporärt så att det går att jämföra med föregående objekt i formuläret och avgöra om det är sammanhängande radiobuttons
+						//Set temp id to check on next row if it is connected radio buttons
 						$intQueryTypeID2_temp = $intQueryTypeID2;
 					}
 
-					if($intAnswerID > 0) //$data['edit'] == true && 
+					if($intAnswerID > 0)
 					{
-						$out .= show_submit('btnQueryUpdate', "Uppdatera")
+						$out .= show_submit('btnQueryUpdate', "Update")
 						.input_hidden('intQueryID', $data['query_id'])
 						.input_hidden('intAnswerID', $intAnswerID);
 					}
 
 					else if($data['edit'] == false)
 					{
-						$out .= show_submit('btnQuerySubmit', "Skicka")
+						$out .= show_submit('btnQuerySubmit', ($strQueryButtonText != '' ? $strQueryButtonText : "Send"))
 						.input_hidden('intQueryID', $data['query_id']);
 					}
 
