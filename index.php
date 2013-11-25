@@ -151,7 +151,7 @@ if(isset($_POST['btnQuerySubmit']))
 				$arr_query[] = "INSERT INTO ".$wpdb->prefix."query_answer (answerID, query2TypeID, answerText) VALUES ([answer_id], '".$var_radio."', '')";
 			}
 
-			$strQueryTypeText_temp = run_query(3, "SELECT queryTypeText FROM ".$wpdb->prefix."query2type WHERE query2TypeID = '".$var_radio."'");
+			$strQueryTypeText_temp = $wpdb->get_var("SELECT queryTypeText FROM ".$wpdb->prefix."query2type WHERE query2TypeID = '".$var_radio."'");
 
 			$send_text .= ($strQueryTypeText_temp == $strQueryTypeText ? " x" : "")."\n";
 		}
