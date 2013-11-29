@@ -271,7 +271,7 @@ else
 					<td>".$strQueryShortcode."</td>
 					<td>";
 
-						$result = $wpdb->get_results("SELECT * FROM ".$wpdb->posts." WHERE post_content LIKE '%".addslashes($strQueryShortcode)."%' AND post_type != 'revision'");
+						$result = $wpdb->get_results("SELECT * FROM ".$wpdb->posts." WHERE (post_content LIKE '%".addslashes($strQueryShortcode)."%' OR post_content LIKE '%".addslashes("[form_shortcode id='".$intQueryID."']")."%') AND post_type != 'revision'");
 
 						$i = 0;
 
