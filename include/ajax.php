@@ -12,6 +12,8 @@ else
 	require_once($wp_root.'/wp-config.php');
 }
 
+$json_output = array();
+
 $type = check_var('type', 'char');
 
 $arr_input = explode("/", $type);
@@ -20,9 +22,7 @@ $type_action = $arr_input[0];
 $type_table = $arr_input[1];
 $type_id = $arr_input[2];
 
-$json_output = array();
-
-if($type_action == "delete")
+if($type_action == "delete" && get_current_user_id() > 0)
 {
 	if($type_table == "query")
 	{
@@ -65,7 +65,7 @@ if($type_action == "delete")
 	}
 }
 
-else if($type_action == "require")
+else if($type_action == "require" && get_current_user_id() > 0)
 {
 	if($type_table == "type")
 	{
@@ -85,7 +85,7 @@ else if($type_action == "require")
 	}
 }
 
-else if($type_action == "sortOrder")
+else if($type_action == "sortOrder" && get_current_user_id() > 0)
 {
 	$updated = false;
 
@@ -119,6 +119,22 @@ else if($type_action == "sortOrder")
 	if($updated == true)
 	{
 		$json_output['success'] = true;
+	}
+}
+
+else if($type_action == "zipcode")
+{
+	$search = str_replace(" ", "", $type_id);
+
+	$result = $wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->base_prefix."query_zipcode WHERE addressZipCode = '%d'", $search));
+
+	foreach($result as $r)
+	{
+		$strCityName = $r->cityName;
+		$strMunicipalityName = $r->municipalityName;
+
+		$json_output['success'] = true;
+		$json_output['response'] = $strCityName.($strMunicipalityName != $strCityName ? ", ".$strMunicipalityName : "");
 	}
 }
 

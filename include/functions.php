@@ -185,7 +185,7 @@ if(!function_exists('check_var'))
 			}
 		}
 
-		else if($type == 'int' || $type2 == 'int')
+		else if($type == 'int' || $type2 == 'int' || $type == 'zip' || $type2 == 'zip')
 		{
 			$temp = str_replace(" ", "", $temp);
 
@@ -543,25 +543,6 @@ function show_query_form($data)
 				$send_from = $var;
 			}
 
-			//Connected
-			###################################
-			/*else if($intQueryTypeID2 == 14)
-			{
-				list($strQueryTypeText, $arr_content1) = explode(":", $strQueryTypeText);
-				list($intQueryID_temp, $intQuery2TypeID2_temp) = explode("|", $arr_content1);
-
-				$result = $wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '".$intQueryID_temp."' AND query2TypeID = '".$intQuery2TypeID2_temp."' AND answerText = '".$var."'");
-				$rows = count($result);
-
-				if($rows == 0)
-				{
-					$var = "";
-
-					$error_text = "Error (".$strQueryTypeText.")";
-				}
-			}*/
-			###################################
-
 			if($intQueryTypeID2 == 2)
 			{
 				list($strQueryTypeText, $rest) = explode("|", $strQueryTypeText);
@@ -651,8 +632,6 @@ function show_query_form($data)
 				{
 					$error_text = "You have to enter all mandatory fields (".$strQueryTypeText.")";
 				}
-
-				//$send_text .= "\n";
 			}
 		}
 
@@ -706,10 +685,6 @@ function show_query_form($data)
 
 				$this_url = $_SERVER['HTTP_REFERER'];
 
-				//echo nl2br($send_text);
-
-				//echo "<script>location.href = '".$this_url.(preg_match("/\?/", $this_url) ? "&" : "?")."sent';</script>";
-
 				$data['sent'] = true;
 			}
 
@@ -758,7 +733,7 @@ function show_query_form($data)
 		{
 			$cols = $data['edit'] == true ? 5 : 2;
 
-			$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText, queryTypeForced, queryTypeClass, query2TypeOrder FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$data['query_id']."' GROUP BY ".$wpdb->base_prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC, query2TypeCreated ASC");
+			$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, checkCode, queryTypeText, queryTypeForced, queryTypeClass, query2TypeOrder FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$data['query_id']."' GROUP BY ".$wpdb->base_prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC, query2TypeCreated ASC");
 			$intTotalRows = count($result);
 
 			if($intTotalRows > 0)
@@ -773,6 +748,7 @@ function show_query_form($data)
 					{
 						$intQuery2TypeID2 = $r->query2TypeID;
 						$intQueryTypeID2 = $r->queryTypeID;
+						$strCheckCode = $r->checkCode;
 						$strQueryTypeText2 = $r->queryTypeText;
 						$intQueryTypeRequired = $r->queryTypeForced;
 						$strQueryTypeClass = $r->queryTypeClass;
@@ -878,13 +854,7 @@ function show_query_form($data)
 
 								//Textfield
 								case 3:
-								//case 14:
-									/*if($intQueryTypeID2 == 14)
-									{
-										list($strQueryTypeText2, $rest_value) = explode(":", $strQueryTypeText2);
-									}*/
-
-									$out .= show_textfield($intQuery2TypeID2, $strQueryTypeText2, $strAnswerText, 200, 0, ($intQueryTypeRequired == 1 ? true : false), '', '', $strQueryTypeClass);
+									$out .= show_textfield($intQuery2TypeID2, $strQueryTypeText2, $strAnswerText, 200, 0, ($intQueryTypeRequired == 1 ? true : false), '', '', $strQueryTypeClass.($strCheckCode == "zip" ? " form_zipcode" : ""));
 								break;
 
 								//Textarea
