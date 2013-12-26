@@ -6,7 +6,8 @@ wp_enqueue_script('jquery-forms', plugins_url()."/mf_form/include/script_wp.js",
 
 $folder = str_replace("plugins/mf_form/list", "", dirname(__FILE__));
 
-$intQueryID = check_var('intQueryID');
+//$intQueryID = check_var('intQueryID');
+$intQueryID = isset($_REQUEST['intQueryID']) ? $_REQUEST['intQueryID'] : "";
 
 if(isset($_GET['btnQueryExport']))
 {
@@ -16,7 +17,7 @@ if(isset($_GET['btnQueryExport']))
 
 	$strExportDate = date("Y-m-d H:i:s");
 
-	$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC");
+	$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '%d' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC", $intQueryID));
 
 	$file_type = "csv";
 	$field_separator = ",";
@@ -48,7 +49,7 @@ if(isset($_GET['btnQueryExport']))
 
 	$out .= $field_separator."Created".$row_separator;
 
-	$result = $wpdb->get_results("SELECT answerID, queryID, answerCreated, answerIP FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '".$intQueryID."' GROUP BY answerID ORDER BY answerCreated DESC");
+	$result = $wpdb->get_results($wpdb->prepare("SELECT answerID, queryID, answerCreated, answerIP FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '%d' GROUP BY answerID ORDER BY answerCreated DESC", $intQueryID));
 	$rows = count($result);
 
 	if($rows == 0)
@@ -148,7 +149,7 @@ if(isset($_GET['btnQueryExport']))
 
 		$out .= $row_separator."Row count: ".$rows.$row_separator."Date: ".$strExportDate;
 
-		$strQueryName = $wpdb->get_var("SELECT queryName FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."'");
+		$strQueryName = $wpdb->get_var($wpdb->prepare("SELECT queryName FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $intQueryID));
 
 		$file = sanitize_title_with_dashes(sanitize_title($strQueryName))."_".date("YmdHis").".".$file_type;
 
@@ -172,19 +173,19 @@ else
 	{
 		$inserted = true;
 
-		$result_temp = $wpdb->get_results("SELECT queryID FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."'");
+		$result_temp = $wpdb->get_results($wpdb->prepare("SELECT queryID FROM ".$wpdb->base_prefix."query WHERE queryID = '%d'", $intQueryID));
 		$rows = count($result_temp);
 
 		if($rows > 0)
 		{
 			$fields = ", queryAnswerName, queryAnswer, queryDeadline";
 
-			$wpdb->query("INSERT INTO ".$wpdb->base_prefix."query (queryName".$fields.", queryCreated, userID) (SELECT CONCAT(queryName, ' (copy)')".$fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."')");
+			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query (queryName".$fields.", queryCreated, userID) (SELECT CONCAT(queryName, ' (copy)')".$fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."query WHERE queryID = '%d')", $intQueryID));
 			$intQueryID_new = mysql_insert_id();
 
 			if($intQueryID_new > 0)
 			{
-				$result = $wpdb->get_results("SELECT query2TypeID FROM ".$wpdb->base_prefix."query2type WHERE queryID = '".$intQueryID."' ORDER BY query2TypeID DESC");
+				$result = $wpdb->get_results($wpdb->prepare("SELECT query2TypeID FROM ".$wpdb->base_prefix."query2type WHERE queryID = '%d' ORDER BY query2TypeID DESC", $intQueryID));
 
 				foreach($result as $r)
 				{
@@ -222,7 +223,7 @@ else
 		$arr_header[] = "";
 		$arr_header[] = "Answers";
 		//$arr_header[] = "Deadline";
-		$arr_header[] = "";
+		$arr_header[] = "Export";
 		$arr_header[] = "";
 		$arr_header[] = "";
 		$arr_header[] = "";

@@ -18,6 +18,7 @@ $strQueryAnswerName = check_var('strQueryAnswerName');
 $strQueryAnswer = isset($_POST['strQueryAnswer']) ? $_POST['strQueryAnswer'] : ""; //Allow HTML here
 $strQueryEmail = check_var('strQueryEmail', 'email');
 $strQueryEmailName = check_var('strQueryEmailName');
+$strQueryMandatoryText = check_var('strQueryMandatoryText');
 $strQueryButtonText = check_var('strQueryButtonText');
 //$dteQueryDeadline = check_var('dteQueryDeadline', 'date');
 $intQueryTypeID = check_var('intQueryTypeID');
@@ -143,7 +144,7 @@ else if(isset($_POST['btnQueryCreate']))
 	{
 		if($intQueryID > 0)
 		{
-			$wpdb->get_results("UPDATE ".$wpdb->base_prefix."query SET queryName = '".$strQueryName."', queryAnswerName = '".$strQueryAnswerName."', queryAnswer = '".$strQueryAnswer."', queryEmail = '".$strQueryEmail."', queryEmailName = '".$strQueryEmailName."', queryButtonText = '".$strQueryButtonText."' WHERE queryID = '".$intQueryID."'");
+			$wpdb->get_results("UPDATE ".$wpdb->base_prefix."query SET queryName = '".$strQueryName."', queryAnswerName = '".$strQueryAnswerName."', queryAnswer = '".$strQueryAnswer."', queryEmail = '".$strQueryEmail."', queryEmailName = '".$strQueryEmailName."', queryMandatoryText = '".$strQueryMandatoryText."', queryButtonText = '".$strQueryButtonText."' WHERE queryID = '".$intQueryID."'");
 		}
 
 		else
@@ -157,7 +158,7 @@ else if(isset($_POST['btnQueryCreate']))
 
 			else
 			{
-				$wpdb->get_results("INSERT INTO ".$wpdb->base_prefix."query SET queryName = '".$strQueryName."', queryAnswerName = '".$strQueryAnswerName."', queryAnswer = '".$strQueryAnswer."', queryEmail = '".$strQueryEmail."', queryEmailName = '".$strQueryEmailName."', queryButtonText = '".$strQueryButtonText."', queryCreated = NOW(), userID = '".get_current_user_id()."'");
+				$wpdb->get_results("INSERT INTO ".$wpdb->base_prefix."query SET queryName = '".$strQueryName."', queryAnswerName = '".$strQueryAnswerName."', queryAnswer = '".$strQueryAnswer."', queryEmail = '".$strQueryEmail."', queryEmailName = '".$strQueryEmailName."', queryMandatoryText = '".$strQueryMandatoryText."', queryButtonText = '".$strQueryButtonText."', queryCreated = NOW(), userID = '".get_current_user_id()."'");
 				$intQueryID = mysql_insert_id();
 			}
 		}
@@ -250,13 +251,14 @@ else if(isset($_POST['btnQueryAdd']))
 
 if($intQueryID > 0)
 {
-	$result = $wpdb->get_results("SELECT queryName, queryAnswerName, queryAnswer, queryEmail, queryEmailName, queryButtonText, queryCreated FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."'"); //, queryDeadline
+	$result = $wpdb->get_results("SELECT queryName, queryAnswerName, queryAnswer, queryEmail, queryEmailName, queryMandatoryText, queryButtonText, queryCreated FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."'"); //, queryDeadline
 	$r = $result[0];
 	$strQueryName = $r->queryName;
 	$strQueryAnswerName = $r->queryAnswerName;
 	$strQueryAnswer = $r->queryAnswer;
 	$strQueryEmail = $r->queryEmail;
 	$strQueryEmailName = $r->queryEmailName;
+	$strQueryMandatoryText = $r->queryMandatoryText;
 	$strQueryButtonText = $r->queryButtonText;
 	//$dteQueryDeadline = $r->queryDeadline;
 	$strQueryCreated = $r->queryCreated;
@@ -297,7 +299,7 @@ if($error_text != '')
 
 if($done_text != '')
 {
-	echo "<div id='notification'><div class='done'>".$done_text."</div></div>";
+	echo "<p class='noti_done'>".$done_text."</p>";
 }
 
 echo "<form method='post' action='' class='mf_form'>
@@ -312,6 +314,7 @@ echo "<form method='post' action='' class='mf_form'>
 		.show_textfield('strQueryEmail', "Address", $strQueryEmail, 100)
 		.show_textfield('strQueryEmailName', "Subject", $strQueryEmailName, 100)
 		."<h2>Language</h2>"
+		.show_textfield('strQueryMandatoryText', "Mandatory field", $strQueryMandatoryText, 100, 0, false, '', "You have to enter all mandatory fields")
 		.show_textfield('strQueryButtonText', "Button text", $strQueryButtonText, 100, 0, false, '', "Send")
 		//.show_textfield('dteQueryDeadline', "Deadline", $dteQueryDeadline, 10)
 	."</div>

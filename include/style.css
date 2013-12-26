@@ -1,5 +1,26 @@
 @media all
 {
+	.noti_error, .noti_done
+	{
+		border-width: 2px;
+		border-style: solid;
+		border-radius: 5px;
+		margin: 10px 0 0;
+		padding: 5px;
+	}
+
+		.noti_error
+		{
+			background: #fbe3e4;
+			border-color: #fbc2c4;
+		}
+
+		.noti_done
+		{
+			background: #d9f1bf;
+			border-color: #b5e56a;
+		}
+
     .mf_form
     {
         overflow: hidden;   
@@ -29,6 +50,11 @@
             display: block;
             margin-bottom: 5px;
         }
+
+		.mf_form .red_border input[type=text], .mf_form .red_border input[type=range], .mf_form .red_border input[type=date], .mf_form .red_border select, .mf_form .red_border textarea
+		{
+			border-color: #f00 !important;
+		}
     
         .mf_form input[type=text], .mf_form input[type=range], .mf_form input[type=date], .mf_form select, .mf_form textarea
         {

@@ -13,6 +13,8 @@ if(!function_exists('check_var'))
 {
 	function check_var($in, $type = '', $v2 = true, $default = '', $return_empty = false, $force_req_type = '')
 	{
+		global $arrErrorField;
+
 		$out = $temp = "";
 
 		if($v2 == true)
@@ -53,6 +55,7 @@ if(!function_exists('check_var'))
 			else
 			{
 				if($return_empty == false){$out = $temp;}
+				$arrErrorField[] = $in;
 			}
 		}
 
@@ -68,6 +71,7 @@ if(!function_exists('check_var'))
 			else
 			{
 				if($return_empty == false){$out = $temp;}
+				$arrErrorField[] = $in;
 			}
 		}
 
@@ -83,6 +87,7 @@ if(!function_exists('check_var'))
 			else
 			{
 				if($return_empty == false){$out = $temp;}
+				$arrErrorField[] = $in;
 			}
 		}
 
@@ -105,6 +110,7 @@ if(!function_exists('check_var'))
 					else
 					{
 						if($return_empty == false){$out = trim($temp);}
+						$arrErrorField[] = $in;
 					}
 				}
 			}
@@ -126,6 +132,7 @@ if(!function_exists('check_var'))
 					else
 					{
 						if($return_empty == false){$out = trim($temp);}
+						$arrErrorField[] = $in;
 					}
 				}
 			}
@@ -147,6 +154,7 @@ if(!function_exists('check_var'))
 					else
 					{
 						if($return_empty == false){$out = trim($temp);}
+						$arrErrorField[] = $in;
 					}
 				}
 			}
@@ -182,6 +190,7 @@ if(!function_exists('check_var'))
 			else
 			{
 				if($return_empty == false){$out = trim(trim($temp), "&nbsp;");}
+				$arrErrorField[] = $in;
 			}
 		}
 
@@ -197,6 +206,7 @@ if(!function_exists('check_var'))
 			else
 			{
 				if($return_empty == false){$out = trim($temp);}
+				$arrErrorField[] = $in;
 			}
 		}
 
@@ -212,6 +222,8 @@ if(!function_exists('check_var'))
 ######################
 function show_textfield($var, $text, $id, $max_length = '', $field_length = 0, $required = false, $xtra = '', $default = '', $xtra_class = '', $type = 'text')
 {
+	global $arrErrorField;
+
 	$label = $after = $color = "";
 
 	if($id == "0000-00-00"){$id = "";}
@@ -224,6 +236,11 @@ function show_textfield($var, $text, $id, $max_length = '', $field_length = 0, $
 
 	$size = $field_length > 0 ? " size='".$field_length."'" : "";
 	$max_length = $max_length > 0 ? " maxlength='".$max_length."'" : "";
+
+	if(count($arrErrorField) > 0 && preg_match('/('. implode('|', $arrErrorField) .')/', $var))
+	{
+		$xtra_class .= " red_border";
+	}
 
 	if($default != '')
 	{
@@ -520,11 +537,12 @@ function show_query_form($data)
 
 		$send_text = $error_text = $send_from = "";
 
-		$result = $wpdb->get_results("SELECT queryName, queryEmail, queryEmailName FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."'");
+		$result = $wpdb->get_results("SELECT queryName, queryEmail, queryEmailName, queryMandatoryText FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."'");
 		$r = $result[0];
 		$strQueryName = $r->queryName;
 		$strQueryEmail = $r->queryEmail;
 		$strQueryEmailName = $r->queryEmailName;
+		$strQueryMandatoryText = $r->queryMandatoryText;
 
 		$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode, queryTypeForced FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' ORDER BY query2TypeOrder ASC, query2TypeCreated ASC");
 
@@ -536,7 +554,7 @@ function show_query_form($data)
 			$strCheckCode = $r->checkCode != '' ? $r->checkCode : "char";
 			$intQueryTypeRequired = $r->queryTypeForced;
 
-			$var = $var_send = check_var($intQuery2TypeID2, $strCheckCode, true, '', false, 'post');
+			$var = $var_send = check_var($intQuery2TypeID2, $strCheckCode, true, '', true, 'post'); //Changed to true on return empty 131226
 
 			if($var != '' && $intQueryTypeID2 == 3 && $strCheckCode == 'email')
 			{
@@ -630,14 +648,14 @@ function show_query_form($data)
 			{
 				if($intQueryTypeRequired == true && $globals['error_text'] == '')
 				{
-					$error_text = "You have to enter all mandatory fields (".$strQueryTypeText.")";
+					$error_text = ($strQueryMandatoryText != '' ? $strQueryMandatoryText : "You have to enter all mandatory fields"); // (".$strQueryTypeText.")
 				}
 			}
 		}
 
 		if($error_text != '')
 		{
-			echo $error_text;
+			echo "<p class='noti_error'>".$error_text."</p>";
 		}
 
 		else if(isset($arr_query))

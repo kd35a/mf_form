@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Forms
-Version: 1.4.0
+Version: 1.4.1
 Author: Martin Fors
 Author URI: www.martinfors.se
 */
@@ -104,6 +104,7 @@ function form_activate()
 		queryAnswer text,
 		queryEmail varchar(100) DEFAULT NULL,
 		queryEmailName varchar(100) DEFAULT NULL,
+		queryMandatoryText varchar(100) DEFAULT NULL,
 		queryButtonText varchar(100) DEFAULT NULL,
 		queryDeadline date DEFAULT NULL,
 		queryCreated datetime DEFAULT NULL,
@@ -184,7 +185,8 @@ function form_activate()
 
 	$arr_update_tables[$wpdb->base_prefix."query"]['queryEmail'] = "ALTER TABLE ".$wpdb->base_prefix."query ADD queryEmail VARCHAR(100) AFTER queryAnswer";
 	$arr_update_tables[$wpdb->base_prefix."query"]['queryEmailName'] = "ALTER TABLE ".$wpdb->base_prefix."query ADD queryEmailName VARCHAR(100) AFTER queryEmail";
-	$arr_update_tables[$wpdb->base_prefix."query"]['queryButtonText'] = "ALTER TABLE ".$wpdb->base_prefix."query ADD queryButtonText VARCHAR(100) AFTER queryEmailName";
+	$arr_update_tables[$wpdb->base_prefix."query"]['queryMandatoryText'] = "ALTER TABLE ".$wpdb->base_prefix."query ADD queryMandatoryText VARCHAR(100) AFTER queryEmailName";
+	$arr_update_tables[$wpdb->base_prefix."query"]['queryButtonText'] = "ALTER TABLE ".$wpdb->base_prefix."query ADD queryButtonText VARCHAR(100) AFTER queryMandatoryText";
 
 	$arr_update_tables[$wpdb->base_prefix."query2type"]['queryTypeClass'] = "ALTER TABLE ".$wpdb->base_prefix."query2type ADD queryTypeClass varchar(50) AFTER checkID";
 

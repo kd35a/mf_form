@@ -5,33 +5,6 @@
 		font-size: 1.4em;
 	}
 
-	#notification div
-	{
-		border-width: 2px;
-		border-style: solid;
-		border-radius: 5px;
-		margin: 0 10px 10px 0;
-		padding: 5px;
-	}
-
-		#notification .error
-		{
-			background: #fbe3e4;
-			border-color: #fbc2c4;
-		}
-
-		#notification .notice
-		{
-			background: #fff6bf;
-			border-color: #ffd324;
-		}
-
-		#notification .done
-		{
-			background: #d9f1bf;
-			border-color: #b5e56a;
-		}
-
 	table
 	{
 		border: 1px solid #666;
