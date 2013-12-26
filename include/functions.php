@@ -47,7 +47,7 @@ if(!function_exists('check_var'))
 
 			if($temp == '' || preg_match('/^([-+\d()\s]+)$/', $temp))
 			{
-				$out = $temp;
+				$out = str_replace(array("-", "(", ")", " "), "", $temp);
 			}
 
 			else
