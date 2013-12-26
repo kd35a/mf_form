@@ -253,21 +253,10 @@ else
 				$result_temp = $wpdb->get_results("SELECT queryID FROM ".$wpdb->base_prefix."query2type WHERE queryID = '".$intQueryID."' LIMIT 0, 1");
 				$rowsQuery = count($result_temp);
 
-				if($intQueryTotal > 0)
-				{
-					$a_start = "<a href='?page=mf_form/answer/index.php&intQueryID=".$intQueryID."'>";
-					$a_end = "</a>";
-				}
-
-				else
-				{
-					$a_start = $a_end = "";
-				}
-
 				$strQueryShortcode = "[mf_form id=".$intQueryID."]";
 
 				echo "<tr id='query_".$intQueryID."'>
-					<td>".$a_start.$strQueryName.$a_end."</td>
+					<td><a href='?page=mf_form/create/index.php&intQueryID=".$intQueryID."'>".$strQueryName."</a></td>
 					<td>".$strQueryShortcode."</td>
 					<td>";
 
@@ -294,7 +283,7 @@ else
 						}
 
 					echo "</td>
-					<td>".$a_start.$intQueryTotal.$a_end."</td>";
+					<td><a href='?page=mf_form/answer/index.php&intQueryID=".$intQueryID."'>".$intQueryTotal."</a></td>";
 
 					//<td>".($dteQueryDeadline > "1982-08-04 23:15:00" ? $dteQueryDeadline : "")."</td>
 
