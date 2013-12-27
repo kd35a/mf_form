@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Forms
-Version: 1.4.1
+Version: 1.4.3
 Author: Martin Fors
 Author URI: www.martinfors.se
 */
@@ -207,6 +207,7 @@ function form_activate()
 
 	$arr_insert_tables[$wpdb->base_prefix."query_check"] = "INSERT IGNORE INTO ".$wpdb->base_prefix."query_check VALUES('1','1','Number','int'),
 	('2','1','Zip code (Sv)','zip'),
+	('3','1','Social sec. no (Sv)','soc'),
 	('5','1','E-mail','email'),
 	('6','1','Phone no','telno'),
 	('7','1','Decimal number','float'),

@@ -49,7 +49,29 @@ if(!function_exists('check_var'))
 
 			if($temp == '' || preg_match('/^([-+\d()\s]+)$/', $temp))
 			{
-				$out = str_replace(array("-", "(", ")", " "), "", $temp);
+				$out = str_replace(" ", "", $temp);
+			}
+
+			else
+			{
+				if($return_empty == false){$out = $temp;}
+				$arrErrorField[] = $in;
+			}
+		}
+
+		else if($type == 'soc' || $type2 == 'soc')
+		{
+			$temp = trim($temp);
+			$temp = str_replace(array("-", " "), "", $temp);
+
+			if(strlen($temp) == 12)
+			{
+				$temp = substr($temp, 2);
+			}
+
+			if($temp == '' || strlen($temp) == 10 && preg_match('/^([-\d\s]+)$/', $temp))
+			{
+				$out = $temp;
 			}
 
 			else
