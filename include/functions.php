@@ -757,8 +757,10 @@ function show_query_form($data)
 
 	if($data['sent'] == true)
 	{
-		$out .= "<h2>".$strQueryAnswerName."</h2>
-		<div>".$strQueryAnswer."</div>";
+		$out .= "<div class='mf_form'>
+			<h2>".$strQueryAnswerName."</h2>
+			<div>".$strQueryAnswer."</div>
+		</div>";
 	}
 
 	else
