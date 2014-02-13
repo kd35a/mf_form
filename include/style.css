@@ -108,4 +108,27 @@
 			margin: 0 10px 10px 0;
 			padding: 4px 10px 3px;
 		}
+
+	.mf_form_results .form_radio
+	{
+		position: relative;
+	}
+
+		.mf_form_results .form_radio > div
+		{
+			background: rgba(255, 255, 255, .2);
+			position: absolute;
+			height: 100%;
+		}
+
+		.mf_form_results .form_radio p
+		{
+			position: relative;
+		}
+
+		.mf_form_results .form_radio p span
+		{
+			position: absolute;
+			right: 0;
+		}
 }

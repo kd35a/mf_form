@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Forms
-Version: 1.4.5
+Version: 1.5.0
 Author: Martin Fors
 Author URI: www.martinfors.se
 */
@@ -104,6 +104,9 @@ function form_activate()
 		queryAnswer text,
 		queryEmail varchar(100) DEFAULT NULL,
 		queryEmailName varchar(100) DEFAULT NULL,
+		queryDenyDups ENUM('0', '1') NOT NULL DEFAULT '0',
+		queryShowAnswers ENUM('0', '1') NOT NULL DEFAULT '0',
+		queryEncrypted ENUM('0', '1') NOT NULL DEFAULT '0',
 		queryMandatoryText varchar(100) DEFAULT NULL,
 		queryButtonText varchar(100) DEFAULT NULL,
 		queryDeadline date DEFAULT NULL,
@@ -187,6 +190,9 @@ function form_activate()
 	$arr_update_tables[$wpdb->base_prefix."query"]['queryEmailName'] = "ALTER TABLE ".$wpdb->base_prefix."query ADD queryEmailName VARCHAR(100) AFTER queryEmail";
 	$arr_update_tables[$wpdb->base_prefix."query"]['queryMandatoryText'] = "ALTER TABLE ".$wpdb->base_prefix."query ADD queryMandatoryText VARCHAR(100) AFTER queryEmailName";
 	$arr_update_tables[$wpdb->base_prefix."query"]['queryButtonText'] = "ALTER TABLE ".$wpdb->base_prefix."query ADD queryButtonText VARCHAR(100) AFTER queryMandatoryText";
+	$arr_update_tables[$wpdb->base_prefix."query"]['queryDenyDups'] = "ALTER TABLE ".$wpdb->base_prefix."query ADD queryDenyDups ENUM('0', '1') NOT NULL DEFAULT '0' AFTER queryEmailName";
+	$arr_update_tables[$wpdb->base_prefix."query"]['queryShowAnswers'] = "ALTER TABLE ".$wpdb->base_prefix."query ADD queryShowAnswers ENUM('0', '1') NOT NULL DEFAULT '0' AFTER queryEmailName";
+	$arr_update_tables[$wpdb->base_prefix."query"]['queryEncrypted'] = "ALTER TABLE ".$wpdb->base_prefix."query ADD queryEncrypted ENUM('0', '1') NOT NULL DEFAULT '0' AFTER queryEmailName";
 
 	$arr_update_tables[$wpdb->base_prefix."query2type"]['queryTypeClass'] = "ALTER TABLE ".$wpdb->base_prefix."query2type ADD queryTypeClass varchar(50) AFTER checkID";
 

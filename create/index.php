@@ -12,6 +12,9 @@ $intQueryID = check_var('intQueryID');
 $intQuery2TypeID = check_var('intQuery2TypeID');
 $intQuery2TypeOrder = check_var('intQuery2TypeOrder');
 
+$intQueryDenyDups = isset($_POST['intQueryDenyDups']) ? 1 : 0;
+$intQueryShowAnswers = isset($_POST['intQueryShowAnswers']) ? 1 : 0;
+$intQueryEncrypted = isset($_POST['intQueryEncrypted']) ? 1 : 0;
 $strQueryName = check_var('strQueryName');
 $strQueryAnswerName = check_var('strQueryAnswerName');
 //$strQueryAnswer = check_var('strQueryAnswer');
@@ -144,7 +147,43 @@ else if(isset($_POST['btnQueryCreate']))
 	{
 		if($intQueryID > 0)
 		{
-			$wpdb->get_results("UPDATE ".$wpdb->base_prefix."query SET queryName = '".$strQueryName."', queryAnswerName = '".$strQueryAnswerName."', queryAnswer = '".$strQueryAnswer."', queryEmail = '".$strQueryEmail."', queryEmailName = '".$strQueryEmailName."', queryMandatoryText = '".$strQueryMandatoryText."', queryButtonText = '".$strQueryButtonText."' WHERE queryID = '".$intQueryID."'");
+			//Encrypt or decrypt existing data
+			########################
+			$intQueryEncrypted_old = $wpdb->get_var("SELECT queryEncrypted FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."'");
+
+			if($intQueryEncrypted != $intQueryEncrypted_old)
+			{
+				$encryption = new encryption("query");
+
+				$result = $wpdb->get_results("SELECT answerID, query2TypeID, answerText FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '".$intQueryID."'");
+
+				foreach($result as $r)
+				{
+					$intAnswerID = $r->answerID;
+					$intQuery2TypeID = $r->query2TypeID;
+					$strAnswerText = $r->answerText;
+
+					if($strAnswerText != '')
+					{
+						$encryption->set_key($intQuery2TypeID);
+
+						if($intQueryEncrypted == 1)
+						{
+							$strAnswerText_new = $encryption->encrypt($strAnswerText);
+						}
+
+						else
+						{
+							$strAnswerText_new = $encryption->decrypt($strAnswerText);
+						}
+
+						$wpdb->query("UPDATE ".$wpdb->base_prefix."query_answer SET answerText = '".$strAnswerText_new."' WHERE answerID = '".$intAnswerID."' AND query2TypeID = '".$intQuery2TypeID."' AND answerText = '".$strAnswerText."'");
+					}
+				}
+			}
+			########################
+
+			$wpdb->get_results("UPDATE ".$wpdb->base_prefix."query SET queryDenyDups = '".$intQueryDenyDups."', queryShowAnswers = '".$intQueryShowAnswers."', queryEncrypted = '".$intQueryEncrypted."', queryName = '".$strQueryName."', queryAnswerName = '".$strQueryAnswerName."', queryAnswer = '".$strQueryAnswer."', queryEmail = '".$strQueryEmail."', queryEmailName = '".$strQueryEmailName."', queryMandatoryText = '".$strQueryMandatoryText."', queryButtonText = '".$strQueryButtonText."' WHERE queryID = '".$intQueryID."'");
 		}
 
 		else
@@ -158,7 +197,7 @@ else if(isset($_POST['btnQueryCreate']))
 
 			else
 			{
-				$wpdb->get_results("INSERT INTO ".$wpdb->base_prefix."query SET queryName = '".$strQueryName."', queryAnswerName = '".$strQueryAnswerName."', queryAnswer = '".$strQueryAnswer."', queryEmail = '".$strQueryEmail."', queryEmailName = '".$strQueryEmailName."', queryMandatoryText = '".$strQueryMandatoryText."', queryButtonText = '".$strQueryButtonText."', queryCreated = NOW(), userID = '".get_current_user_id()."'");
+				$wpdb->get_results("INSERT INTO ".$wpdb->base_prefix."query SET queryDenyDups = '".$intQueryDenyDups."', queryShowAnswers = '".$intQueryShowAnswers."', queryEncrypted = '".$intQueryEncrypted."', queryName = '".$strQueryName."', queryAnswerName = '".$strQueryAnswerName."', queryAnswer = '".$strQueryAnswer."', queryEmail = '".$strQueryEmail."', queryEmailName = '".$strQueryEmailName."', queryMandatoryText = '".$strQueryMandatoryText."', queryButtonText = '".$strQueryButtonText."', queryCreated = NOW(), userID = '".get_current_user_id()."'");
 				$intQueryID = mysql_insert_id();
 			}
 		}
@@ -251,8 +290,11 @@ else if(isset($_POST['btnQueryAdd']))
 
 if($intQueryID > 0)
 {
-	$result = $wpdb->get_results("SELECT queryName, queryAnswerName, queryAnswer, queryEmail, queryEmailName, queryMandatoryText, queryButtonText, queryCreated FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."'"); //, queryDeadline
+	$result = $wpdb->get_results("SELECT queryDenyDups, queryShowAnswers, queryEncrypted, queryName, queryAnswerName, queryAnswer, queryEmail, queryEmailName, queryMandatoryText, queryButtonText, queryCreated FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."'");
 	$r = $result[0];
+	$intQueryDenyDups = $r->queryDenyDups;
+	$intQueryShowAnswers = $r->queryShowAnswers;
+	$intQueryEncrypted = $r->queryEncrypted;
 	$strQueryName = $r->queryName;
 	$strQueryAnswerName = $r->queryAnswerName;
 	$strQueryAnswer = $r->queryAnswer;
@@ -260,7 +302,6 @@ if($intQueryID > 0)
 	$strQueryEmailName = $r->queryEmailName;
 	$strQueryMandatoryText = $r->queryMandatoryText;
 	$strQueryButtonText = $r->queryButtonText;
-	//$dteQueryDeadline = $r->queryDeadline;
 	$strQueryCreated = $r->queryCreated;
 }
 
@@ -316,7 +357,10 @@ echo "<form method='post' action='' class='mf_form'>
 		."<h2>Language</h2>"
 		.show_textfield('strQueryMandatoryText', "Mandatory field", $strQueryMandatoryText, 100, 0, false, '', "You have to enter all mandatory fields")
 		.show_textfield('strQueryButtonText', "Button text", $strQueryButtonText, 100, 0, false, '', "Send")
-		//.show_textfield('dteQueryDeadline', "Deadline", $dteQueryDeadline, 10)
+		."<h2>Settings</h2>"
+		.show_checkbox(array('name' => 'intQueryDenyDups', 'text' => "Deny duplicates", 'value' => 1, 'compare' => $intQueryDenyDups))
+		.show_checkbox(array('name' => 'intQueryShowAnswers', 'text' => "Show answers", 'value' => 1, 'compare' => $intQueryShowAnswers))
+		.show_checkbox(array('name' => 'intQueryEncrypted', 'text' => "Encrypted", 'value' => 1, 'compare' => $intQueryEncrypted))
 	."</div>
 	<div class='clear'></div>"
 	.show_submit('btnQueryCreate', ($intQueryID > 0 ? "Update" : "Add"))

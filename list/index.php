@@ -178,7 +178,7 @@ else
 
 		if($rows > 0)
 		{
-			$fields = ", queryAnswerName, queryAnswer, queryDeadline";
+			$fields = ", queryDenyDups, queryShowAnswers, queryEncrypted, queryAnswerName, queryAnswer"; //, queryDeadline
 
 			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."query (queryName".$fields.", queryCreated, userID) (SELECT CONCAT(queryName, ' (copy)')".$fields.", NOW(), '".get_current_user_id()."' FROM ".$wpdb->base_prefix."query WHERE queryID = '%d')", $intQueryID));
 			$intQueryID_new = mysql_insert_id();
@@ -230,7 +230,7 @@ else
 
 		echo show_table_header($arr_header);
 
-		$result = $wpdb->get_results("SELECT queryID, queryName, queryDeadline, queryCreated FROM ".$wpdb->base_prefix."query GROUP BY queryID ORDER BY queryCreated DESC");
+		$result = $wpdb->get_results("SELECT queryID, queryName, queryCreated FROM ".$wpdb->base_prefix."query GROUP BY queryID ORDER BY queryCreated DESC"); //, queryDeadline
 
 		if(count($result) == 0)
 		{
@@ -297,10 +297,10 @@ else
 
 					echo "</td>
 					<td>
-						<a href='?page=mf_form/create/index.php&intQueryID=".$intQueryID."' class='icon-edit'></a>
+						<a href='?page=mf_form/list/index.php&btnQueryCopy&intQueryID=".$intQueryID."' class='icon-copy'></a>
 					</td>
 					<td>
-						<a href='?page=mf_form/list/index.php&btnQueryCopy&intQueryID=".$intQueryID."' class='icon-copy'></a>
+						<a href='?page=mf_form/create/index.php&intQueryID=".$intQueryID."' class='icon-edit'></a>
 					</td>
 					<td>
 						<a href='#delete/query/".$intQueryID."' class='ajax_link confirm_link icon-trash'></a>

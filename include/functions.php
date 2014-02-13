@@ -1,5 +1,42 @@
 <?php
 
+//Kryptera
+######################
+class encryption 
+{
+	function encryption($type)
+	{
+		$this->set_key($type);
+		$this->iv = mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB), MCRYPT_RAND);
+	}
+
+	function set_key($type)
+	{
+		$this->key = "mf_crypt".$type;
+	}
+
+	function encrypt($text, $key = "")
+	{
+		if($key != '')
+		{
+			$this->set_key($key);
+		}
+
+		return base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $this->key, $text, MCRYPT_MODE_ECB, $this->iv));
+	}
+
+	function decrypt($text, $key = "")
+	{
+		if($key != '')
+		{
+			$this->set_key($key);
+		}
+
+		return trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $this->key, base64_decode($text), MCRYPT_MODE_ECB, $this->iv));
+	}
+}
+######################
+
 function wp_date_format($date, $full_datetime = false)
 {
 	global $wpdb;
@@ -477,8 +514,6 @@ function show_file_field($data)
 		$label = "<label for='".$data['name']."'>".$data['text']."</label>";
 	}
 
-	//$out = $start."<input type='file'".($data['multiple'] == true ? " multiple='true'" : "")." class='h_20' size='".$data['size']."' name='".$data['name'].($data['multiple'] == true ? "[]" : "")."' value=''/>".$end;
-
 	$out .= "<div class='form_file_input".($data['class'] != '' ? " ".$data['class'] : "")."'>"
 		.$label
 		."<input type='file'".($data['multiple'] == true ? " multiple='true'" : "")." name='".$data['name'].($data['multiple'] == true ? "[]" : "")."' value=''/>
@@ -551,126 +586,165 @@ function show_query_form($data)
 {
 	global $wpdb, $intAnswerID;
 
+	$strAnswerIP = $_SERVER['REMOTE_ADDR'];
+	$dup_ip = false;
+
 	if(isset($_POST['btnQuerySubmit']))
 	{
 		$intQueryID = check_var('intQueryID');
 
-		$strAnswerIP = $_SERVER['REMOTE_ADDR'];
-
 		$send_text = $error_text = $send_from = "";
 
-		$result = $wpdb->get_results("SELECT queryName, queryEmail, queryEmailName, queryMandatoryText FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."'");
+		$result = $wpdb->get_results("SELECT queryDenyDups, queryEncrypted, queryName, queryEmail, queryEmailName, queryMandatoryText FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."'");
 		$r = $result[0];
+		$intQueryDenyDups = $r->queryDenyDups;
+		$intQueryEncrypted = $r->queryEncrypted;
 		$strQueryName = $r->queryName;
 		$strQueryEmail = $r->queryEmail;
 		$strQueryEmailName = $r->queryEmailName;
 		$strQueryMandatoryText = $r->queryMandatoryText;
-
-		$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode, queryTypeForced FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' ORDER BY query2TypeOrder ASC, query2TypeCreated ASC");
-
-		foreach($result as $r)
+		
+		if($intQueryEncrypted == 1)
 		{
-			$intQuery2TypeID2 = $r->query2TypeID;
-			$intQueryTypeID2 = $r->queryTypeID;
-			$strQueryTypeText = $r->queryTypeText;
-			$strCheckCode = $r->checkCode != '' ? $r->checkCode : "char";
-			$intQueryTypeRequired = $r->queryTypeForced;
+			$encryption = new encryption("query");
+		}
 
-			$var = $var_send = check_var($intQuery2TypeID2, $strCheckCode, true, '', true, 'post'); //Changed to true on return empty 131226
+		//
+		#######################
+		if($intQueryDenyDups == 1)
+		{
+			$rowsIP = $wpdb->get_var("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '".$intQueryID."' AND answerIP = '".$strAnswerIP."' LIMIT 0, 1");
 
-			if($var != '' && $intQueryTypeID2 == 3 && $strCheckCode == 'email')
+			if($rowsIP > 0)
 			{
-				$send_from = $var;
+				$dup_ip = true;
 			}
+		}
+		#######################
 
-			if($intQueryTypeID2 == 2)
+		if($dup_ip == true)
+		{
+			$error_text = "You have already voted"; // (".$strAnswerIP.")
+		}
+
+		else
+		{
+			$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode, queryTypeForced FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' ORDER BY query2TypeOrder ASC, query2TypeCreated ASC");
+
+			foreach($result as $r)
 			{
-				list($strQueryTypeText, $rest) = explode("|", $strQueryTypeText);
-			}
+				$intQuery2TypeID2 = $r->query2TypeID;
+				$intQueryTypeID2 = $r->queryTypeID;
+				$strQueryTypeText = $r->queryTypeText;
+				$strCheckCode = $r->checkCode != '' ? $r->checkCode : "char";
+				$intQueryTypeRequired = $r->queryTypeForced;
 
-			else if($intQueryTypeID2 == 7)
-			{
-				$var_send = wp_date_format($var);
-			}
+				$var = $var_send = check_var($intQuery2TypeID2, $strCheckCode, true, '', true, 'post'); //Changed to true on return empty 131226
 
-			else if($intQueryTypeID2 == 10)
-			{
-				$arr_content1 = explode(":", $strQueryTypeText);
-				$arr_content2 = explode(",", $arr_content1[1]);
-
-				foreach($arr_content2 as $str_content)
+				if($var != '' && $intQueryTypeID2 == 3 && $strCheckCode == 'email')
 				{
-					$arr_content3 = explode("|", $str_content);
+					$send_from = $var;
+				}
 
-					if($var == $arr_content3[0])
+				if($intQueryTypeID2 == 2)
+				{
+					list($strQueryTypeText, $rest) = explode("|", $strQueryTypeText);
+				}
+
+				else if($intQueryTypeID2 == 7)
+				{
+					$var_send = wp_date_format($var);
+				}
+
+				else if($intQueryTypeID2 == 10)
+				{
+					$arr_content1 = explode(":", $strQueryTypeText);
+					$arr_content2 = explode(",", $arr_content1[1]);
+
+					foreach($arr_content2 as $str_content)
 					{
-						$var_send = $arr_content3[1];
+						$arr_content3 = explode("|", $str_content);
+
+						if($var == $arr_content3[0])
+						{
+							$var_send = $arr_content3[1];
+						}
 					}
+
+					$strQueryTypeText = $arr_content1[0];
 				}
 
-				$strQueryTypeText = $arr_content1[0];
-			}
-
-			else if($intQueryTypeID2 == 11)
-			{
-				$var = "";
-
-				if(is_array($_POST[$intQuery2TypeID2]))
+				else if($intQueryTypeID2 == 11)
 				{
-					foreach($_POST[$intQuery2TypeID2] as $value)
+					$var = "";
+
+					if(is_array($_POST[$intQuery2TypeID2]))
 					{
-						$var .= ($var != '' ? "," : "").check_var($value, $strCheckCode, false);
+						foreach($_POST[$intQuery2TypeID2] as $value)
+						{
+							$var .= ($var != '' ? "," : "").check_var($value, $strCheckCode, false);
+						}
 					}
-				}
 
-				$arr_content1 = explode(":", $strQueryTypeText);
-				$arr_content2 = explode(",", $arr_content1[1]);
+					$arr_content1 = explode(":", $strQueryTypeText);
+					$arr_content2 = explode(",", $arr_content1[1]);
 
-				$arr_answer_text = explode(",", $var);
+					$arr_answer_text = explode(",", $var);
 
-				$var_send = "";
+					$var_send = "";
 
-				foreach($arr_content2 as $str_content)
-				{
-					$arr_content3 = explode("|", $str_content);
-
-					if(in_array($arr_content3[0], $arr_answer_text))
+					foreach($arr_content2 as $str_content)
 					{
-						$var_send .= ($var_send != '' ? ", " : "").$arr_content3[1];
+						$arr_content3 = explode("|", $str_content);
+
+						if(in_array($arr_content3[0], $arr_answer_text))
+						{
+							$var_send .= ($var_send != '' ? ", " : "").$arr_content3[1];
+						}
 					}
+
+					$strQueryTypeText = $arr_content1[0];
 				}
 
-				$strQueryTypeText = $arr_content1[0];
-			}
+				$send_text .= "\n".$strQueryTypeText."\n";
 
-			$send_text .= "\n".$strQueryTypeText."\n";
-
-			if($var != '')
-			{
-				$arr_query[] = "INSERT INTO ".$wpdb->base_prefix."query_answer (answerID, query2TypeID, answerText) VALUES ([answer_id], '".$intQuery2TypeID2."', '".$var."')";
-
-				$send_text .= " ".$var_send."\n";
-			}
-
-			else if($intQueryTypeID2 == 8)
-			{
-				$var_radio = isset($_POST['radio_'.$intQuery2TypeID2]) ? check_var($_POST['radio_'.$intQuery2TypeID2], 'int', false) : '';
-
-				if($var_radio != '')
+				if($var != '')
 				{
-					$arr_query[] = "INSERT INTO ".$wpdb->base_prefix."query_answer (answerID, query2TypeID, answerText) VALUES ([answer_id], '".$var_radio."', '')";
+					if($intQueryEncrypted == 1)
+					{
+						$var = $encryption->encrypt($var, $intQuery2TypeID2);
+					}
+
+					$arr_query[] = "INSERT INTO ".$wpdb->base_prefix."query_answer (answerID, query2TypeID, answerText) VALUES ([answer_id], '".$intQuery2TypeID2."', '".$var."')";
+
+					$send_text .= " ".$var_send."\n";
 				}
 
-				$strQueryTypeText_temp = $wpdb->get_var("SELECT queryTypeText FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '".$var_radio."'");
-
-				$send_text .= ($strQueryTypeText_temp == $strQueryTypeText ? " x" : "")."\n";
-			}
-
-			else
-			{
-				if($intQueryTypeRequired == true && $globals['error_text'] == '')
+				else if($intQueryTypeID2 == 8)
 				{
-					$error_text = ($strQueryMandatoryText != '' ? $strQueryMandatoryText : "You have to enter all mandatory fields"); // (".$strQueryTypeText.")
+					$var_radio = isset($_POST['radio_'.$intQuery2TypeID2]) ? check_var($_POST['radio_'.$intQuery2TypeID2], 'int', false) : '';
+
+					if($var_radio != '')
+					{
+						if($intQueryEncrypted == 1)
+						{
+							$var_radio = $encryption->encrypt($var_radio, $intQuery2TypeID2);
+						}
+
+						$arr_query[] = "INSERT INTO ".$wpdb->base_prefix."query_answer (answerID, query2TypeID, answerText) VALUES ([answer_id], '".$var_radio."', '')";
+					}
+
+					$strQueryTypeText_temp = $wpdb->get_var("SELECT queryTypeText FROM ".$wpdb->base_prefix."query2type WHERE query2TypeID = '".$var_radio."'");
+
+					$send_text .= ($strQueryTypeText_temp == $strQueryTypeText ? " x" : "")."\n";
+				}
+
+				else
+				{
+					if($intQueryTypeRequired == true && $globals['error_text'] == '')
+					{
+						$error_text = ($strQueryMandatoryText != '' ? $strQueryMandatoryText : "You have to enter all mandatory fields"); // (".$strQueryTypeText.")
+					}
 				}
 			}
 		}
@@ -735,11 +809,11 @@ function show_query_form($data)
 			}
 		}
 
-		else
+		/*else
 		{
 			echo "Something went wrong...";
 			exit;
-		}
+		}*/
 	}
 
 	if(!isset($data['edit'])){			$data['edit'] = false;}
@@ -748,31 +822,96 @@ function show_query_form($data)
 
 	$out = "";
 
-	$result = $wpdb->get_results("SELECT queryDeadline, queryAnswerName, queryAnswer, queryButtonText FROM ".$wpdb->base_prefix."query WHERE queryID = '".$data['query_id']."'");
+	$result = $wpdb->get_results("SELECT queryDenyDups, queryShowAnswers, queryAnswerName, queryAnswer, queryButtonText FROM ".$wpdb->base_prefix."query WHERE queryID = '".$data['query_id']."'"); //, queryDeadline
 	$r = $result[0];
-	$dteQueryDeadline = $r->queryDeadline;
+	$intQueryDenyDups = $r->queryDenyDups;
+	$intQueryShowAnswers = $r->queryShowAnswers;
+	//$dteQueryDeadline = $r->queryDeadline;
 	$strQueryAnswerName = $r->queryAnswerName;
 	$strQueryAnswer = $r->queryAnswer;
 	$strQueryButtonText = $r->queryButtonText;
 
-	if($data['sent'] == true)
+	//
+	#######################
+	if($intQueryDenyDups == 1)
 	{
-		$out .= "<div class='mf_form'>
-			<h2>".$strQueryAnswerName."</h2>
-			<div>".$strQueryAnswer."</div>
-		</div>";
+		$rowsIP = $wpdb->get_var("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '".$data['query_id']."' AND answerIP = '".$strAnswerIP."' LIMIT 0, 1");
+
+		/*if($strAnswerIP == "46.195.158.105")
+		{
+			$out .= $rowsIP." (SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '".$data['query_id']."' AND answerIP = '".$strAnswerIP."' LIMIT 0, 1)";
+		}*/
+
+		if($rowsIP > 0)
+		{
+			$dup_ip = true;
+		}
+	}
+	#######################
+
+	if($data['sent'] == true || $dup_ip == true)
+	{
+		$out .= "<div class='mf_form mf_form_results'>";
+
+			if($intQueryShowAnswers == 1)
+			{
+				$intTotalAnswers = $wpdb->get_var("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '".$data['query_id']."' AND queryTypeID = '8'");
+
+				$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type WHERE queryID = '".$data['query_id']."' AND (queryTypeID = '5' OR queryTypeID = '8') ORDER BY query2TypeOrder ASC, query2TypeCreated ASC"); // OR queryTypeID = '6'
+				$intTotalRows = count($result);
+
+				if($intTotalRows > 0)
+				{
+					foreach($result as $r)
+					{
+						$intQuery2TypeID2 = $r->query2TypeID;
+						$intQueryTypeID2 = $r->queryTypeID;
+						$strQueryTypeText2 = $r->queryTypeText;
+
+						$out .= "<div".($intQueryTypeID2 == 8 ? " class='form_radio'" : "").">";
+
+							if($intQueryTypeID2 == 8)
+							{
+								$intAnswerCount = $wpdb->get_var("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '".$data['query_id']."' AND queryTypeID = '8' AND query2TypeID = '".$intQuery2TypeID2."'");
+
+								$intAnswerPercent = round($intAnswerCount / $intTotalAnswers * 100);
+
+								$out .= "<div style='width: ".$intAnswerPercent."%'>&nbsp;</div>";
+							}
+
+							$out .= "<p>"
+								.$strQueryTypeText2;
+
+								if($intQueryTypeID2 == 8)
+								{
+									$out .= "<span>".$intAnswerPercent."%</span>";
+								}
+
+							$out .= "</p>
+						</div>";
+					}
+				}
+			}
+
+			else
+			{
+				$out .= "<h2>".$strQueryAnswerName."</h2>
+				<div>".$strQueryAnswer."</div>";
+			}
+
+		$out .= "</div>";
 	}
 
 	else
 	{
-		if($dteQueryDeadline != '' && $dteQueryDeadline > '0000-00-00' && $dteQueryDeadline < date("Y-m-d") && $data['edit'] == false)
+		/*if($dteQueryDeadline != '' && $dteQueryDeadline > '0000-00-00' && $dteQueryDeadline < date("Y-m-d") && $data['edit'] == false)
 		{
 			echo "Wrong deadline";
 			exit;
 		}
 
 		else
-		{
+		{*/
 			$cols = $data['edit'] == true ? 5 : 2;
 
 			$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, checkCode, queryTypeText, queryTypeForced, queryTypeClass, query2TypeOrder FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$data['query_id']."' GROUP BY ".$wpdb->base_prefix."query2type.query2TypeID ORDER BY query2TypeOrder ASC, query2TypeCreated ASC");
@@ -954,7 +1093,7 @@ function show_query_form($data)
 
 				$out .= "</form>";
 			}
-		}
+		//}
 	}
 
 	return $out;

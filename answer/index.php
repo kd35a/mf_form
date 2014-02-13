@@ -60,6 +60,7 @@ echo "<h1>Answers in ".$strQueryName."</h1>
 
 	$arr_header[] = "Created";
 	//$arr_header[] = "";
+	$arr_header[] = "IP";
 	$arr_header[] = "";
 
 	echo show_table_header($arr_header);
@@ -200,6 +201,7 @@ echo "<h1>Answers in ".$strQueryName."</h1>
 				}
 
 				echo "<td>".wp_date_format($strAnswerCreated, true)."</td>
+				<td>".$strAnswerIP."</td>
 				<td>
 					<a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link icon-trash'></a>
 				</td>
