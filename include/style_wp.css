@@ -157,4 +157,11 @@
 				cursor: pointer;
 				font-size: 1.2em;
 			}
+
+	#flot_pie
+	{
+		height: 300px;
+		margin-bottom: 20px;
+		width: 400px;
+	}
 }

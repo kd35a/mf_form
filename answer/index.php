@@ -3,6 +3,8 @@
 wp_enqueue_style('forms-font_awesome', "//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css");
 wp_enqueue_style('forms-style_wp', plugins_url()."/mf_form/include/style_wp.css");
 wp_enqueue_script('jquery-forms', plugins_url()."/mf_form/include/script_wp.js", array('jquery'), '1.0', true);
+wp_enqueue_script('jquery-flot', plugins_url()."/mf_form/include/jquery.flot.min.js", array('jquery'), '1.0', true);
+wp_enqueue_script('jquery-flot-pie', plugins_url()."/mf_form/include/jquery.flot.pie.min.js", array('jquery'), '1.0', true);
 
 $intQueryID = check_var('intQueryID');
 $intAnswerID = check_var('intAnswerID');
@@ -33,21 +35,74 @@ if($dteQueryEndDate > "1982-08-04 23:15:00")
 	$strQuerySearch .= " AND answerCreated <= '".$dteQueryEndDate."'";
 }
 
-$strQueryName = $wpdb->get_var("SELECT queryName FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."'");
+$result = $wpdb->get_results("SELECT queryName, queryShowAnswers FROM ".$wpdb->base_prefix."query WHERE queryID = '".$intQueryID."'");
 
-echo "<h1>Answers in ".$strQueryName."</h1>
-<table class='table_list'>";
+foreach($result as $r)
+{
+	$strQueryName = $r->queryName;
+	$intQueryShowAnswers = $r->queryShowAnswers;
+}
 
-	$result = $wpdb->get_results("SELECT queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC");
+echo "<h1>Answers in ".$strQueryName."</h1>";
+
+$intTotalAnswers = $wpdb->get_var("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '".$intQueryID."' AND queryTypeID = '8'");
+
+$result = $wpdb->get_results("SELECT query2TypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type WHERE queryID = '".$intQueryID."' AND queryTypeID = '8' ORDER BY query2TypeOrder ASC, query2TypeCreated ASC");
+$rows = count($result);
+
+if($intTotalAnswers > 0 && $rows > 0)
+{
+	$data = "";
+
+	foreach($result as $r)
+	{
+		$intQuery2TypeID2 = $r->query2TypeID;
+		$strQueryTypeText2 = $r->queryTypeText;
+
+		$intAnswerCount = $wpdb->get_var("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '".$intQueryID."' AND queryTypeID = '8' AND query2TypeID = '".$intQuery2TypeID2."'");
+
+		$data .= ($data != '' ? "," : "")."{label: '".$strQueryTypeText2."', data: ".$intAnswerCount."}";
+	}
+
+	echo "<div id='flot_pie'></div>
+	<script>
+		jQuery(function($)
+		{
+			var data = [".$data."];
+
+			$.plot($('#flot_pie'), data, {
+				series: {
+					pie: { 
+						show: true
+					}
+				}
+			});
+		});
+	</script>";
+
+	//echo get_poll_results(array('query_id' => $intQueryID));
+}
+
+echo "<table class='table_list'>";
+
+	$result = $wpdb->get_results("SELECT queryTypeID, queryTypeText, query2TypeID FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC");
 
 	foreach($result as $r)
 	{
 		$intQueryTypeID = $r->queryTypeID;
 		$strQueryTypeText = $r->queryTypeText;
+		$intQuery2TypeID2 = $r->query2TypeID;
 
 		if($intQueryTypeID == 2)
 		{
 			list($strQueryTypeText, $rest) = explode("|", $strQueryTypeText);
+		}
+
+		else if($intQueryTypeID == 8)
+		{
+			$intAnswerCount = $wpdb->get_var("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '".$intQueryID."' AND queryTypeID = '8' AND query2TypeID = '".$intQuery2TypeID2."'");
+
+			$strQueryTypeText .= " (".$intAnswerCount.")";
 		}
 
 		else if($intQueryTypeID == 10 || $intQueryTypeID == 11)

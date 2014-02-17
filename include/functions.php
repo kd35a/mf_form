@@ -581,13 +581,79 @@ function show_table_header($arr_header)
 }
 ########################################
 
+function check_if_duplicate($data)
+{
+	global $wpdb;
+
+	$strAnswerIP = $_SERVER['REMOTE_ADDR'];
+
+	$dup_ip = false;
+
+	if($data['deny_dups'] == 1)
+	{
+		$rowsIP = $wpdb->get_var("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '".$data['query_id']."' AND answerIP = '".$strAnswerIP."' LIMIT 0, 1");
+
+		if($rowsIP > 0)
+		{
+			$dup_ip = true;
+		}
+	}
+
+	return $dup_ip;
+}
+
+function get_poll_results($data)
+{
+	global $wpdb;
+
+	$out = "";
+
+	$intTotalAnswers = $wpdb->get_var("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '".$data['query_id']."' AND queryTypeID = '8'");
+
+	$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type WHERE queryID = '".$data['query_id']."' AND (queryTypeID = '5' OR queryTypeID = '8') ORDER BY query2TypeOrder ASC, query2TypeCreated ASC"); // OR queryTypeID = '6'
+	$intTotalRows = count($result);
+
+	if($intTotalRows > 0)
+	{
+		foreach($result as $r)
+		{
+			$intQuery2TypeID2 = $r->query2TypeID;
+			$intQueryTypeID2 = $r->queryTypeID;
+			$strQueryTypeText2 = $r->queryTypeText;
+
+			$out .= "<div".($intQueryTypeID2 == 8 ? " class='form_radio'" : "").">";
+
+				if($intQueryTypeID2 == 8)
+				{
+					$intAnswerCount = $wpdb->get_var("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '".$data['query_id']."' AND queryTypeID = '8' AND query2TypeID = '".$intQuery2TypeID2."'");
+
+					$intAnswerPercent = round($intAnswerCount / $intTotalAnswers * 100);
+
+					$out .= "<div style='width: ".$intAnswerPercent."%'>&nbsp;</div>";
+				}
+
+				$out .= "<p>"
+					.$strQueryTypeText2;
+
+					if($intQueryTypeID2 == 8)
+					{
+						$out .= "<span>".$intAnswerPercent."%</span>";
+					}
+
+				$out .= "</p>
+			</div>";
+		}
+	}
+
+	return $out;
+}
+
 ################################
 function show_query_form($data)
 {
 	global $wpdb, $intAnswerID;
 
 	$strAnswerIP = $_SERVER['REMOTE_ADDR'];
-	$dup_ip = false;
 
 	if(isset($_POST['btnQuerySubmit']))
 	{
@@ -609,22 +675,11 @@ function show_query_form($data)
 			$encryption = new encryption("query");
 		}
 
-		//
-		#######################
-		if($intQueryDenyDups == 1)
-		{
-			$rowsIP = $wpdb->get_var("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '".$intQueryID."' AND answerIP = '".$strAnswerIP."' LIMIT 0, 1");
-
-			if($rowsIP > 0)
-			{
-				$dup_ip = true;
-			}
-		}
-		#######################
+		$dup_ip = check_if_duplicate(array('query_id' => $intQueryID, 'deny_dups' => $intQueryDenyDups));
 
 		if($dup_ip == true)
 		{
-			$error_text = "You have already voted"; // (".$strAnswerIP.")
+			$error_text = "You have already voted";
 		}
 
 		else
@@ -802,11 +857,11 @@ function show_query_form($data)
 				$data['sent'] = true;
 			}
 
-			else
+			/*else
 			{
 				echo "There was an error...";
 				exit;
-			}
+			}*/
 		}
 
 		/*else
@@ -831,23 +886,7 @@ function show_query_form($data)
 	$strQueryAnswer = $r->queryAnswer;
 	$strQueryButtonText = $r->queryButtonText;
 
-	//
-	#######################
-	if($intQueryDenyDups == 1)
-	{
-		$rowsIP = $wpdb->get_var("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '".$data['query_id']."' AND answerIP = '".$strAnswerIP."' LIMIT 0, 1");
-
-		/*if($strAnswerIP == "46.195.158.105")
-		{
-			$out .= $rowsIP." (SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2answer WHERE queryID = '".$data['query_id']."' AND answerIP = '".$strAnswerIP."' LIMIT 0, 1)";
-		}*/
-
-		if($rowsIP > 0)
-		{
-			$dup_ip = true;
-		}
-	}
-	#######################
+	$dup_ip = check_if_duplicate(array('query_id' => $data['query_id'], 'deny_dups' => $intQueryDenyDups));
 
 	if($data['sent'] == true || $dup_ip == true)
 	{
@@ -855,42 +894,7 @@ function show_query_form($data)
 
 			if($intQueryShowAnswers == 1)
 			{
-				$intTotalAnswers = $wpdb->get_var("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '".$data['query_id']."' AND queryTypeID = '8'");
-
-				$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type WHERE queryID = '".$data['query_id']."' AND (queryTypeID = '5' OR queryTypeID = '8') ORDER BY query2TypeOrder ASC, query2TypeCreated ASC"); // OR queryTypeID = '6'
-				$intTotalRows = count($result);
-
-				if($intTotalRows > 0)
-				{
-					foreach($result as $r)
-					{
-						$intQuery2TypeID2 = $r->query2TypeID;
-						$intQueryTypeID2 = $r->queryTypeID;
-						$strQueryTypeText2 = $r->queryTypeText;
-
-						$out .= "<div".($intQueryTypeID2 == 8 ? " class='form_radio'" : "").">";
-
-							if($intQueryTypeID2 == 8)
-							{
-								$intAnswerCount = $wpdb->get_var("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '".$data['query_id']."' AND queryTypeID = '8' AND query2TypeID = '".$intQuery2TypeID2."'");
-
-								$intAnswerPercent = round($intAnswerCount / $intTotalAnswers * 100);
-
-								$out .= "<div style='width: ".$intAnswerPercent."%'>&nbsp;</div>";
-							}
-
-							$out .= "<p>"
-								.$strQueryTypeText2;
-
-								if($intQueryTypeID2 == 8)
-								{
-									$out .= "<span>".$intAnswerPercent."%</span>";
-								}
-
-							$out .= "</p>
-						</div>";
-					}
-				}
+				$out .= get_poll_results($data);
 			}
 
 			else
