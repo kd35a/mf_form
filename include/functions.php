@@ -1132,28 +1132,31 @@ function get_match($regexp, $in, $all = true)
 
 //
 ##################
-function set_file_content($data)
+if(!function_exists('set_file_content'))
 {
-	$success = false;
-
-	if(isset($data['realpath']) && $data['realpath'] == true)
+	function set_file_content($data)
 	{
-		$data['file'] = realpath($data['file']);
-	}
+		$success = false;
 
-	if($data['file'] != '')
-	{
-		if($fh = fopen($data['file'], $data['mode']))
+		if(isset($data['realpath']) && $data['realpath'] == true)
 		{
-			if(fwrite($fh, $data['content']))
-			{
-				fclose($fh);
+			$data['file'] = realpath($data['file']);
+		}
 
-				$success = true;
+		if($data['file'] != '')
+		{
+			if($fh = fopen($data['file'], $data['mode']))
+			{
+				if(fwrite($fh, $data['content']))
+				{
+					fclose($fh);
+
+					$success = true;
+				}
 			}
 		}
-	}
 
-	return $success;
+		return $success;
+	}
 }
 ##################
