@@ -216,7 +216,7 @@ else
 	}
 
 	echo "<h1>All Forms</h1>
-	<table class='table_list'>";
+	<table class='widefat fixed'>"; //table_list
 
 		$arr_header[] = "Name";
 		$arr_header[] = "Shortcode";
@@ -228,86 +228,92 @@ else
 		$arr_header[] = "";
 		$arr_header[] = "";
 
-		echo show_table_header($arr_header);
+		echo show_table_header($arr_header)
+		."<tbody>";
 
-		$result = $wpdb->get_results("SELECT queryID, queryName, queryCreated FROM ".$wpdb->base_prefix."query GROUP BY queryID ORDER BY queryCreated DESC"); //, queryDeadline
+			$result = $wpdb->get_results("SELECT queryID, queryName, queryCreated FROM ".$wpdb->base_prefix."query GROUP BY queryID ORDER BY queryCreated DESC"); //, queryDeadline
 
-		if(count($result) == 0)
-		{
-			echo "<tr><td colspan='".count($arr_header)."'>There is nothing to show</td></tr>";
-		}
-
-		else
-		{
-			foreach($result as $r)
+			if(count($result) == 0)
 			{
-				$intQueryID = $r->queryID;
-				$strQueryName = $r->queryName;
-				//$dteQueryDeadline = $r->queryDeadline;
-				$strQueryCreated = $r->queryCreated;
+				echo "<tr><td colspan='".count($arr_header)."'>There is nothing to show</td></tr>";
+			}
 
-				$resultContent = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' ORDER BY query2TypeCreated ASC");
+			else
+			{
+				$i = 0;
 
-				$result_temp = $wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '".$intQueryID."' GROUP BY answerID");
-				$intQueryTotal = count($result_temp);
+				foreach($result as $r)
+				{
+					$intQueryID = $r->queryID;
+					$strQueryName = $r->queryName;
+					//$dteQueryDeadline = $r->queryDeadline;
+					$strQueryCreated = $r->queryCreated;
 
-				$result_temp = $wpdb->get_results("SELECT queryID FROM ".$wpdb->base_prefix."query2type WHERE queryID = '".$intQueryID."' LIMIT 0, 1");
-				$rowsQuery = count($result_temp);
+					$resultContent = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' ORDER BY query2TypeCreated ASC");
 
-				$strQueryShortcode = "[mf_form id=".$intQueryID."]";
+					$result_temp = $wpdb->get_results("SELECT answerID FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '".$intQueryID."' GROUP BY answerID");
+					$intQueryTotal = count($result_temp);
 
-				echo "<tr id='query_".$intQueryID."'>
-					<td><a href='?page=mf_form/create/index.php&intQueryID=".$intQueryID."'>".$strQueryName."</a></td>
-					<td>".$strQueryShortcode."</td>
-					<td>";
+					$result_temp = $wpdb->get_results("SELECT queryID FROM ".$wpdb->base_prefix."query2type WHERE queryID = '".$intQueryID."' LIMIT 0, 1");
+					$rowsQuery = count($result_temp);
 
-						$result = $wpdb->get_results("SELECT * FROM ".$wpdb->posts." WHERE (post_content LIKE '%".addslashes($strQueryShortcode)."%' OR post_content LIKE '%".addslashes("[form_shortcode id='".$intQueryID."']")."%') AND post_type != 'revision'");
+					$strQueryShortcode = "[mf_form id=".$intQueryID."]";
 
-						$i = 0;
+					echo "<tr id='query_".$intQueryID."'".($i % 2 == 0 ? " class='alternate'" : "").">
+						<td><a href='?page=mf_form/create/index.php&intQueryID=".$intQueryID."'>".$strQueryName."</a></td>
+						<td>".$strQueryShortcode."</td>
+						<td>";
 
-						foreach($result as $r)
-						{
-							$post_id = $r->ID;
-							$post_type = $r->post_type;
+							$result = $wpdb->get_results("SELECT * FROM ".$wpdb->posts." WHERE (post_content LIKE '%".addslashes($strQueryShortcode)."%' OR post_content LIKE '%".addslashes("[form_shortcode id='".$intQueryID."']")."%') AND post_type != 'revision'");
 
-							$post_edit_url = "/wp-admin/post.php?post=".$post_id."&action=edit";
-							$post_url = get_permalink($r);
+							$i = 0;
 
-							if($i > 0)
+							foreach($result as $r)
 							{
-								echo " | ";
+								$post_id = $r->ID;
+								$post_type = $r->post_type;
+
+								$post_edit_url = "/wp-admin/post.php?post=".$post_id."&action=edit";
+								$post_url = get_permalink($r);
+
+								if($i > 0)
+								{
+									echo " | ";
+								}
+
+								echo "<a href='".$post_edit_url."' class='icon-edit'></a> <a href='".$post_url."' class='icon-globe'></a>";
+
+								$i++;
 							}
 
-							echo "<a href='".$post_edit_url."' class='icon-edit'></a> <a href='".$post_url."' class='icon-globe'></a>";
+						echo "</td>
+						<td><a href='?page=mf_form/answer/index.php&intQueryID=".$intQueryID."'>".$intQueryTotal."</a></td>";
 
-							$i++;
-						}
+						//<td>".($dteQueryDeadline > "1982-08-04 23:15:00" ? $dteQueryDeadline : "")."</td>
 
-					echo "</td>
-					<td><a href='?page=mf_form/answer/index.php&intQueryID=".$intQueryID."'>".$intQueryTotal."</a></td>";
+						echo "<td>";
 
-					//<td>".($dteQueryDeadline > "1982-08-04 23:15:00" ? $dteQueryDeadline : "")."</td>
+							if($intQueryTotal > 0)
+							{
+								echo "<a href='?page=mf_form/list/index.php&btnQueryExport&intQueryID=".$intQueryID."' class='icon-table'></a>";
+							}
 
-					echo "<td>";
+						echo "</td>
+						<td>
+							<a href='?page=mf_form/list/index.php&btnQueryCopy&intQueryID=".$intQueryID."' class='icon-copy'></a>
+						</td>
+						<td>
+							<a href='?page=mf_form/create/index.php&intQueryID=".$intQueryID."' class='icon-edit'></a>
+						</td>
+						<td>
+							<a href='#delete/query/".$intQueryID."' class='ajax_link confirm_link icon-trash'></a>
+						</td>
+					</tr>";
 
-						if($intQueryTotal > 0)
-						{
-							echo "<a href='?page=mf_form/list/index.php&btnQueryExport&intQueryID=".$intQueryID."' class='icon-table'></a>";
-						}
-
-					echo "</td>
-					<td>
-						<a href='?page=mf_form/list/index.php&btnQueryCopy&intQueryID=".$intQueryID."' class='icon-copy'></a>
-					</td>
-					<td>
-						<a href='?page=mf_form/create/index.php&intQueryID=".$intQueryID."' class='icon-edit'></a>
-					</td>
-					<td>
-						<a href='#delete/query/".$intQueryID."' class='ajax_link confirm_link icon-trash'></a>
-					</td>
-				</tr>";
+					$i++;
+				}
 			}
-		}
 
-	echo "</table>";
+		echo "</tbody>
+	</table>";
 }

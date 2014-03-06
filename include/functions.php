@@ -566,16 +566,18 @@ function get_file_content($data)
 ########################################
 function show_table_header($arr_header)
 {
-	$out = "<tr>";
+	$out = "<thead>
+		<tr>";
 
-		$count_temp = count($arr_header);
+			$count_temp = count($arr_header);
 
-		for($i = 0; $i < $count_temp; $i++)
-		{
-			$out .= "<th>".$arr_header[$i]."</th>";
-		}
+			for($i = 0; $i < $count_temp; $i++)
+			{
+				$out .= "<th>".$arr_header[$i]."</th>";
+			}
 
-	$out .= "</tr>";
+		$out .= "</tr>
+	</thead>";
 
 	return $out;
 }
