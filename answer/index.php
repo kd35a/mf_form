@@ -83,7 +83,7 @@ if($intTotalAnswers > 0 && $rows > 0)
 	//echo get_poll_results(array('query_id' => $intQueryID));
 }
 
-echo "<table class='widefat fixed'>"; //table_list
+echo "<table class='widefat fixed'>";
 
 	$result = $wpdb->get_results("SELECT queryTypeID, queryTypeText, query2TypeID FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC");
 

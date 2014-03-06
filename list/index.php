@@ -216,7 +216,7 @@ else
 	}
 
 	echo "<h1>All Forms</h1>
-	<table class='widefat fixed'>"; //table_list
+	<table class='widefat fixed'>";
 
 		$arr_header[] = "Name";
 		$arr_header[] = "Shortcode";
