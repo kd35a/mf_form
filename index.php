@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Forms
-Version: 1.5.0
+Version: 1.5.1
 Author: Martin Fors
 Author URI: www.martinfors.se
 */

@@ -83,191 +83,193 @@ if($intTotalAnswers > 0 && $rows > 0)
 	//echo get_poll_results(array('query_id' => $intQueryID));
 }
 
-echo "<table class='widefat fixed'>";
+echo "<div class='wrap'>
+	<table class='widefat fixed'>";
 
-	$result = $wpdb->get_results("SELECT queryTypeID, queryTypeText, query2TypeID FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC");
+		$result = $wpdb->get_results("SELECT queryTypeID, queryTypeText, query2TypeID FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC");
 
-	foreach($result as $r)
-	{
-		$intQueryTypeID = $r->queryTypeID;
-		$strQueryTypeText = $r->queryTypeText;
-		$intQuery2TypeID2 = $r->query2TypeID;
-
-		if($intQueryTypeID == 2)
+		foreach($result as $r)
 		{
-			list($strQueryTypeText, $rest) = explode("|", $strQueryTypeText);
-		}
+			$intQueryTypeID = $r->queryTypeID;
+			$strQueryTypeText = $r->queryTypeText;
+			$intQuery2TypeID2 = $r->query2TypeID;
 
-		else if($intQueryTypeID == 8)
-		{
-			$intAnswerCount = $wpdb->get_var("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '".$intQueryID."' AND queryTypeID = '8' AND query2TypeID = '".$intQuery2TypeID2."'");
-
-			$strQueryTypeText .= " (".$intAnswerCount.")";
-		}
-
-		else if($intQueryTypeID == 10 || $intQueryTypeID == 11)
-		{
-			list($strQueryTypeText, $rest) = explode(":", $strQueryTypeText);
-		}
-
-		$arr_header[] = $strQueryTypeText;
-	}
-
-	$arr_header[] = "Created";
-	//$arr_header[] = "";
-	$arr_header[] = "IP";
-	$arr_header[] = "";
-
-	echo show_table_header($arr_header)
-	."<tbody>";
-
-		$result = $wpdb->get_results("SELECT answerID, queryID, answerCreated, answerIP FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '".$intQueryID."'".$strQuerySearch." GROUP BY answerID ORDER BY answerCreated DESC");
-		$rows = count($result);
-
-		$i = 0;
-
-		if($rows > 0)
-		{
-			foreach($result as $r)
+			if($intQueryTypeID == 2)
 			{
-				$intAnswerID = $r->answerID;
-				$intQueryID = $r->queryID;
-				$strAnswerCreated = $r->answerCreated;
-				$strAnswerIP = $r->answerIP;
+				list($strQueryTypeText, $rest) = explode("|", $strQueryTypeText);
+			}
 
-				echo "<tr id='answer_".$intAnswerID."'".($i % 2 == 0 ? " class='alternate'" : "").">";
+			else if($intQueryTypeID == 8)
+			{
+				$intAnswerCount = $wpdb->get_var("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '".$intQueryID."' AND queryTypeID = '8' AND query2TypeID = '".$intQuery2TypeID2."'");
 
-					$resultText = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC");
+				$strQueryTypeText .= " (".$intAnswerCount.")";
+			}
 
-					foreach($resultText as $r)
-					{
-						$intQuery2TypeID = $r->query2TypeID;
-						$intQueryTypeID = $r->queryTypeID;
-						$strQueryTypeText = $r->queryTypeText;
-						$strCheckCode = $r->checkCode;
+			else if($intQueryTypeID == 10 || $intQueryTypeID == 11)
+			{
+				list($strQueryTypeText, $rest) = explode(":", $strQueryTypeText);
+			}
 
-						$value = 0;
-						$xtra = "";
+			$arr_header[] = $strQueryTypeText;
+		}
 
-						$resultAnswer = $wpdb->get_results("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE query2TypeID = '".$intQuery2TypeID."' AND answerID = '".$intAnswerID."'");
-						$rowsAnswer = count($resultAnswer);
+		$arr_header[] = "Created";
+		//$arr_header[] = "";
+		$arr_header[] = "IP";
+		$arr_header[] = "";
 
-						if($rowsAnswer > 0)
+		echo show_table_header($arr_header)
+		."<tbody>";
+
+			$result = $wpdb->get_results("SELECT answerID, queryID, answerCreated, answerIP FROM ".$wpdb->base_prefix."query2answer INNER JOIN ".$wpdb->base_prefix."query_answer USING (answerID) WHERE queryID = '".$intQueryID."'".$strQuerySearch." GROUP BY answerID ORDER BY answerCreated DESC");
+			$rows = count($result);
+
+			$i = 0;
+
+			if($rows > 0)
+			{
+				foreach($result as $r)
+				{
+					$intAnswerID = $r->answerID;
+					$intQueryID = $r->queryID;
+					$strAnswerCreated = $r->answerCreated;
+					$strAnswerIP = $r->answerIP;
+
+					echo "<tr id='answer_".$intAnswerID."'".($i % 2 == 0 ? " class='alternate'" : "").">";
+
+						$resultText = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText, checkCode FROM ".$wpdb->base_prefix."query_check RIGHT JOIN ".$wpdb->base_prefix."query2type USING (checkID) INNER JOIN ".$wpdb->base_prefix."query_type USING (queryTypeID) WHERE queryID = '".$intQueryID."' AND queryTypeResult = '1' ORDER BY query2TypeOrder ASC");
+
+						foreach($resultText as $r)
 						{
-							if($intQueryTypeID == 8)
+							$intQuery2TypeID = $r->query2TypeID;
+							$intQueryTypeID = $r->queryTypeID;
+							$strQueryTypeText = $r->queryTypeText;
+							$strCheckCode = $r->checkCode;
+
+							$value = 0;
+							$xtra = "";
+
+							$resultAnswer = $wpdb->get_results("SELECT answerText FROM ".$wpdb->base_prefix."query_answer WHERE query2TypeID = '".$intQuery2TypeID."' AND answerID = '".$intAnswerID."'");
+							$rowsAnswer = count($resultAnswer);
+
+							if($rowsAnswer > 0)
 							{
-								$strAnswerText = 1;
-							}
-
-							else
-							{
-								$r = $resultAnswer[0];
-								$strAnswerText = $r->answerText;
-
-								if($intQueryTypeID == 7)
+								if($intQueryTypeID == 8)
 								{
-									$strAnswerText = wp_date_format($strAnswerText);
-								}
-
-								else if($intQueryTypeID == 10)
-								{
-									$arr_content1 = explode(":", $strQueryTypeText);
-									$arr_content2 = explode(",", $arr_content1[1]);
-
-									foreach($arr_content2 as $str_content)
-									{
-										$arr_content3 = explode("|", $str_content);
-
-										if($strAnswerText == $arr_content3[0])
-										{
-											$strAnswerText = $arr_content3[1];
-										}
-									}
-								}
-
-								else if($intQueryTypeID == 11)
-								{
-									$arr_content1 = explode(":", $strQueryTypeText);
-									$arr_content2 = explode(",", $arr_content1[1]);
-
-									$arr_answer_text = explode(",", $strAnswerText);
-
-									$strAnswerText = "";
-
-									foreach($arr_content2 as $str_content)
-									{
-										$arr_content3 = explode("|", $str_content);
-
-										if(in_array($arr_content3[0], $arr_answer_text))
-										{
-											$strAnswerText .= ($strAnswerText != '' ? ", " : "").$arr_content3[1];
-										}
-									}
+									$strAnswerText = 1;
 								}
 
 								else
 								{
-									if($strCheckCode != '')
-									{
-										if($strCheckCode == "url")
-										{
-											$strAnswerText = "<a href='".$strAnswerText."' rel='external'>".$strAnswerText."</a>";
-										}
+									$r = $resultAnswer[0];
+									$strAnswerText = $r->answerText;
 
-										else if($strCheckCode == "email")
+									if($intQueryTypeID == 7)
+									{
+										$strAnswerText = wp_date_format($strAnswerText);
+									}
+
+									else if($intQueryTypeID == 10)
+									{
+										$arr_content1 = explode(":", $strQueryTypeText);
+										$arr_content2 = explode(",", $arr_content1[1]);
+
+										foreach($arr_content2 as $str_content)
 										{
-											$strAnswerText = "<a href='mailto:".$strAnswerText."'>".$strAnswerText."</a>";
+											$arr_content3 = explode("|", $str_content);
+
+											if($strAnswerText == $arr_content3[0])
+											{
+												$strAnswerText = $arr_content3[1];
+											}
+										}
+									}
+
+									else if($intQueryTypeID == 11)
+									{
+										$arr_content1 = explode(":", $strQueryTypeText);
+										$arr_content2 = explode(",", $arr_content1[1]);
+
+										$arr_answer_text = explode(",", $strAnswerText);
+
+										$strAnswerText = "";
+
+										foreach($arr_content2 as $str_content)
+										{
+											$arr_content3 = explode("|", $str_content);
+
+											if(in_array($arr_content3[0], $arr_answer_text))
+											{
+												$strAnswerText .= ($strAnswerText != '' ? ", " : "").$arr_content3[1];
+											}
+										}
+									}
+
+									else
+									{
+										if($strCheckCode != '')
+										{
+											if($strCheckCode == "url")
+											{
+												$strAnswerText = "<a href='".$strAnswerText."' rel='external'>".$strAnswerText."</a>";
+											}
+
+											else if($strCheckCode == "email")
+											{
+												$strAnswerText = "<a href='mailto:".$strAnswerText."'>".$strAnswerText."</a>";
+											}
 										}
 									}
 								}
 							}
-						}
-
-						else
-						{
-							$strAnswerText = "";
-						}
-
-						echo "<td>";
-
-							if($strAnswerText == 1)
-							{
-								echo $strAnswerText;
-							}
 
 							else
 							{
-								if($value == 2)
-								{
-									echo "<span class='red'>";
-								}
-
-								else if($value == 1)
-								{
-									echo "<span class='green'>";
-								}
-
-									echo $strAnswerText;
-
-								if($value > 0)
-								{
-									echo "</span>";
-								}
+								$strAnswerText = "";
 							}
 
-						echo "</td>";
-					}
+							echo "<td>";
 
-					echo "<td>".wp_date_format($strAnswerCreated, true)."</td>
-					<td>".$strAnswerIP."</td>
-					<td>
-						<a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link icon-trash'></a>
-					</td>
-				</tr>";
+								if($strAnswerText == 1)
+								{
+									echo $strAnswerText;
+								}
 
-				$i++;
+								else
+								{
+									if($value == 2)
+									{
+										echo "<span class='red'>";
+									}
+
+									else if($value == 1)
+									{
+										echo "<span class='green'>";
+									}
+
+										echo $strAnswerText;
+
+									if($value > 0)
+									{
+										echo "</span>";
+									}
+								}
+
+							echo "</td>";
+						}
+
+						echo "<td>".wp_date_format($strAnswerCreated, true)."</td>
+						<td>".$strAnswerIP."</td>
+						<td>
+							<a href='#delete/answer/".$intAnswerID."' class='ajax_link confirm_link icon-trash'></a>
+						</td>
+					</tr>";
+
+					$i++;
+				}
 			}
-		}
 
-	echo "</tbody>
-</table>";
+		echo "</tbody>
+	</table>
+</div>";
