@@ -610,9 +610,9 @@ function get_poll_results($data)
 
 	$out = "";
 
-	$intTotalAnswers = $wpdb->get_var("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '".$data['query_id']."' AND queryTypeID = '8'");
+	//$intTotalAnswers = $wpdb->get_var("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '".$data['query_id']."' AND queryTypeID = '8'");
 
-	$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type WHERE queryID = '".$data['query_id']."' AND (queryTypeID = '5' OR queryTypeID = '8') ORDER BY query2TypeOrder ASC, query2TypeCreated ASC"); // OR queryTypeID = '6'
+	$result = $wpdb->get_results("SELECT query2TypeID, queryTypeID, queryTypeText FROM ".$wpdb->base_prefix."query2type WHERE queryID = '".$data['query_id']."' AND (queryTypeID = '5' OR queryTypeID = '8') ORDER BY query2TypeOrder ASC, query2TypeCreated ASC");
 	$intTotalRows = count($result);
 
 	if($intTotalRows > 0)
@@ -629,7 +629,7 @@ function get_poll_results($data)
 				{
 					$intAnswerCount = $wpdb->get_var("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '".$data['query_id']."' AND queryTypeID = '8' AND query2TypeID = '".$intQuery2TypeID2."'");
 
-					$intAnswerPercent = round($intAnswerCount / $intTotalAnswers * 100);
+					$intAnswerPercent = round($intAnswerCount / $data['total_answers'] * 100);
 
 					$out .= "<div style='width: ".$intAnswerPercent."%'>&nbsp;</div>";
 				}
@@ -890,11 +890,13 @@ function show_query_form($data)
 
 	$dup_ip = check_if_duplicate(array('query_id' => $data['query_id'], 'deny_dups' => $intQueryDenyDups));
 
-	if($data['sent'] == true || $dup_ip == true)
+	if($data['edit'] == false && ($data['sent'] == true || $dup_ip == true))
 	{
 		$out .= "<div class='mf_form mf_form_results'>";
 
-			if($intQueryShowAnswers == 1)
+			$data['total_answers'] = $wpdb->get_var("SELECT COUNT(answerID) FROM ".$wpdb->base_prefix."query2type INNER JOIN ".$wpdb->base_prefix."query_answer USING (query2TypeID) WHERE queryID = '".$data['query_id']."' AND queryTypeID = '8'");
+
+			if($intQueryShowAnswers == 1 && $data['total_answers'] > 0)
 			{
 				$out .= get_poll_results($data);
 			}

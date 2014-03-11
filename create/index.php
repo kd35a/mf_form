@@ -356,12 +356,30 @@ echo "<form method='post' action='' class='mf_form'>
 		.show_textfield('strQueryEmailName', "Subject", $strQueryEmailName, 100)
 		."<h2>Language</h2>"
 		.show_textfield('strQueryMandatoryText', "Mandatory field", $strQueryMandatoryText, 100, 0, false, '', "You have to enter all mandatory fields")
-		.show_textfield('strQueryButtonText', "Button text", $strQueryButtonText, 100, 0, false, '', "Send")
-		."<h2>Settings</h2>"
-		.show_checkbox(array('name' => 'intQueryDenyDups', 'text' => "Deny duplicates", 'value' => 1, 'compare' => $intQueryDenyDups))
-		.show_checkbox(array('name' => 'intQueryShowAnswers', 'text' => "Show answers", 'value' => 1, 'compare' => $intQueryShowAnswers))
-		.show_checkbox(array('name' => 'intQueryEncrypted', 'text' => "Encrypted", 'value' => 1, 'compare' => $intQueryEncrypted))
-	."</div>
+		.show_textfield('strQueryButtonText', "Button text", $strQueryButtonText, 100, 0, false, '', "Send");
+
+		if($intQueryID > 0)
+		{
+			echo "<h2>Settings</h2>"
+			.show_checkbox(array('name' => 'intQueryDenyDups', 'text' => "Deny duplicates", 'value' => 1, 'compare' => $intQueryDenyDups));
+
+			$intNotPollContent = $wpdb->get_var("SELECT COUNT(query2TypeID) FROM ".$wpdb->base_prefix."query2type WHERE queryID = '".$intQueryID."' AND queryTypeID != '5' AND queryTypeID != '8' LIMIT 0, 1");
+
+			if($intNotPollContent == 0)
+			{
+				echo show_checkbox(array('name' => 'intQueryShowAnswers', 'text' => "Show answers", 'value' => 1, 'compare' => $intQueryShowAnswers));
+			}
+
+			//If not set it will turn out as 0 when inserting into DB
+			/*else
+			{
+				echo input_hidden('intQueryShowAnswers', 0);
+			}*/
+
+			echo show_checkbox(array('name' => 'intQueryEncrypted', 'text' => "Encrypted", 'value' => 1, 'compare' => $intQueryEncrypted));
+		}
+
+	echo "</div>
 	<div class='clear'></div>"
 	.show_submit('btnQueryCreate', ($intQueryID > 0 ? "Update" : "Add"))
 	.input_hidden('intQueryID', $intQueryID)

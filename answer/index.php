@@ -80,7 +80,7 @@ if($intTotalAnswers > 0 && $rows > 0)
 		});
 	</script>";
 
-	//echo get_poll_results(array('query_id' => $intQueryID));
+	//echo get_poll_results(array('query_id' => $intQueryID, 'total_answers' => "?"));
 }
 
 echo "<div class='wrap'>

@@ -80,7 +80,7 @@
     
             .mf_form .form_checkbox label, .mf_form .form_radio label
             {
-                display: inline-block;
+                display: inline/*-block*/;
             }
     
             .mf_form .form_checkbox input, .mf_form .form_radio input
