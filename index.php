@@ -1,10 +1,12 @@
 <?php
 /*
-Plugin Name: Forms
-Version: 1.5.1
-Author: Martin Fors
-Author URI: www.martinfors.se
-*/
+ * Plugin Name: Forms
+ * Plugin URI: https://github.com/frostkom/mf_form
+ * Description: A Wordpress form creator
+ * Version: 1.5.1
+ * Author: Martin Fors
+ * Author URI: www.martinfors.se
+ */
 
 /* External */
 add_shortcode('mf_form', 'form_shortcode');
